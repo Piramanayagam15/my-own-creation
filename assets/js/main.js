@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ].filter(Boolean);
 
       const text = encodeURIComponent(textLines.join("\n"));
-      const phoneNumber = "910000000000"; // Replace with your WhatsApp number (without +)
+      const phoneNumber = "919363475796"; // Replace with your WhatsApp number (without +)
       const waUrl = `https://wa.me/${phoneNumber}?text=${text}`;
       window.open(waUrl, "_blank");
     });
