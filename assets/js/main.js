@@ -98,9 +98,15 @@ document.addEventListener("DOMContentLoaded", () => {
         hasError = true;
       }
 
-      if (!email || !email.includes("@")) {
-        setError("email", "Please enter a valid email address.");
+      if (!email) {
+        setError("email", "Please enter your email address.");
         hasError = true;
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          setError("email", "Please enter a valid email address (example@domain.com).");
+          hasError = true;
+        }
       }
 
       if (!date) {
