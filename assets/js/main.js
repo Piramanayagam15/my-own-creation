@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lightboxImg.classList.remove("placeholder-img");
       } else {
         // Fallback to placeholder gradient if no image is present
-        lightboxImg.style.backgroundImage = "";
+        lightboxImg.style.removeProperty("background-image");
         lightboxImg.classList.add("placeholder-img");
       }
 
@@ -116,10 +116,11 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-          setError("email", "Please enter a valid email address (example@domain.com).");
+          setError("email", "Please enter a valid email address (1508apiramanayagam@gmail.com.com).");
           hasError = true;
         }
       }
+      
 
       if (!date) {
         setError("date", "Please choose your preferred date.");
