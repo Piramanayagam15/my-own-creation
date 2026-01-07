@@ -81,9 +81,20 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// API endpoint to get all bookings (for admin - you can add authentication later)
+// API endpoint to get all bookings (admin only - protected with token)
+// NOTE: Set ADMIN_TOKEN in your .env file and include it as `x-admin-token` header in requests.
 app.get('/api/bookings', async (req, res) => {
   try {
+    const adminToken = process.env.ADMIN_TOKEN;
+    const providedToken = req.headers['x-admin-token'];
+
+    if (!adminToken || providedToken !== adminToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
     const [rows] = await pool.execute(
       'SELECT * FROM bookings ORDER BY created_at DESC'
     );
