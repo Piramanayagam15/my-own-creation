@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-          setError("email", "Please enter a valid email address (1508apiramanayagam@gmail.com).");
+          setError("email", "Please enter a valid email address (example@domain.com).");
           hasError = true;
         }
       }
