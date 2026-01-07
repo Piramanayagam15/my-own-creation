@@ -32,6 +32,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!figure) return;
 
       const caption = figure.querySelector("figcaption");
+      const imageEl = figure.querySelector("img");
+
+      // Update lightbox image
+      if (imageEl && imageEl.src) {
+        lightboxImg.style.backgroundImage = `url('${imageEl.src}')`;
+        lightboxImg.classList.remove("placeholder-img");
+      } else {
+        // Fallback to placeholder gradient if no image is present
+        lightboxImg.style.backgroundImage = "";
+        lightboxImg.classList.add("placeholder-img");
+      }
+
       lightbox.classList.add("show");
       lightboxCaption.textContent = caption ? caption.textContent : "";
     });
@@ -104,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-          setError("email", "Please enter a valid email address (example@domain.com).");
+          setError("email", "Please enter a valid email address (1508apiramanayagam@gmail.com).");
           hasError = true;
         }
       }
