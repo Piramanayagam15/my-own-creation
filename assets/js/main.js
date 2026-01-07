@@ -126,11 +126,54 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      formStatus.textContent =
-        "Thank you for your enquiry! We will contact you shortly.";
-      formStatus.classList.remove("error");
-      formStatus.classList.add("success");
-      contactForm.reset();
+      // Disable submit button to prevent double submission
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+
+      // Send data to backend API
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          date,
+          service,
+          message
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          formStatus.textContent = data.message || 
+            "Thank you for your enquiry! We will contact you shortly.";
+          formStatus.classList.remove("error");
+          formStatus.classList.add("success");
+          contactForm.reset();
+        } else {
+          formStatus.textContent = data.message || 
+            "Something went wrong. Please try again or contact us directly.";
+          formStatus.classList.remove("success");
+          formStatus.classList.add("error");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        formStatus.textContent = 
+          "Network error. Please check your connection and try again, or contact us directly.";
+        formStatus.classList.remove("success");
+        formStatus.classList.add("error");
+      })
+      .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      });
     });
   }
 
