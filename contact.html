@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="theme-color" content="#047857" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AK Bridals | Contact</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+
+<body>
+  <!-- Background Animated Ambient Light Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">AK Bridals</a>
+      <nav class="nav" id="mainNav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="services.html" class="nav-link">Services</a>
+        <a href="gallery.html" class="nav-link">Gallery</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link active">Contact</a>
+        <a href="contact.html" class="btn btn-primary nav-cta">Book Now</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container reveal-on-scroll">
+        <div class="section-tag">Bookings &amp; Inquiries</div>
+        <h1>Contact &amp; Bookings</h1>
+        <p>
+          Share your event details and we’ll get in touch to plan your perfect
+          bridal experience.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-grid">
+        <div class="intro-highlight reveal-on-scroll">
+          <h2>Get in Touch</h2>
+          <p>
+            We’re happy to answer your questions about bridal packages,
+            availability, and training programs.
+          </p>
+          <ul class="contact-info">
+            <li>
+              <strong>📞 Phone:</strong>
+              <a href="tel:+918190913110">+91 8190913110</a>
+            </li>
+            <li>
+              <strong>✉️ Email:</strong>
+              <a href="mailto:1508apiramanayagam@gmail.com">1508apiramanayagam@gmail.com</a>
+            </li>
+            <li>
+              <strong>📍 Service Area:</strong>
+              Tamil Nadu &amp; On-Location Destination Weddings
+            </li>
+          </ul>
+        </div>
+        <div class="reveal-on-scroll">
+          <h2>Booking Form</h2>
+          <form id="contactForm" class="contact-form" novalidate>
+            <div class="form-row">
+              <label for="name">Full Name *</label>
+              <input type="text" id="name" name="name" placeholder="Enter your full name" required />
+              <p class="field-error" data-error-for="name"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" id="phone" name="phone" placeholder="+91 XXXXX XXXXX" required />
+              <p class="field-error" data-error-for="phone"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" name="email" placeholder="you@example.com" required />
+              <p class="field-error" data-error-for="email"></p>
+            </div>
+
+            <div class="form-row date-form-row">
+              <div class="date-label-row">
+                <label for="date">Preferred Event Date *</label>
+                <span class="date-availability-badge" id="dateAvailabilityBadge"></span>
+              </div>
+              <input type="date" id="date" name="date" required />
+              <div class="date-availability-status" id="dateAvailabilityStatus"></div>
+              <p class="field-error" data-error-for="date"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="service">Service Interested In *</label>
+              <select id="service" name="service" required>
+                <option value="">Select a service</option>
+                <option value="Bridal Makeup">Bridal Makeup (HD / Airbrush)</option>
+                <option value="Mehndi (Henna)">Mehndi (Bridal Henna)</option>
+                <option value="Aari Embroidery">Aari Embroidery Blouse</option>
+                <option value="Blouse Designing">Custom Blouse Designing</option>
+                <option value="Hair Styling &amp; Draping">
+                  Hair Styling &amp; Saree Draping
+                </option>
+                <option value="Complete Grand Bridal Package">
+                  Complete Grand Bridal Package
+                </option>
+                <option value="Training / Tutorials">
+                  Professional Academy Masterclass
+                </option>
+                <option value="Other">Other Custom Service</option>
+              </select>
+              <p class="field-error" data-error-for="service"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="message">Message / Event Details *</label>
+              <textarea id="message" name="message" rows="4"
+                placeholder="Tell us about your wedding/event date, venue, timings and looks required..."
+                required></textarea>
+              <p class="field-error" data-error-for="message"></p>
+            </div>
+
+            <div class="booking-btn-row">
+              <button type="submit" class="btn btn-primary btn-glow" id="bookNowSubmitBtn">
+                ✨ Book Now
+              </button>
+              <button type="button" id="whatsappBtn" class="btn btn-secondary whatsapp-enquire-btn">
+                💬 Enquire via WhatsApp
+              </button>
+            </div>
+
+            <p class="form-status" id="formStatus" role="status"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Booking Confirmation Modal -->
+  <div class="booking-success-modal" id="bookingSuccessModal" aria-hidden="true">
+    <div class="modal-backdrop" id="bookingSuccessBackdrop"></div>
+    <div class="booking-success-card">
+      <button class="modal-close-btn" id="closeBookingSuccessBtn" aria-label="Close modal">×</button>
+      <div class="success-icon-wrap">🎉</div>
+      <h3>Booking Request Received!</h3>
+      <p class="success-subtitle">Thank you for choosing AK Bridals for your special day.</p>
+
+      <div class="booking-summary-box">
+        <div class="summary-row">
+          <span>Booking ID:</span>
+          <strong id="confirmBookingId">#AKB-PENDING</strong>
+        </div>
+        <div class="summary-row">
+          <span>Customer Name:</span>
+          <strong id="confirmCustomerName">-</strong>
+        </div>
+        <div class="summary-row">
+          <span>Event Date:</span>
+          <strong id="confirmEventDate">-</strong>
+        </div>
+        <div class="summary-row">
+          <span>Service:</span>
+          <strong id="confirmService">-</strong>
+        </div>
+        <div class="summary-row">
+          <span>Status:</span>
+          <span class="status-pill status-pending">⏳ Slot Reserved (Pending Confirmation)</span>
+        </div>
+      </div>
+
+      <p class="success-note">We will review your date availability and contact you within 2 hours to confirm your
+        booking.</p>
+
+      <div class="success-actions">
+        <button type="button" class="btn btn-primary btn-glow" id="sendConfirmWhatsAppBtn">
+          📲 Send Details on WhatsApp
+        </button>
+        <button type="button" class="btn btn-secondary" id="dismissBookingSuccessBtn">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Live Quick Contact Bubble -->
+  <aside class="floating-quick-action" id="floatingQuickAction">
+    <a href="https://wa.me/918190913110?text=Hi%20AK%20Bridals,%20I%20would%20like%20to%20enquire%20about%20bridal%20services"
+      target="_blank" rel="noopener noreferrer" class="fab-btn" title="Chat on WhatsApp">
+      <span class="fab-pulse"></span>
+      <span class="fab-icon">💬</span>
+      <span class="fab-tooltip">Chat with us!</span>
+    </a>
+  </aside>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <p class="footer-brand">AK Bridals</p>
+        <p class="footer-text">
+          Where tradition, elegance, and artistry come together for your most
+          special moments.
+        </p>
+      </div>
+      <div class="footer-links">
+        <a href="tel:+918190913110">Phone: +91 8190913110</a>
+        <a href="mailto:1508apiramanayagam@gmail.com">Email: 1508apiramanayagam@gmail.com</a>
+        <a href="admin.html" style="opacity: 0.6; font-size: 0.85rem;">🔒 Admin Portal</a>
+      </div>
+      <p class="footer-copy">
+        © <span id="year"></span> AK Bridals. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+
+</html>

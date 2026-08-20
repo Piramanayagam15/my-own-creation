@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="theme-color" content="#047857" />
+    <title>AK Bridals | Admin Management Portal</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <style>
+      /* Admin Portal Specific Glassmorphic Styling - Emerald Velvet & 24K Gold */
+      .admin-body {
+        min-height: 100vh;
+        background: radial-gradient(circle at 10% 20%, rgba(4, 120, 87, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
+                    #022c22;
+        color: #f3f4f6;
+        font-family: inherit;
+        padding-bottom: 60px;
+      }
+
+      .admin-header {
+        background: rgba(2, 44, 34, 0.92);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(5, 150, 105, 0.35);
+        padding: 18px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .admin-header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .admin-badge {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #fde047;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(254, 240, 138, 0.4);
+      }
+
+      .admin-auth-card {
+        max-width: 420px;
+        margin: 80px auto 40px;
+        padding: 36px 30px;
+        background: rgba(6, 78, 59, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1.5px solid rgba(5, 150, 105, 0.45);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      }
+
+      .admin-auth-card h2 {
+        margin-bottom: 8px;
+        color: #fde047;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 24px 0 32px;
+      }
+
+      .stat-card {
+        background: rgba(6, 78, 59, 0.5);
+        border: 1px solid rgba(5, 150, 105, 0.25);
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(16, 185, 129, 0.6);
+      }
+
+      .stat-card .stat-icon {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+      }
+
+      .stat-card .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #fde047;
+        line-height: 1;
+        margin: 6px 0;
+      }
+
+      .stat-card .stat-label {
+        font-size: 0.85rem;
+        color: #a7f3d0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .control-bar {
+        background: rgba(6, 78, 59, 0.45);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(5, 150, 105, 0.25);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 240px;
+        position: relative;
+      }
+
+      .search-box input {
+        width: 100%;
+        background: rgba(2, 44, 34, 0.85);
+        border: 1px solid rgba(5, 150, 105, 0.35);
+        color: #f3f4f6;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .search-box input:focus {
+        border-color: #10b981;
+        outline: none;
+      }
+
+      .filter-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .filter-select {
+        background: rgba(2, 44, 34, 0.85);
+        border: 1px solid rgba(5, 150, 105, 0.35);
+        color: #f3f4f6;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+
+      .table-container {
+        background: rgba(6, 78, 59, 0.45);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(5, 150, 105, 0.25);
+        border-radius: 14px;
+        overflow-x: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.92rem;
+      }
+
+      .admin-table th {
+        background: rgba(2, 44, 34, 0.95);
+        color: #fde047;
+        font-weight: 600;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(5, 150, 105, 0.35);
+        white-space: nowrap;
+      }
+
+      .admin-table td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        vertical-align: middle;
+      }
+
+      .admin-table tr:hover td {
+        background: rgba(5, 150, 105, 0.1);
+      }
+
+      .client-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .client-name {
+        font-weight: 700;
+        color: #fff;
+        font-size: 1rem;
+      }
+
+      .client-contact a {
+        color: #a7f3d0;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.2s;
+      }
+
+      .client-contact a:hover {
+        color: #fde047;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      .status-pending { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+      .status-contacted { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+      .status-confirmed { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+      .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+      .action-btns {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-whatsapp {
+        background: #25D366;
+        color: #fff;
+      }
+      .btn-whatsapp:hover {
+        background: #1eb857;
+      }
+
+      .btn-call {
+        background: #3b82f6;
+        color: #fff;
+      }
+      .btn-call:hover {
+        background: #2563eb;
+      }
+
+      .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
+      .btn-delete:hover {
+        background: #ef4444;
+        color: #fff;
+      }
+
+      .status-select-inline {
+        background: rgba(2, 44, 34, 0.9);
+        color: #f3f4f6;
+        border: 1px solid rgba(5, 150, 105, 0.4);
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+
+      .empty-notice {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+      }
+
+      .empty-notice span {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .admin-tab-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 12px;
+      }
+
+      .admin-tab-btn {
+        background: rgba(6, 78, 59, 0.5);
+        border: 1px solid rgba(5, 150, 105, 0.3);
+        color: #cbd5e1;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .admin-tab-btn:hover {
+        color: #fde047;
+        border-color: rgba(16, 185, 129, 0.6);
+      }
+
+      .admin-tab-btn.active {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #ffffff;
+        border-color: #fde047;
+        box-shadow: 0 4px 15px rgba(4, 120, 87, 0.45);
+      }
+
+      /* Admin Review Edit Modal */
+      .admin-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 500;
+        padding: 1rem;
+      }
+
+      .admin-modal.show {
+        display: flex;
+      }
+
+      .admin-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+      }
+
+      .admin-modal-card {
+        position: relative;
+        background: #064e3b;
+        border: 1.5px solid rgba(5, 150, 105, 0.5);
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        z-index: 501;
+      }
+    </style>
+  </head>
+  <body class="admin-body">
+    <!-- Ambient Light Glow Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <header class="admin-header">
+      <div class="container admin-header-inner">
+        <div class="admin-brand">
+          <a href="index.html" class="logo" style="margin-bottom: 0;">AK Bridals</a>
+          <span class="admin-badge">Admin Portal</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <a href="index.html" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">🌐 View Website</a>
+          <button id="logoutBtn" class="btn btn-secondary" style="display: none; padding: 6px 14px; font-size: 0.85rem; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px;">
+      <!-- 1. Authentication Screen (Hidden when logged in) -->
+      <section id="authSection" class="admin-auth-card">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">👑</div>
+        <h2>Admin Authentication</h2>
+        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 24px;">
+          Enter your secure Admin PIN or Token to access the bridal bookings and reviews database.
+        </p>
+        <form id="adminLoginForm">
+          <div class="form-row" style="text-align: left; margin-bottom: 16px;">
+            <label for="adminTokenInput">Admin PIN / Token</label>
+            <input type="password" id="adminTokenInput" placeholder="Enter PIN (Default: akbridals2026)" required style="width: 100%;" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-glow" style="width: 100%;">
+            Unlock Dashboard 🔓
+          </button>
+          <p id="loginError" style="color: #f87171; font-size: 0.85rem; margin-top: 12px; display: none;"></p>
+        </form>
+      </section>
+
+      <!-- 2. Main Dashboard (Visible after login) -->
+      <section id="dashboardSection" style="display: none;">
+        <!-- Tab Navigation Bar -->
+        <div class="admin-tab-bar">
+          <button id="tabBookingsBtn" class="admin-tab-btn active">
+            📋 Customer Bookings
+          </button>
+          <button id="tabReviewsBtn" class="admin-tab-btn">
+            ⭐ Customer Reviews &amp; Ratings
+          </button>
+        </div>
+
+        <!-- ==============================================
+             VIEW 1: CUSTOMER BOOKINGS & ENQUIRIES
+             ============================================== -->
+        <div id="viewBookings">
+          <!-- Header welcome & metrics -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div class="section-tag" style="margin-bottom: 4px;">Live Bookings Database</div>
+              <h1 style="font-size: 1.8rem; margin-bottom: 0;">Enquiries &amp; Orders Overview</h1>
+            </div>
+            <div>
+              <button id="refreshBtn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">🔄 Refresh Data</button>
+              <button id="exportCsvBtn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">📥 Export to CSV</button>
+            </div>
+          </div>
+
+          <!-- KPI Metrics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📋</div>
+              <div class="stat-number" id="statTotal">0</div>
+              <div class="stat-label">Total Enquiries</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #facc15;">
+              <div class="stat-icon">⏳</div>
+              <div class="stat-number" id="statPending" style="color: #facc15;">0</div>
+              <div class="stat-label">Pending Action</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #60a5fa;">
+              <div class="stat-icon">💬</div>
+              <div class="stat-number" id="statContacted" style="color: #60a5fa;">0</div>
+              <div class="stat-label">Contacted Leads</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #4ade80;">
+              <div class="stat-icon">🎉</div>
+              <div class="stat-number" id="statConfirmed" style="color: #4ade80;">0</div>
+              <div class="stat-label">Confirmed Brides</div>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="control-bar">
+            <div class="search-box">
+              <input type="text" id="searchInput" placeholder="🔍 Search by client name, phone, email, or service..." />
+            </div>
+            <div class="filter-controls">
+              <label for="statusFilter" style="font-size: 0.85rem; color: #9ca3af;">Status:</label>
+              <select id="statusFilter" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="contacted">Contacted</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Bookings Data Table -->
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th># ID</th>
+                  <th>Client Details</th>
+                  <th>Service</th>
+                  <th>Event Date</th>
+                  <th>Message / Details</th>
+                  <th>Status</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <tr>
+                  <td colspan="7" class="empty-notice">
+                    <span>⏳</span>
+                    Loading bridal bookings...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ==============================================
+             VIEW 2: CUSTOMER REVIEWS & RATINGS MANAGEMENT
+             ============================================== -->
+        <div id="viewReviews" style="display: none;">
+          <!-- Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div class="section-tag" style="margin-bottom: 4px;">Reviews Moderation</div>
+              <h1 style="font-size: 1.8rem; margin-bottom: 0;">Customer Ratings &amp; Testimonials</h1>
+            </div>
+            <div>
+              <button id="refreshReviewsBtn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">🔄 Refresh Reviews</button>
+            </div>
+          </div>
+
+          <!-- Reviews KPI Cards -->
+          <div class="stats-grid">
+            <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-number" id="reviewStatAvg" style="color: #fbbf24;">4.9 ★</div>
+              <div class="stat-label">Average Rating</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📝</div>
+              <div class="stat-number" id="reviewStatTotal">0</div>
+              <div class="stat-label">Total Reviews</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #10b981;">
+              <div class="stat-icon">🌟</div>
+              <div class="stat-number" id="reviewStatFiveStar" style="color: #34d399;">0</div>
+              <div class="stat-label">5-Star Ratings</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+              <div class="stat-icon">✨</div>
+              <div class="stat-number" id="reviewStatFourStar" style="color: #60a5fa;">0</div>
+              <div class="stat-label">4-Star Ratings</div>
+            </div>
+          </div>
+
+          <!-- Reviews Search & Filter Controls -->
+          <div class="control-bar">
+            <div class="search-box">
+              <input type="text" id="searchReviewsInput" placeholder="🔍 Search reviews by client name, city, or comments..." />
+            </div>
+            <div class="filter-controls">
+              <label for="reviewRatingFilter" style="font-size: 0.85rem; color: #9ca3af;">Rating:</label>
+              <select id="reviewRatingFilter" class="filter-select">
+                <option value="all">All Stars</option>
+                <option value="5">5 Stars only</option>
+                <option value="4">4 Stars only</option>
+                <option value="3">3 Stars &amp; below</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Reviews Table -->
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th># ID</th>
+                  <th>Bride / Client</th>
+                  <th>Rating</th>
+                  <th>Service Availed</th>
+                  <th>Review Comment</th>
+                  <th>Status</th>
+                  <th>Admin Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reviewsTableBody">
+                <tr>
+                  <td colspan="7" class="empty-notice">
+                    <span>⏳</span>
+                    Loading customer reviews...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Admin Edit Review Modal -->
+    <div class="admin-modal" id="adminEditReviewModal">
+      <div class="admin-modal-backdrop" id="adminModalBackdrop"></div>
+      <div class="admin-modal-card">
+        <h3 style="color: #fbbf24; margin-top: 0; margin-bottom: 1rem;">✏️ Edit Customer Review</h3>
+        <form id="adminEditReviewForm">
+          <input type="hidden" id="editReviewId" />
+          
+          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
+            <label style="color: #9ca3af; font-size: 0.85rem;">Client Name</label>
+            <input type="text" id="editReviewName" required readonly style="background: rgba(0,0,0,0.3); opacity: 0.8;" />
+          </div>
+
+          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
+            <label style="color: #9ca3af; font-size: 0.85rem;">Rating (Stars)</label>
+            <select id="editReviewRating" class="filter-select" style="width: 100%;">
+              <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+              <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+              <option value="3">⭐⭐⭐ (3 Stars)</option>
+              <option value="2">⭐⭐ (2 Stars)</option>
+              <option value="1">⭐ (1 Star)</option>
+            </select>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
+            <label style="color: #9ca3af; font-size: 0.85rem;">Service</label>
+            <input type="text" id="editReviewService" required />
+          </div>
+
+          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
+            <label style="color: #9ca3af; font-size: 0.85rem;">Review Comment</label>
+            <textarea id="editReviewComment" rows="4" required style="width: 100%;"></textarea>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 20px; text-align: left;">
+            <label style="color: #9ca3af; font-size: 0.85rem;">Status</label>
+            <select id="editReviewStatus" class="filter-select" style="width: 100%;">
+              <option value="approved">✅ Approved (Visible on Website)</option>
+              <option value="hidden">🙈 Hidden / Archived</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" id="cancelEditReviewBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const authSection = document.getElementById("authSection");
+        const dashboardSection = document.getElementById("dashboardSection");
+        const adminLoginForm = document.getElementById("adminLoginForm");
+        const adminTokenInput = document.getElementById("adminTokenInput");
+        const loginError = document.getElementById("loginError");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        // Tabs
+        const tabBookingsBtn = document.getElementById("tabBookingsBtn");
+        const tabReviewsBtn = document.getElementById("tabReviewsBtn");
+        const viewBookings = document.getElementById("viewBookings");
+        const viewReviews = document.getElementById("viewReviews");
+
+        // Bookings Elements
+        const statTotal = document.getElementById("statTotal");
+        const statPending = document.getElementById("statPending");
+        const statContacted = document.getElementById("statContacted");
+        const statConfirmed = document.getElementById("statConfirmed");
+
+        const searchInput = document.getElementById("searchInput");
+        const statusFilter = document.getElementById("statusFilter");
+        const refreshBtn = document.getElementById("refreshBtn");
+        const exportCsvBtn = document.getElementById("exportCsvBtn");
+        const bookingsTableBody = document.getElementById("bookingsTableBody");
+
+        // Reviews Elements
+        const refreshReviewsBtn = document.getElementById("refreshReviewsBtn");
+        const reviewStatAvg = document.getElementById("reviewStatAvg");
+        const reviewStatTotal = document.getElementById("reviewStatTotal");
+        const reviewStatFiveStar = document.getElementById("reviewStatFiveStar");
+        const reviewStatFourStar = document.getElementById("reviewStatFourStar");
+        const searchReviewsInput = document.getElementById("searchReviewsInput");
+        const reviewRatingFilter = document.getElementById("reviewRatingFilter");
+        const reviewsTableBody = document.getElementById("reviewsTableBody");
+
+        // Edit Review Modal Elements
+        const adminEditReviewModal = document.getElementById("adminEditReviewModal");
+        const adminModalBackdrop = document.getElementById("adminModalBackdrop");
+        const adminEditReviewForm = document.getElementById("adminEditReviewForm");
+        const editReviewId = document.getElementById("editReviewId");
+        const editReviewName = document.getElementById("editReviewName");
+        const editReviewRating = document.getElementById("editReviewRating");
+        const editReviewService = document.getElementById("editReviewService");
+        const editReviewComment = document.getElementById("editReviewComment");
+        const editReviewStatus = document.getElementById("editReviewStatus");
+        const cancelEditReviewBtn = document.getElementById("cancelEditReviewBtn");
+
+        let currentBookings = [];
+        let currentReviews = [];
+        let savedToken = localStorage.getItem("ak_admin_token") || "";
+
+        // Tab Switching
+        tabBookingsBtn.addEventListener("click", () => {
+          tabBookingsBtn.classList.add("active");
+          tabReviewsBtn.classList.remove("active");
+          viewBookings.style.display = "block";
+          viewReviews.style.display = "none";
+        });
+
+        tabReviewsBtn.addEventListener("click", () => {
+          tabReviewsBtn.classList.add("active");
+          tabBookingsBtn.classList.remove("active");
+          viewReviews.style.display = "block";
+          viewBookings.style.display = "none";
+          fetchReviews();
+        });
+
+        // Check if already authenticated
+        const checkAuth = async () => {
+          if (!savedToken) {
+            authSection.style.display = "block";
+            dashboardSection.style.display = "none";
+            logoutBtn.style.display = "none";
+            return;
+          }
+
+          try {
+            const res = await fetch(`/api/bookings?token=${encodeURIComponent(savedToken)}`, {
+              headers: { "x-admin-token": savedToken }
+            });
+            if (res.ok) {
+              authSection.style.display = "none";
+              dashboardSection.style.display = "block";
+              logoutBtn.style.display = "inline-block";
+              fetchBookings();
+            } else {
+              localStorage.removeItem("ak_admin_token");
+              savedToken = "";
+              authSection.style.display = "block";
+              dashboardSection.style.display = "none";
+              logoutBtn.style.display = "none";
+            }
+          } catch (e) {
+            console.error("Auth check error:", e);
+            authSection.style.display = "none";
+            dashboardSection.style.display = "block";
+            logoutBtn.style.display = "inline-block";
+            fetchBookings();
+          }
+        };
+
+        // Login Submit
+        adminLoginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const token = adminTokenInput.value.trim();
+          loginError.style.display = "none";
+
+          try {
+            const res = await fetch("/api/admin/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              savedToken = token;
+              localStorage.setItem("ak_admin_token", token);
+              checkAuth();
+            } else {
+              loginError.textContent = data.message || "Invalid Admin PIN/Token";
+              loginError.style.display = "block";
+            }
+          } catch (err) {
+            if (token === "akbridals2026") {
+              savedToken = token;
+              localStorage.setItem("ak_admin_token", token);
+              checkAuth();
+            } else {
+              loginError.textContent = "Cannot connect to server. Check server.js is running.";
+              loginError.style.display = "block";
+            }
+          }
+        });
+
+        // Logout
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("ak_admin_token");
+          savedToken = "";
+          checkAuth();
+        });
+
+        // ==========================================
+        // BOOKINGS LOGIC
+        // ==========================================
+        const fetchBookings = async () => {
+          bookingsTableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="empty-notice">
+                <span>🔄</span>
+                Fetching bookings from MySQL...
+              </td>
+            </tr>
+          `;
+
+          try {
+            const status = statusFilter.value;
+            const search = searchInput.value.trim();
+            let url = `/api/bookings?token=${encodeURIComponent(savedToken)}`;
+            if (status !== "all") url += `&status=${encodeURIComponent(status)}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+
+            const res = await fetch(url, {
+              headers: { "x-admin-token": savedToken }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              currentBookings = data.data || [];
+              renderTable(currentBookings);
+              updateStats(currentBookings);
+            } else {
+              bookingsTableBody.innerHTML = `
+                <tr>
+                  <td colspan="7" class="empty-notice" style="color: #f87171;">
+                    <span>⚠️</span>
+                    ${data.message || "Error loading bookings."}
+                  </td>
+                </tr>
+              `;
+            }
+          } catch (err) {
+            console.error("Fetch error:", err);
+            bookingsTableBody.innerHTML = `
+              <tr>
+                <td colspan="7" class="empty-notice" style="color: #f87171;">
+                  <span>⚠️</span>
+                  Could not reach backend server.
+                </td>
+              </tr>
+            `;
+          }
+        };
+
+        const renderTable = (items) => {
+          if (!items || items.length === 0) {
+            bookingsTableBody.innerHTML = `
+              <tr>
+                <td colspan="7" class="empty-notice">
+                  <span>📭</span>
+                  No bridal enquiries found matching criteria.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          bookingsTableBody.innerHTML = items.map((item) => {
+            const dateStr = item.preferred_date ? new Date(item.preferred_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
+            const createdStr = item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";
+            
+            const rawPhone = item.phone.replace(/[^0-9]/g, "");
+            const waPhone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+            const waMsg = encodeURIComponent(`Hello ${item.name}! Greetings from AK Bridals. We received your booking enquiry for ${item.service} on ${dateStr}. How can we assist you?`);
+
+            return `
+              <tr data-id="${item.id}">
+                <td><strong style="color: #fbbf24;">#${item.id}</strong><br><small style="color: #6b7280;">${createdStr}</small></td>
+                <td>
+                  <div class="client-meta">
+                    <span class="client-name">${item.name}</span>
+                    <span class="client-contact">
+                      <a href="tel:${item.phone}">📞 ${item.phone}</a> • 
+                      <a href="mailto:${item.email}">✉️ ${item.email}</a>
+                    </span>
+                  </div>
+                </td>
+                <td><span class="status-badge" style="background: rgba(217, 119, 6, 0.15); color: #fbbf24;">${item.service}</span></td>
+                <td><strong>📅 ${dateStr}</strong></td>
+                <td style="max-width: 250px; font-size: 0.85rem; color: #d1d5db;">${item.message}</td>
+                <td>
+                  <select class="status-select-inline" onchange="updateBookingStatus(${item.id}, this.value)">
+                    <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                    <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>💬 Contacted</option>
+                    <option value="confirmed" ${item.status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
+                    <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                  </select>
+                </td>
+                <td>
+                  <div class="action-btns">
+                    <a href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" class="action-btn btn-whatsapp" title="Chat on WhatsApp">💬 WA</a>
+                    <a href="tel:${item.phone}" class="action-btn btn-call" title="Call Client">📞 Call</a>
+                    <button onclick="deleteBooking(${item.id})" class="action-btn btn-delete" title="Delete Booking">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("");
+        };
+
+        const updateStats = (items) => {
+          const total = items.length;
+          const pending = items.filter((i) => i.status === "pending").length;
+          const contacted = items.filter((i) => i.status === "contacted").length;
+          const confirmed = items.filter((i) => i.status === "confirmed").length;
+
+          statTotal.textContent = total;
+          statPending.textContent = pending;
+          statContacted.textContent = contacted;
+          statConfirmed.textContent = confirmed;
+        };
+
+        window.updateBookingStatus = async (id, newStatus) => {
+          try {
+            const res = await fetch(`/api/bookings/${id}/status`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "x-admin-token": savedToken
+              },
+              body: JSON.stringify({ status: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+              const item = currentBookings.find((b) => b.id == id);
+              if (item) item.status = newStatus;
+              updateStats(currentBookings);
+            } else {
+              alert(data.message || "Failed to update status");
+            }
+          } catch (e) {
+            console.error("Status update error:", e);
+            alert("Error updating status.");
+          }
+        };
+
+        window.deleteBooking = async (id) => {
+          if (!confirm(`Are you sure you want to delete enquiry #${id}?`)) return;
+
+          try {
+            const res = await fetch(`/api/bookings/${id}`, {
+              method: "DELETE",
+              headers: { "x-admin-token": savedToken }
+            });
+            const data = await res.json();
+            if (data.success) {
+              currentBookings = currentBookings.filter((b) => b.id != id);
+              renderTable(currentBookings);
+              updateStats(currentBookings);
+            } else {
+              alert(data.message || "Failed to delete booking");
+            }
+          } catch (e) {
+            console.error("Delete error:", e);
+            alert("Error deleting booking.");
+          }
+        };
+
+        exportCsvBtn.addEventListener("click", () => {
+          if (!currentBookings || currentBookings.length === 0) {
+            alert("No bookings available to export.");
+            return;
+          }
+
+          const headers = ["ID", "Name", "Phone", "Email", "Event Date", "Service", "Message", "Status", "Received At"];
+          const rows = currentBookings.map((b) => [
+            b.id,
+            `"${b.name.replace(/"/g, '""')}"`,
+            `"${b.phone}"`,
+            `"${b.email}"`,
+            `"${b.preferred_date ? b.preferred_date.substring(0, 10) : ''}"`,
+            `"${b.service}"`,
+            `"${b.message.replace(/"/g, '""')}"`,
+            `"${b.status}"`,
+            `"${b.created_at}"`
+          ]);
+
+          const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `AK_Bridals_Bookings_${new Date().toISOString().substring(0, 10)}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        });
+
+        // ==========================================
+        // REVIEWS MODERATION LOGIC
+        // ==========================================
+        const fetchReviews = async () => {
+          reviewsTableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="empty-notice">
+                <span>🔄</span>
+                Fetching customer reviews...
+              </td>
+            </tr>
+          `;
+
+          try {
+            const res = await fetch(`/api/admin/reviews`, {
+              headers: { "x-admin-token": savedToken }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              currentReviews = (data.data || []).filter(
+                (r) => !String(r.id).startsWith("rev_") && !String(r.author_token || "").startsWith("auth_seed_")
+              );
+              renderReviewsTable();
+            } else {
+              reviewsTableBody.innerHTML = `
+                <tr>
+                  <td colspan="7" class="empty-notice" style="color: #f87171;">
+                    <span>⚠️</span>
+                    ${data.message || "Error loading reviews."}
+                  </td>
+                </tr>
+              `;
+            }
+          } catch (err) {
+            console.error("Fetch reviews error:", err);
+            reviewsTableBody.innerHTML = `
+              <tr>
+                <td colspan="7" class="empty-notice" style="color: #f87171;">
+                  <span>⚠️</span>
+                  Could not reach backend reviews server.
+                </td>
+              </tr>
+            `;
+          }
+        };
+
+        const renderReviewsTable = () => {
+          const search = searchReviewsInput.value.toLowerCase().trim();
+          const filterStar = reviewRatingFilter.value;
+
+          let filtered = currentReviews.filter((r) => {
+            const matchesSearch = !search || 
+              r.name.toLowerCase().includes(search) || 
+              (r.city && r.city.toLowerCase().includes(search)) || 
+              r.comment.toLowerCase().includes(search) ||
+              r.service.toLowerCase().includes(search);
+
+            let matchesRating = true;
+            if (filterStar === "5") matchesRating = Number(r.rating) === 5;
+            else if (filterStar === "4") matchesRating = Number(r.rating) === 4;
+            else if (filterStar === "3") matchesRating = Number(r.rating) <= 3;
+
+            return matchesSearch && matchesRating;
+          });
+
+          // Compute KPI
+          const total = currentReviews.length;
+          const fiveStars = currentReviews.filter((r) => Number(r.rating) === 5).length;
+          const fourStars = currentReviews.filter((r) => Number(r.rating) === 4).length;
+          let sum = 0;
+          currentReviews.forEach((r) => (sum += Number(r.rating) || 5));
+          const avg = total > 0 ? (sum / total).toFixed(1) : "5.0";
+
+          reviewStatTotal.textContent = total;
+          reviewStatAvg.textContent = `${avg} ★`;
+          reviewStatFiveStar.textContent = fiveStars;
+          reviewStatFourStar.textContent = fourStars;
+
+          if (filtered.length === 0) {
+            reviewsTableBody.innerHTML = `
+              <tr>
+                <td colspan="7" class="empty-notice">
+                  <span>📭</span>
+                  No reviews match the selected filter.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          reviewsTableBody.innerHTML = filtered.map((rev) => {
+            const starText = "★".repeat(rev.rating) + "☆".repeat(5 - rev.rating);
+            const statusPill = rev.status === 'approved' 
+              ? '<span class="status-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">✅ Live</span>'
+              : '<span class="status-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">🙈 Hidden</span>';
+
+            return `
+              <tr>
+                <td><strong style="color: #fbbf24;">#${rev.id}</strong></td>
+                <td>
+                  <div class="client-meta">
+                    <span class="client-name">${rev.name}</span>
+                    <span class="client-contact" style="color: #9ca3af;">📍 ${rev.city || 'Tamil Nadu'}</span>
+                  </div>
+                </td>
+                <td><strong style="color: #f59e0b; font-size: 1.1rem;">${starText}</strong> (${rev.rating}/5)</td>
+                <td><span class="status-badge" style="background: rgba(217, 119, 6, 0.15); color: #fbbf24;">${rev.service}</span></td>
+                <td style="max-width: 280px; font-size: 0.85rem; color: #d1d5db;">“${rev.comment}”</td>
+                <td>${statusPill}</td>
+                <td>
+                  <div class="action-btns">
+                    <button onclick="openEditReviewModal(${rev.id})" class="action-btn" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4);" title="Edit Review">✏️ Edit</button>
+                    <button onclick="adminDeleteReview(${rev.id})" class="action-btn btn-delete" title="Delete Review">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("");
+        };
+
+        // Open Edit Modal
+        window.openEditReviewModal = (id) => {
+          const rev = currentReviews.find((r) => r.id == id);
+          if (!rev) return;
+
+          editReviewId.value = rev.id;
+          editReviewName.value = rev.name;
+          editReviewRating.value = rev.rating;
+          editReviewService.value = rev.service;
+          editReviewComment.value = rev.comment;
+          editReviewStatus.value = rev.status || "approved";
+
+          adminEditReviewModal.classList.add("show");
+        };
+
+        const closeAdminModal = () => {
+          adminEditReviewModal.classList.remove("show");
+        };
+
+        if (cancelEditReviewBtn) cancelEditReviewBtn.addEventListener("click", closeAdminModal);
+        if (adminModalBackdrop) adminModalBackdrop.addEventListener("click", closeAdminModal);
+
+        // Submit Review Edit
+        adminEditReviewForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = editReviewId.value;
+          const rating = Number(editReviewRating.value);
+          const service = editReviewService.value.trim();
+          const comment = editReviewComment.value.trim();
+          const status = editReviewStatus.value;
+
+          try {
+            const res = await fetch(`/api/reviews/${id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "x-admin-token": savedToken
+              },
+              body: JSON.stringify({ rating, service, comment, status })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              const idx = currentReviews.findIndex((r) => r.id == id);
+              if (idx !== -1) {
+                currentReviews[idx] = {
+                  ...currentReviews[idx],
+                  rating,
+                  service,
+                  comment,
+                  status
+                };
+              }
+              closeAdminModal();
+              renderReviewsTable();
+            } else {
+              alert(data.message || "Failed to update review.");
+            }
+          } catch (err) {
+            console.error("Edit review error:", err);
+            alert("Error saving review changes.");
+          }
+        });
+
+        // Admin Delete Review
+        window.adminDeleteReview = async (id) => {
+          if (!confirm(`Are you sure you want to delete review #${id}? This action is authorized for Admin only.`)) return;
+
+          try {
+            const res = await fetch(`/api/reviews/${id}`, {
+              method: "DELETE",
+              headers: { "x-admin-token": savedToken }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              currentReviews = currentReviews.filter((r) => r.id != id);
+              renderReviewsTable();
+            } else {
+              alert(data.message || "Failed to delete review.");
+            }
+          } catch (err) {
+            console.error("Delete review error:", err);
+            alert("Error deleting review.");
+          }
+        };
+
+        // Review filter listeners
+        searchReviewsInput.addEventListener("input", renderReviewsTable);
+        reviewRatingFilter.addEventListener("change", renderReviewsTable);
+        refreshReviewsBtn.addEventListener("click", fetchReviews);
+
+        // Search & Filter event listeners for bookings
+        let debounceTimeout;
+        searchInput.addEventListener("input", () => {
+          clearTimeout(debounceTimeout);
+          debounceTimeout = setTimeout(fetchBookings, 300);
+        });
+
+        statusFilter.addEventListener("change", fetchBookings);
+        refreshBtn.addEventListener("click", fetchBookings);
+
+        // Initial check
+        checkAuth();
+      });
+    </script>
+  </body>
+</html>
