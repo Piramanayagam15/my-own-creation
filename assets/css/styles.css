@@ -2130,45 +2130,10 @@ h1, h2, h3, h4 {
    RESPONSIVE MEDIA QUERIES
    ======================================================== */
 
-@media (max-width: 900px) {
-  .hero-layout {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    text-align: center;
-  }
+/* ========================================================
+   NAVIGATION TOGGLE HAMBURGER ANIMATION
+   ======================================================== */
 
-  .hero-content {
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  .hero-title {
-    font-size: 2.3rem;
-  }
-
-  .hero-actions {
-    justify-content: center;
-  }
-
-  .hero-stats {
-    margin: 0 auto;
-  }
-
-  .floating-stage {
-    height: 440px;
-  }
-
-  .wrap-makeup { left: 10px; }
-  .wrap-mehndi { right: 10px; }
-  .wrap-aari { left: 15px; }
-  .wrap-jewel { right: 15px; }
-
-  .gallery-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  }
-}
-
-/* Navigation Toggle Hamburger Animation */
 .nav-toggle {
   display: none;
   flex-direction: column;
@@ -2215,13 +2180,55 @@ h1, h2, h3, h4 {
 }
 
 /* ========================================================
-   RESPONSIVE MEDIA QUERIES
+   CONSOLIDATED RESPONSIVE MEDIA QUERIES (ALL PAGES)
    ======================================================== */
 
-@media (max-width: 900px) {
+/* Desktop Layout Defaults (Min 769px) */
+@media (min-width: 769px) {
+  .intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr);
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+    gap: 3rem;
+  }
+
+  .footer-inner {
+    text-align: left;
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .footer-links {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+/* Tablets & Small Laptops (Max 992px) */
+@media (max-width: 992px) {
   .hero-layout {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2.5rem;
     text-align: center;
   }
 
@@ -2243,26 +2250,59 @@ h1, h2, h3, h4 {
   }
 
   .floating-stage {
-    height: 440px;
+    height: 420px;
+    max-width: 100%;
+    overflow: hidden;
   }
 
-  .wrap-makeup { left: 10px; }
-  .wrap-mehndi { right: 10px; }
-  .wrap-aari { left: 15px; }
-  .wrap-jewel { right: 15px; }
+  .rating-kpi-card {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+    text-align: center;
+  }
 
-  .gallery-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  .rating-score-box {
+    border-right: none;
+    border-bottom: 1.5px solid rgba(5, 150, 105, 0.2);
+    padding-right: 0;
+    padding-bottom: 1.4rem;
+  }
+
+  .rating-breakdown-box {
+    border-right: none;
+    border-bottom: 1.5px solid rgba(5, 150, 105, 0.2);
+    padding-right: 0;
+    padding-bottom: 1.4rem;
+    width: 100%;
+  }
+
+  .rating-action-box {
+    width: 100%;
   }
 }
 
+/* Mobile Devices & Small Tablets (Max 768px) */
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .container {
+    padding: 0 1.25rem;
+  }
+
   .site-header {
-    padding: 0.2rem 0;
+    padding: 0.15rem 0;
   }
 
   .header-inner {
     padding: 0.75rem 0;
+  }
+
+  .logo {
+    font-size: 1.45rem;
+    white-space: nowrap;
   }
 
   .nav {
@@ -2274,7 +2314,7 @@ h1, h2, h3, h4 {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
-    padding: 1.4rem 1.4rem 1.6rem;
+    padding: 1.3rem 1.3rem 1.5rem;
     border-radius: 1.25rem;
     border: 2px solid var(--border-gold);
     transform: translateY(-15px) scale(0.97);
@@ -2324,8 +2364,32 @@ h1, h2, h3, h4 {
     display: flex;
   }
 
+  .section {
+    padding: 3rem 0;
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.85rem;
+  }
+
+  .page-hero {
+    padding: 2.8rem 0 2.2rem;
+  }
+
+  .page-hero h1 {
+    font-size: 2rem;
+  }
+
+  .page-hero p {
+    font-size: 0.95rem;
+  }
+
   .hero {
-    padding: 2.8rem 0 2.5rem;
+    padding: 2.5rem 0 2rem;
     min-height: auto;
   }
 
@@ -2335,7 +2399,7 @@ h1, h2, h3, h4 {
   }
 
   .hero-subtitle {
-    font-size: 0.96rem;
+    font-size: 0.95rem;
     margin-bottom: 1.5rem;
   }
 
@@ -2354,22 +2418,22 @@ h1, h2, h3, h4 {
   .hero-stats {
     width: 100%;
     justify-content: space-around;
-    padding: 0.9rem 1rem;
-    gap: 0.8rem;
+    padding: 0.85rem 0.75rem;
+    gap: 0.5rem;
   }
 
   .stat-item strong {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .stat-item span {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
   }
 
   .cta-banner {
     flex-direction: column;
     align-items: stretch;
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.4rem;
   }
 
   .cta-banner .btn-primary {
@@ -2378,28 +2442,56 @@ h1, h2, h3, h4 {
   }
 
   .floating-stage {
-    height: 390px;
+    height: 380px;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .center-floating-card {
-    width: 240px;
-    padding: 1.6rem 1.2rem;
+    width: 230px;
+    padding: 1.4rem 1.1rem;
   }
 
+  .wrap-makeup { left: 4px; }
+  .wrap-mehndi { right: 4px; }
+  .wrap-aari { left: 8px; }
+  .wrap-jewel { right: 8px; }
+
   .floating-product {
-    padding: 0.55rem 0.85rem;
-    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
   }
 
   .product-icon-wrap {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 
-  .product-emoji { font-size: 1.1rem; }
-  .product-info h4 { font-size: 0.8rem; }
-  .product-info p { font-size: 0.7rem; }
+  .product-emoji { font-size: 1rem; }
+  .product-info h4 { font-size: 0.78rem; }
+  .product-info p { font-size: 0.68rem; }
 
+  /* Grid Fallbacks for 1-column Mobile layout */
+  .intro-grid,
+  .card-grid,
+  .about-grid,
+  .contact-grid,
+  .service-sections,
+  .gallery-grid,
+  .reviews-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .service-block {
+    padding: 1.6rem 1.3rem;
+  }
+
+  .card {
+    padding: 1.6rem 1.3rem;
+  }
+
+  /* Gallery Controls */
   .gallery-controls {
     flex-direction: column;
     align-items: stretch;
@@ -2419,12 +2511,8 @@ h1, h2, h3, h4 {
     justify-content: center;
   }
 
-  .lightbox-content {
-    padding: 1rem;
-  }
-
-  .lightbox-img {
-    height: 250px;
+  .gallery-thumb {
+    height: 220px;
   }
 
   /* Form & Contact Mobile Optimization */
@@ -2452,150 +2540,76 @@ h1, h2, h3, h4 {
     padding: 0.85rem 1.2rem;
     font-size: 1rem;
   }
-}
 
-@media (max-width: 640px) {
-  .section {
-    padding: 3rem 0;
+  .footer-inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
-  .section-header {
-    margin-bottom: 2rem;
-  }
-
-  .section-header h2 {
-    font-size: 1.85rem;
-  }
-
-  .page-hero {
-    padding: 2.8rem 0 2.2rem;
+  .footer-links {
+    align-items: center;
     text-align: center;
   }
-
-  .page-hero h1 {
-    font-size: 2rem;
-  }
-
-  .mobile-upload-fab {
-    display: inline-flex;
-  }
-
-  .mobile-sheet-handle {
-    display: block;
-  }
-
-  .upload-modal {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .upload-modal-card {
-    border-radius: 1.6rem 1.6rem 0 0;
-    max-height: 90vh;
-    padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom, 1rem));
-    animation: sheetSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  @keyframes sheetSlideUp {
-    0% { transform: translateY(100%); }
-    100% { transform: translateY(0); }
-  }
-
-  .gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 1.35rem;
-  }
-
-  .gallery-thumb {
-    height: 230px;
-  }
-
-  .filter-tabs {
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    gap: 0.45rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .filter-btn {
-    scroll-snap-align: start;
-    white-space: nowrap;
-    font-size: 0.84rem;
-    padding: 0.5rem 1rem;
-    min-height: 42px;
-  }
-
-  .floating-quick-action {
-    bottom: 1.25rem;
-    right: 1.25rem;
-  }
-
-  .fab-btn {
-    width: 54px;
-    height: 54px;
-  }
-
-  .fab-icon {
-    font-size: 1.45rem;
-  }
-
-  .mobile-upload-fab {
-    bottom: 1.25rem;
-    left: 1.25rem;
-  }
-
-  /* Modals on mobile */
-  .booking-success-card,
-  .review-modal-card {
-    padding: 1.8rem 1.3rem;
-    max-width: 94vw;
-  }
-
-  .success-actions,
-  .modal-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .success-actions .btn,
-  .modal-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
+/* Small Smartphone Screen Sizing (Max 480px) */
 @media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+
   .logo {
-    font-size: 1.35rem;
+    font-size: 1.32rem;
     letter-spacing: 0.01em;
   }
 
   .page-hero {
-    padding: 2.8rem 0 2.2rem;
+    padding: 2.6rem 0 2rem;
   }
 
   .page-hero h1 {
-    font-size: 1.85rem;
+    font-size: 1.75rem;
   }
 
   .page-hero p {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
   }
 
   .floating-stage {
-    height: 360px;
-    transform: scale(0.88);
+    height: 350px;
+    transform: scale(0.92);
   }
 
-  .wrap-makeup { left: -15px; }
-  .wrap-mehndi { right: -15px; }
-  .wrap-aari { left: -15px; }
-  .wrap-jewel { right: -15px; }
+  .wrap-makeup { left: 0; }
+  .wrap-mehndi { right: 0; }
+  .wrap-aari { left: 0; }
+  .wrap-jewel { right: 0; }
 
   .gallery-controls {
-    padding: 0.9rem;
+    padding: 0.85rem;
+  }
+
+  .booking-success-card,
+  .review-modal-card {
+    padding: 1.6rem 1.15rem;
+    max-width: 95vw;
+  }
+
+  .floating-quick-action {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .fab-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .mobile-upload-fab {
+    bottom: 1rem;
+    left: 1rem;
   }
 }
 

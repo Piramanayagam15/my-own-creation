@@ -370,6 +370,66 @@
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
         z-index: 501;
       }
+
+      /* Admin Mobile Media Queries */
+      @media (max-width: 768px) {
+        .admin-header-inner {
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .control-bar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+
+        .search-box {
+          min-width: 100%;
+        }
+
+        .filter-controls {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .filter-select {
+          width: 100%;
+        }
+
+        .admin-tab-bar {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .admin-tab-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .admin-table th, .admin-table td {
+          padding: 10px 12px;
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .admin-auth-card {
+          margin: 30px auto;
+          padding: 24px 18px;
+          max-width: 95vw;
+        }
+      }
     </style>
   </head>
   <body class="admin-body">
