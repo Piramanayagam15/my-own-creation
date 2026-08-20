@@ -428,14 +428,72 @@ document.addEventListener("DOMContentLoaded", async () => {
     openUploadModal();
   };
 
-  // Render all gallery media (User uploads only)
+  // Default Showcase Portfolio for AK Bridals
+  const initialPortfolioMedia = [
+    {
+      id: "portfolio-1",
+      title: "HD Bridal Muhurtham Look",
+      category: "bridal-makeup",
+      type: "image",
+      src: "assets/images/bridal_transformation.jpg",
+      desc: "Radiant traditional Tamil bridal makeup with 24hr waterproof finish.",
+      isPortfolio: true
+    },
+    {
+      id: "portfolio-2",
+      title: "Intricate Bridal Mehndi Art",
+      category: "mehndi",
+      type: "image",
+      src: "assets/images/mehndi_art.jpg",
+      desc: "Organic dark-stain bridal henna covering palms, wrists, and feet.",
+      isPortfolio: true
+    },
+    {
+      id: "portfolio-3",
+      title: "Handcrafted Aari Silk Blouse",
+      category: "aari",
+      type: "image",
+      src: "assets/images/aari_embroidery.jpg",
+      desc: "Zardozi, beads and gold zari needlework for bridal muhurtham silk sarees.",
+      isPortfolio: true
+    },
+    {
+      id: "portfolio-4",
+      title: "Bridal Hair Styling & Jadai",
+      category: "hair",
+      type: "image",
+      src: "assets/images/hair_styling.jpg",
+      desc: "Traditional poola jada with fresh jasmine, rose petals, and temple jewels.",
+      isPortfolio: true
+    },
+    {
+      id: "portfolio-5",
+      title: "Royal Muhurtham Saree Draping",
+      category: "bridal-makeup",
+      type: "image",
+      src: "assets/images/muhurtham_bridal.webp",
+      desc: "Authentic Kanchipuram silk pleating and traditional goddess styling.",
+      isPortfolio: true
+    },
+    {
+      id: "portfolio-6",
+      title: "Reception Glam Transformation",
+      category: "before-after",
+      type: "image",
+      src: "assets/images/reception_glam.jpg",
+      desc: "Modern reception glow transformation with shimmering eye makeup.",
+      isPortfolio: true
+    }
+  ];
+
+  // Render all gallery media (User uploads on top + Studio showcase portfolio)
   const renderGallery = async () => {
     if (!galleryGrid) return;
 
     const userMedia = await GalleryDB.getAll();
 
-    // Only user uploaded media (latest on top)
-    const allItems = [...userMedia.reverse()];
+    // User uploaded media first, then showcase portfolio
+    const allItems = [...userMedia.reverse(), ...initialPortfolioMedia];
 
     // Filter items based on activeFilter
     const filteredItems = allItems.filter((item) => {
@@ -463,20 +521,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     galleryGrid.innerHTML = "";
 
-    // Always append an interactive "Add to [Service]" card as first element for immediate 1-tap upload
-    const targetAddCat = activeFilter === "all" ? "bridal-makeup" : activeFilter;
-    const addCard = document.createElement("div");
-    addCard.className = "gallery-add-card reveal-on-scroll revealed";
-    addCard.innerHTML = `
-      <div class="add-card-icon">+</div>
-      <h4>Add ${activeFilter === "all" ? "Bridal" : categoryLabels[activeFilter]} Photos</h4>
-      <p>Direct upload to this service</p>
-    `;
-    addCard.addEventListener("click", () => {
-      window.openUploadModalWithCategory(targetAddCat);
-    });
-    galleryGrid.appendChild(addCard);
-
     if (filteredItems.length === 0) {
       if (galleryEmptyState) galleryEmptyState.style.display = "block";
     } else {
@@ -500,9 +544,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="gallery-thumb ${!hasSrc && !isVideo ? "placeholder-img" : ""}" style="${bgStyle}">
             <span class="media-type-badge">${isVideo ? "🎥 Video" : "📸 Photo"}</span>
             ${isVideo ? `<div class="video-play-overlay"><span class="play-circle">▶</span></div>` : ""}
-            <button type="button" class="delete-media-btn" title="Delete this media" data-delete-id="${item.id}">
-              🗑️ Delete
-            </button>
+            ${!item.isPortfolio ? `
+              <button type="button" class="delete-media-btn" title="Delete this media" data-delete-id="${item.id}">
+                🗑️ Delete
+              </button>
+            ` : ""}
           </div>
           <figcaption>
             <h4>${item.title}</h4>
