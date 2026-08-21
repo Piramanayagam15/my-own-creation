@@ -1250,8 +1250,10 @@
     <div id="adminToast" class="admin-toast"></div>
 
     <script>
-      // Admin Operations JavaScript Controller
-      let adminToken = localStorage.getItem('ak_admin_token') || '';
+      // Admin Operations JavaScript Controller (Strict Protected Session)
+      let adminToken = sessionStorage.getItem('ak_admin_session_token') || '';
+      localStorage.removeItem('ak_admin_token'); // Clean up any stale persistent storage
+      
       let bookingsData = [];
       let reviewsData = [];
       let galleryData = [];
@@ -1271,31 +1273,51 @@
       const openModal = (id) => document.getElementById(id).classList.add('show');
       const closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-      // Check authentication on load
-      const initAuth = () => {
-        if (adminToken) {
+      // Check authentication on load (Strict Server Verification)
+      const initAuth = async () => {
+        if (!adminToken) {
+          document.getElementById('authSection').style.display = 'block';
+          document.getElementById('dashboardSection').style.display = 'none';
+          document.getElementById('adminHeaderActions').style.display = 'none';
+          return;
+        }
+
+        // Verify token with backend
+        try {
+          const verifyRes = await fetch('/api/admin/bookings', {
+            headers: { 'x-admin-token': adminToken }
+          });
+          if (verifyRes.ok) {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('adminHeaderActions').style.display = 'flex';
+            fetchAllData();
+          } else {
+            // Token expired or invalid
+            sessionStorage.removeItem('ak_admin_session_token');
+            adminToken = '';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('adminHeaderActions').style.display = 'none';
+          }
+        } catch (e) {
+          // If offline, check token exists before showing
           document.getElementById('authSection').style.display = 'none';
           document.getElementById('dashboardSection').style.display = 'block';
           document.getElementById('adminHeaderActions').style.display = 'flex';
           fetchAllData();
-        } else {
-          document.getElementById('authSection').style.display = 'block';
-          document.getElementById('dashboardSection').style.display = 'none';
-          document.getElementById('adminHeaderActions').style.display = 'none';
         }
       };
 
-      // Login handler (Universal: Works on Server, Serverless & Static Vercel)
+      // Login handler (Strict Server-Verified Authentication with Rate Limiting)
       document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const pin = document.getElementById('adminPinInput').value.trim();
         const err = document.getElementById('loginErrorMsg');
+        const submitBtn = document.querySelector('#adminLoginForm button[type="submit"]');
         err.textContent = '';
+        if (submitBtn) submitBtn.disabled = true;
 
-        const masterPin = 'akbridals2026';
-        const savedPin = localStorage.getItem('ak_studio_pin') || masterPin;
-
-        // Try API login first
         try {
           const res = await fetch('/api/admin/login', {
             method: 'POST',
@@ -1305,35 +1327,30 @@
           const data = await res.json().catch(() => null);
 
           if (res.ok && data && data.success) {
-            adminToken = data.token || masterPin;
-            localStorage.setItem('ak_admin_token', adminToken);
+            adminToken = data.token;
+            sessionStorage.setItem('ak_admin_session_token', adminToken);
             showToast('✅ Welcome, Studio Admin!');
             initAuth();
             return;
-          } else if (res.status === 429 && data && data.message) {
-            err.textContent = data.message;
+          } else if (res.status === 429 && data) {
+            err.textContent = data.message || '🚫 Account locked for 15 minutes due to repeated failed attempts.';
             return;
-          } else if (data && data.message && res.status === 401) {
-            err.textContent = data.message;
+          } else if (res.status === 401 && data) {
+            err.textContent = data.message || 'Invalid Admin PIN.';
             return;
+          } else {
+            err.textContent = data?.message || 'Authentication failed. Please check your PIN.';
           }
         } catch (e) {
-          console.warn('API endpoint unreachable, using client authentication fallback.');
-        }
-
-        // Direct PIN check fallback (ensures 100% login success offline)
-        if (pin === masterPin || pin === savedPin || pin === 'akbridals') {
-          adminToken = masterPin;
-          localStorage.setItem('ak_admin_token', adminToken);
-          showToast('✅ Welcome, Studio Admin!');
-          initAuth();
-        } else {
-          err.textContent = 'Invalid Master PIN. (Default: akbridals2026)';
+          err.textContent = 'Server connection error. Please try again.';
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
         }
       });
 
       // Logout handler
       document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+        sessionStorage.removeItem('ak_admin_session_token');
         localStorage.removeItem('ak_admin_token');
         adminToken = '';
         initAuth();

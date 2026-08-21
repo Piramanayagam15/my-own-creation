@@ -1874,9 +1874,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         servicesContainer.innerHTML = `
           <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 1rem;">
             <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💄</span>
-            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">No Services Listed Yet</h3>
-            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">Use the Admin Portal to add bridal makeup packages, starting prices, and custom services.</p>
-            <a href="admin.html" class="btn btn-primary">👑 Open Admin Portal</a>
+            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">Bridal Services Coming Soon</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">We are currently updating our bespoke bridal packages and services. Please contact us directly for custom bookings.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <a href="contact.html" class="btn btn-primary">📅 Book Consultation</a>
+              <a href="https://wa.me/918190913110" target="_blank" class="btn btn-secondary">💬 WhatsApp Us</a>
+            </div>
           </div>
         `;
       } else {
@@ -1913,9 +1916,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         homepageServicesGrid.innerHTML = `
           <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 1rem;">
             <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💄</span>
-            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">No Services Listed Yet</h3>
-            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">Services and packages added in the Admin Portal will appear here.</p>
-            <a href="admin.html" class="btn btn-primary">👑 Open Admin Portal</a>
+            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">Bridal Services Coming Soon</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">We are currently updating our bespoke bridal packages. Feel free to enquire directly on WhatsApp.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <a href="contact.html" class="btn btn-primary">📅 Book Consultation</a>
+              <a href="https://wa.me/918190913110" target="_blank" class="btn btn-secondary">💬 WhatsApp Us</a>
+            </div>
           </div>
         `;
       } else {
