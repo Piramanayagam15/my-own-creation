@@ -110,7 +110,7 @@ Run the automated test suite at any time to verify system health:
 ```bash
 npm test
 ```
-*Expected Result:* `27 PASSED, 0 FAILED` (100% Core System Health).
+*Expected Standard:* **All automated test suites must pass with 0 failures.** *(Current Baseline: 27 PASSED, 0 FAILED).*
 
 ---
 
@@ -150,4 +150,4 @@ Before merging or deploying any future update, always execute this 6-point verif
 3. **Dual-Engine Compatibility:** Does the data change work identically across MySQL Database and `store.json` fallback?
 4. **Input Sanitization & Injection Defense:** Are all user-supplied parameters sanitized (XSS protection) and parameterized in SQL (`?` placeholders)?
 5. **Admin Route Protection:** Are all new admin endpoints protected by the `authAdmin` session middleware?
-6. **Automated Test Gate:** Does `npm test` execute with **27/27 PASSED (0 FAILED)**?
+6. **Automated Test Gate:** Does `npm test` execute with **0 failures** *(Current Baseline: 27/27 PASS)*?
