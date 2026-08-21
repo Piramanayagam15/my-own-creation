@@ -1404,24 +1404,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeReviewsList = [];
   let editingReviewId = null;
 
-  // Fetch and render reviews (Strictly only Approved reviews from Server API)
+  // Fetch and render reviews (Strictly Approved Reviews Persistent Across Sessions)
   const fetchAndRenderReviews = async () => {
     if (!reviewsGrid) return;
 
+    let serverReviews = [];
     try {
       const res = await fetch("/api/reviews");
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
-          activeReviewsList = data.data;
-          LocalReviewsStorage.saveAll(activeReviewsList);
+          serverReviews = data.data;
         }
-      } else {
-        activeReviewsList = LocalReviewsStorage.getAll();
       }
-    } catch (e) {
-      activeReviewsList = LocalReviewsStorage.getAll();
-    }
+    } catch (e) {}
+
+    let localReviews = [];
+    try {
+      const stored = localStorage.getItem("ak_admin_all_reviews") || localStorage.getItem("ak_bridals_reviews_list") || localStorage.getItem(REVIEWS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) localReviews = parsed;
+      }
+    } catch (e) {}
+
+    const deletedReviewIds = JSON.parse(localStorage.getItem("ak_deleted_review_ids") || "[]");
+
+    const rMap = new Map();
+    // 1. Add server approved reviews
+    serverReviews.forEach((r) => {
+      if (r.status === "approved" && !deletedReviewIds.includes(String(r.id))) {
+        rMap.set(String(r.id), r);
+      }
+    });
+    // 2. Add locally approved reviews
+    localReviews.forEach((r) => {
+      if (r.status === "approved" && !deletedReviewIds.includes(String(r.id))) {
+        const existing = rMap.get(String(r.id));
+        rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
+      }
+    });
+
+    activeReviewsList = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    LocalReviewsStorage.saveAll(activeReviewsList);
 
     renderReviewsUI(activeReviewsList);
   };

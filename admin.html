@@ -1326,38 +1326,72 @@
         });
       });
 
-      // Fetch All Dashboard Data (with Automatic LocalStorage Sync)
+      // Fetch All Dashboard Data (with Resilient Two-Way Smart Merge)
       const fetchAllData = async () => {
         const headers = { 'x-admin-token': adminToken };
 
-        // 1. Bookings
+        // 1. Bookings (Smart Resilient Merge: Server + Local, minus deleted)
         try {
-          const bRes = await fetch('/api/admin/bookings', { headers });
-          if (bRes.ok) {
-            const bData = await bRes.json();
-            if (bData.success) {
-              bookingsData = bData.data || [];
-              localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+          let serverBookings = [];
+          try {
+            const bRes = await fetch('/api/admin/bookings', { headers });
+            if (bRes.ok) {
+              const bData = await bRes.json();
+              if (bData.success && Array.isArray(bData.data)) serverBookings = bData.data;
             }
-          } else throw new Error('API not ok');
-        } catch (e) {
+          } catch (e) {}
+
           const stored = localStorage.getItem('ak_offline_bookings') || localStorage.getItem('ak_bridals_offline_bookings');
-          bookingsData = stored ? JSON.parse(stored) : [];
+          const localBookings = stored ? JSON.parse(stored) : [];
+          const deletedBookingIds = JSON.parse(localStorage.getItem('ak_deleted_booking_ids') || '[]');
+
+          const bMap = new Map();
+          serverBookings.forEach(b => {
+            if (!deletedBookingIds.includes(String(b.id))) bMap.set(String(b.id), b);
+          });
+          localBookings.forEach(b => {
+            if (!deletedBookingIds.includes(String(b.id))) {
+              const existing = bMap.get(String(b.id));
+              bMap.set(String(b.id), existing ? { ...existing, ...b } : b);
+            }
+          });
+
+          bookingsData = Array.from(bMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+        } catch (e) {
+          console.warn('Failed to load bookings:', e);
         }
 
-        // 2. Reviews
+        // 2. Reviews (Smart Resilient Merge: Server + Local, minus deleted)
         try {
-          const rRes = await fetch('/api/admin/reviews', { headers });
-          if (rRes.ok) {
-            const rData = await rRes.json();
-            if (rData.success) {
-              reviewsData = rData.data || [];
-              localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
+          let serverReviews = [];
+          try {
+            const rRes = await fetch('/api/admin/reviews', { headers });
+            if (rRes.ok) {
+              const rData = await rRes.json();
+              if (rData.success && Array.isArray(rData.data)) serverReviews = rData.data;
             }
-          } else throw new Error('API not ok');
-        } catch (e) {
+          } catch (e) {}
+
           const stored = localStorage.getItem('ak_admin_all_reviews') || localStorage.getItem('ak_bridals_reviews_list');
-          reviewsData = stored ? JSON.parse(stored) : [];
+          const localReviews = stored ? JSON.parse(stored) : [];
+          const deletedReviewIds = JSON.parse(localStorage.getItem('ak_deleted_review_ids') || '[]');
+
+          const rMap = new Map();
+          serverReviews.forEach(r => {
+            if (!deletedReviewIds.includes(String(r.id))) rMap.set(String(r.id), r);
+          });
+          localReviews.forEach(r => {
+            if (!deletedReviewIds.includes(String(r.id))) {
+              const existing = rMap.get(String(r.id));
+              rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
+            }
+          });
+
+          reviewsData = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
+        } catch (e) {
+          console.warn('Failed to load reviews:', e);
         }
 
         // 3. Gallery (Server API + LocalStorage + IndexedDB Persistence)
@@ -1402,34 +1436,68 @@
           galleryData = [];
         }
 
-        // 4. Services
+        // 4. Services (Smart Resilient Merge)
         try {
-          const sRes = await fetch('/api/services');
-          if (sRes.ok) {
-            const sData = await sRes.json();
-            if (sData.success) {
-              servicesData = sData.data || [];
-              localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
+          let serverServices = [];
+          try {
+            const sRes = await fetch('/api/services');
+            if (sRes.ok) {
+              const sData = await sRes.json();
+              if (sData.success && Array.isArray(sData.data)) serverServices = sData.data;
             }
-          } else throw new Error('API not ok');
-        } catch (e) {
+          } catch (e) {}
+
           const stored = localStorage.getItem('ak_offline_services');
-          servicesData = stored ? JSON.parse(stored) : [];
+          const localServices = stored ? JSON.parse(stored) : [];
+          const deletedServiceIds = JSON.parse(localStorage.getItem('ak_deleted_service_ids') || '[]');
+
+          const sMap = new Map();
+          serverServices.forEach(s => {
+            if (!deletedServiceIds.includes(String(s.id))) sMap.set(String(s.id), s);
+          });
+          localServices.forEach(s => {
+            if (!deletedServiceIds.includes(String(s.id))) {
+              const existing = sMap.get(String(s.id));
+              sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
+            }
+          });
+
+          servicesData = Array.from(sMap.values());
+          localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
+        } catch (e) {
+          console.warn('Failed to load services:', e);
         }
 
-        // 5. Blocked Dates
+        // 5. Blocked Dates (Smart Resilient Merge: Server + Local + Confirmed Bookings)
         try {
-          const dRes = await fetch('/api/availability');
-          if (dRes.ok) {
-            const dData = await dRes.json();
-            if (dData.success) {
-              blockedDatesData = dData.blocked_dates || [];
-              localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+          let serverBlocked = [];
+          try {
+            const dRes = await fetch('/api/availability');
+            if (dRes.ok) {
+              const dData = await dRes.json();
+              if (dData.success && Array.isArray(dData.blocked_dates)) serverBlocked = dData.blocked_dates;
             }
-          } else throw new Error('API not ok');
-        } catch (e) {
+          } catch (e) {}
+
           const stored = localStorage.getItem('ak_offline_blocked_dates');
-          blockedDatesData = stored ? JSON.parse(stored) : [];
+          const localBlocked = stored ? JSON.parse(stored) : [];
+          const unblockedDates = JSON.parse(localStorage.getItem('ak_unblocked_dates') || '[]');
+
+          const dateSet = new Set();
+          serverBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
+          localBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
+
+          // Auto-include dates from any confirmed bookings
+          bookingsData.forEach(b => {
+            if (b.status === 'confirmed' && b.preferred_date && !unblockedDates.includes(b.preferred_date)) {
+              dateSet.add(b.preferred_date);
+            }
+          });
+
+          blockedDatesData = Array.from(dateSet);
+          localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+        } catch (e) {
+          console.warn('Failed to load blocked dates:', e);
         }
 
         // 6. Settings
@@ -1634,6 +1702,10 @@
           });
         } catch (e) {}
 
+        const deletedBookingIds = JSON.parse(localStorage.getItem('ak_deleted_booking_ids') || '[]');
+        if (!deletedBookingIds.includes(String(id))) deletedBookingIds.push(String(id));
+        localStorage.setItem('ak_deleted_booking_ids', JSON.stringify(deletedBookingIds));
+
         bookingsData = bookingsData.filter(b => String(b.id) !== String(id));
         localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
 
@@ -1732,10 +1804,15 @@
           });
         } catch (e) {}
 
+        const deletedReviewIds = JSON.parse(localStorage.getItem('ak_deleted_review_ids') || '[]');
+        if (!deletedReviewIds.includes(String(id))) deletedReviewIds.push(String(id));
+        localStorage.setItem('ak_deleted_review_ids', JSON.stringify(deletedReviewIds));
+
         reviewsData = reviewsData.filter(r => String(r.id) !== String(id));
         localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
         const approvedOnly = reviewsData.filter(r => r.status === 'approved');
         localStorage.setItem('ak_bridals_reviews_list', JSON.stringify(approvedOnly));
+        localStorage.setItem('ak_bridals_verified_reviews_v5', JSON.stringify(approvedOnly));
         showToast('🗑️ Review deleted.');
         renderStats();
         renderReviews();
@@ -2373,6 +2450,10 @@
         localStorage.removeItem('ak_offline_services');
         localStorage.removeItem('ak_offline_blocked_dates');
         localStorage.removeItem('ak_deleted_gallery_ids');
+        localStorage.removeItem('ak_deleted_booking_ids');
+        localStorage.removeItem('ak_deleted_review_ids');
+        localStorage.removeItem('ak_deleted_service_ids');
+        localStorage.removeItem('ak_unblocked_dates');
         localStorage.removeItem('ak_my_review_tokens');
 
         try {
