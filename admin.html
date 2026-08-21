@@ -831,6 +831,26 @@
           text-align: left;
         }
 
+        .admin-table tr.empty-state-row {
+          background: transparent !important;
+          border: none !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+        }
+
+        .admin-table tr.empty-state-row td {
+          border: 1px dashed rgba(16, 185, 129, 0.35) !important;
+          background: rgba(0, 0, 0, 0.3) !important;
+          border-radius: 12px !important;
+          padding: 28px 16px !important;
+          display: block !important;
+          text-align: center !important;
+        }
+
+        .admin-table tr.empty-state-row td::before {
+          display: none !important;
+        }
+
         .action-btns {
           width: 100%;
           display: flex;
@@ -1594,7 +1614,15 @@
         });
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">No booking requests found.</td></tr>`;
+          tbody.innerHTML = `
+            <tr class="empty-state-row">
+              <td colspan="7" style="display: block; text-align: center; padding: 32px 16px; color: var(--admin-muted); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">📋</div>
+                <strong style="color: #ffffff; font-size: 1rem; display: block;">No Booking Requests in this View</strong>
+                <p style="font-size: 0.82rem; color: #9ca3af; margin: 4px auto 0; max-width: 320px;">Bookings submitted from the website will appear here in real-time.</p>
+              </td>
+            </tr>
+          `;
           return;
         }
 
@@ -1743,7 +1771,15 @@
         });
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">No reviews in this status.</td></tr>`;
+          tbody.innerHTML = `
+            <tr class="empty-state-row">
+              <td colspan="7" style="display: block; text-align: center; padding: 32px 16px; color: var(--admin-muted); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">⭐</div>
+                <strong style="color: #ffffff; font-size: 1rem; display: block;">No Reviews in this Status</strong>
+                <p style="font-size: 0.82rem; color: #9ca3af; margin: 4px auto 0; max-width: 320px;">Customer feedback submitted from the website will appear here for moderation.</p>
+              </td>
+            </tr>
+          `;
           return;
         }
 
