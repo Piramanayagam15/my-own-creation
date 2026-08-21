@@ -1136,9 +1136,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
-  if (dateInput) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.setAttribute("min", today);
     dateInput.addEventListener("change", (e) => checkAvailability(e.target.value));
     dateInput.addEventListener("input", (e) => checkAvailability(e.target.value));
   }
