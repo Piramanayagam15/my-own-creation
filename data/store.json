@@ -126,22 +126,58 @@
   ],
   "gallery": [
     {
-      "id": 102,
-      "title": "Royal Engagement Glamour",
-      "category": "reception",
+      "id": "media_1",
+      "title": "Royal Muhurtham Transformation",
+      "category": "bridal-makeup",
       "type": "image",
       "src": "assets/images/bridal_transformation.jpg",
-      "desc": "Elegant soft shimmer reception glow.",
-      "created_at": "2026-08-21T07:14:39.458Z"
+      "desc": "Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.",
+      "created_at": "2026-08-15T10:00:00.000Z"
     },
     {
-      "id": 101,
-      "title": "Royal Engagement Glamour",
+      "id": "media_2",
+      "title": "Glamorous Evening Reception Look",
       "category": "reception",
       "type": "image",
+      "src": "assets/images/reception_glam.jpg",
+      "desc": "Modern glowing dewy finish with soft rose-gold highlights for reception night.",
+      "created_at": "2026-08-16T12:00:00.000Z"
+    },
+    {
+      "id": "media_3",
+      "title": "Organic Bridal Mehndi Artistry",
+      "category": "mehndi",
+      "type": "image",
+      "src": "assets/images/mehndi_art.jpg",
+      "desc": "Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.",
+      "created_at": "2026-08-17T14:00:00.000Z"
+    },
+    {
+      "id": "media_4",
+      "title": "Handcrafted Zardozi Silk Blouse",
+      "category": "aari",
+      "type": "image",
+      "src": "assets/images/aari_embroidery.jpg",
+      "desc": "Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.",
+      "created_at": "2026-08-18T16:00:00.000Z"
+    },
+    {
+      "id": "media_5",
+      "title": "Traditional Poola Jada Floral Setting",
+      "category": "hair",
+      "type": "image",
+      "src": "assets/images/hair_styling.jpg",
+      "desc": "Authentic temple jewelry flower braid and box-pleated silk saree draping.",
+      "created_at": "2026-08-19T11:00:00.000Z"
+    },
+    {
+      "id": "media_6",
+      "title": "Signature HD Bridal Glow",
+      "category": "before-after",
+      "type": "image",
       "src": "assets/images/bridal_transformation.jpg",
-      "desc": "Elegant soft shimmer reception glow.",
-      "created_at": "2026-08-21T07:13:16.489Z"
+      "desc": "24-hour sweat-proof skin prep and natural radiance transformation.",
+      "created_at": "2026-08-20T09:00:00.000Z"
     }
   ],
   "blocked_dates": [
@@ -150,6 +186,21 @@
     "2026-11-08"
   ],
   "bookings": [
+    {
+      "id": 108,
+      "booking_ref": "AKB-108",
+      "name": "Sneha Varadarajan",
+      "phone": "+91 98410 55555",
+      "email": "sneha.v@example.com",
+      "preferred_date": "2026-12-15",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Madurai",
+      "message": "Please contact me regarding bridal availability.",
+      "status": "confirmed",
+      "created_at": "2026-08-21T07:29:44.067Z",
+      "updated_at": "2026-08-21T07:29:44.074Z"
+    },
     {
       "id": 107,
       "booking_ref": "AKB-107",
@@ -252,6 +303,18 @@
     }
   ],
   "reviews": [
+    {
+      "id": 105,
+      "name": "Pooja Sundaram",
+      "city": "Tirunelveli",
+      "rating": 5,
+      "service": "💄 Muhurtham Bridal Makeup",
+      "comment": "Absolutely stunning makeover! The makeup lasted throughout my entire muhurtham.",
+      "author_token": "zff5nemz8plmt2mprpq",
+      "status": "approved",
+      "created_at": "2026-08-21T07:29:44.078Z",
+      "moderated_at": "2026-08-21T07:29:44.084Z"
+    },
     {
       "id": 104,
       "name": "Pooja Sundaram",

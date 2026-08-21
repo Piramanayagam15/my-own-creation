@@ -383,6 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Category Names & Icons Map
   const categoryLabels = {
     "bridal-makeup": "Bridal Makeup",
+    reception: "Reception Glam",
     mehndi: "Mehndi (Henna)",
     aari: "Aari Embroidery",
     hair: "Hair & Draping",
@@ -392,53 +393,122 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const categoryIcons = {
     "bridal-makeup": "💄",
+    reception: "✨",
     mehndi: "🌿",
     aari: "🪡",
     hair: "💇‍♀️",
-    "before-after": "✨",
+    "before-after": "🌟",
     video: "🎥",
   };
 
-  // Pre-select category & update modal headers
-  const setTargetCategory = (categoryKey) => {
-    const safeKey = categoryLabels[categoryKey] ? categoryKey : "bridal-makeup";
-    if (mediaCategorySelect) mediaCategorySelect.value = safeKey;
-
-    if (modalCategoryPillGrid) {
-      modalCategoryPillGrid.querySelectorAll(".category-pill-btn").forEach((btn) => {
-        if (btn.getAttribute("data-cat") === safeKey) {
-          btn.classList.add("active");
-        } else {
-          btn.classList.remove("active");
-        }
-      });
+  const defaultGalleryMedia = [
+    {
+      id: "media_1",
+      title: "Royal Muhurtham Transformation",
+      category: "bridal-makeup",
+      type: "image",
+      src: "assets/images/bridal_transformation.jpg",
+      desc: "Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.",
+      created_at: "2026-08-15T10:00:00.000Z"
+    },
+    {
+      id: "media_2",
+      title: "Glamorous Evening Reception Look",
+      category: "reception",
+      type: "image",
+      src: "assets/images/reception_glam.jpg",
+      desc: "Modern glowing dewy finish with soft rose-gold highlights for reception night.",
+      created_at: "2026-08-16T12:00:00.000Z"
+    },
+    {
+      id: "media_3",
+      title: "Organic Bridal Mehndi Artistry",
+      category: "mehndi",
+      type: "image",
+      src: "assets/images/mehndi_art.jpg",
+      desc: "Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.",
+      created_at: "2026-08-17T14:00:00.000Z"
+    },
+    {
+      id: "media_4",
+      title: "Handcrafted Zardozi Silk Blouse",
+      category: "aari",
+      type: "image",
+      src: "assets/images/aari_embroidery.jpg",
+      desc: "Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.",
+      created_at: "2026-08-18T16:00:00.000Z"
+    },
+    {
+      id: "media_5",
+      title: "Traditional Poola Jada Floral Setting",
+      category: "hair",
+      type: "image",
+      src: "assets/images/hair_styling.jpg",
+      desc: "Authentic temple jewelry flower braid and box-pleated silk saree draping.",
+      created_at: "2026-08-19T11:00:00.000Z"
+    },
+    {
+      id: "media_6",
+      title: "Signature HD Bridal Glow",
+      category: "before-after",
+      type: "image",
+      src: "assets/images/bridal_transformation.jpg",
+      desc: "24-hour sweat-proof skin prep and natural radiance transformation.",
+      created_at: "2026-08-20T09:00:00.000Z"
     }
+  ];
 
-    if (modalServiceIcon) modalServiceIcon.textContent = categoryIcons[safeKey] || "✨";
-    if (modalServiceTitle) modalServiceTitle.textContent = `Add to ${categoryLabels[safeKey]}`;
-    if (modalServiceSubtitle) modalServiceSubtitle.textContent = `Photos or videos will be added directly into the ${categoryLabels[safeKey]} portfolio.`;
-    
-    const submitBtn = document.getElementById("uploadSubmitBtn");
-    if (submitBtn) submitBtn.textContent = `✨ Add Photos to ${categoryLabels[safeKey]}`;
-  };
-
-  // Open modal with specific service category pre-selected
-  window.openUploadModalWithCategory = (categoryKey) => {
-    setTargetCategory(categoryKey);
-    openUploadModal();
-  };
-
-  // Render all gallery media (Authentic user & admin uploads only - No default demo images)
+  // Render all gallery media (Loads from Server API, Admin LocalStorage, or Curated Portfolio)
   const renderGallery = async () => {
     if (!galleryGrid) return;
 
-    const userMedia = await GalleryDB.getAll();
+    let mediaList = [];
 
-    // Only uploaded media (latest on top)
-    const allItems = [...userMedia.reverse()];
+    // 1. Fetch from server API (/api/gallery)
+    try {
+      const res = await fetch("/api/gallery");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          mediaList = data.data;
+          localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
+          localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
+        }
+      }
+    } catch (e) {}
+
+    // 2. Fallback to localStorage (admin uploads offline / static)
+    if (mediaList.length === 0) {
+      try {
+        const stored = localStorage.getItem("ak_offline_gallery") || localStorage.getItem("ak_bridals_gallery_items_v2");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            mediaList = parsed;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 3. Fallback to IndexedDB (if items exist)
+    if (mediaList.length === 0) {
+      try {
+        const idbMedia = await GalleryDB.getAll();
+        if (idbMedia && idbMedia.length > 0) {
+          mediaList = idbMedia;
+        }
+      } catch (e) {}
+    }
+
+    // 4. Fallback to default curated gallery items
+    if (mediaList.length === 0) {
+      mediaList = [...defaultGalleryMedia];
+      localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
+      localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
+    }
 
     // Filter items based on activeFilter
-    const filteredItems = allItems.filter((item) => {
+    const filteredItems = mediaList.filter((item) => {
       if (activeFilter === "all") return true;
       if (activeFilter === "video") return item.type === "video" || item.category === "video";
       return item.category === activeFilter;
@@ -455,10 +525,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (categoryCountBadge) {
       categoryCountBadge.textContent = `${filteredItems.length} Item${filteredItems.length === 1 ? "" : "s"}`;
-    }
-
-    if (uploadBtnText) {
-      uploadBtnText.textContent = activeFilter === "all" ? "Upload Photo / Video" : `Add to ${categoryLabels[activeFilter]}`;
     }
 
     galleryGrid.innerHTML = "";

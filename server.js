@@ -120,7 +120,62 @@ const defaultStore = {
       inclusions: ['Intensive Training Batch', 'Hands-on Live Models', 'Certificate of Completion', 'Starter Kit Guidance']
     }
   ],
-  gallery: [],
+  gallery: [
+    {
+      id: 'media_1',
+      title: 'Royal Muhurtham Transformation',
+      category: 'bridal-makeup',
+      type: 'image',
+      src: 'assets/images/bridal_transformation.jpg',
+      desc: 'Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.',
+      created_at: '2026-08-15T10:00:00.000Z'
+    },
+    {
+      id: 'media_2',
+      title: 'Glamorous Evening Reception Look',
+      category: 'reception',
+      type: 'image',
+      src: 'assets/images/reception_glam.jpg',
+      desc: 'Modern glowing dewy finish with soft rose-gold highlights for reception night.',
+      created_at: '2026-08-16T12:00:00.000Z'
+    },
+    {
+      id: 'media_3',
+      title: 'Organic Bridal Mehndi Artistry',
+      category: 'mehndi',
+      type: 'image',
+      src: 'assets/images/mehndi_art.jpg',
+      desc: 'Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.',
+      created_at: '2026-08-17T14:00:00.000Z'
+    },
+    {
+      id: 'media_4',
+      title: 'Handcrafted Zardozi Silk Blouse',
+      category: 'aari',
+      type: 'image',
+      src: 'assets/images/aari_embroidery.jpg',
+      desc: 'Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.',
+      created_at: '2026-08-18T16:00:00.000Z'
+    },
+    {
+      id: 'media_5',
+      title: 'Traditional Poola Jada Floral Setting',
+      category: 'hair',
+      type: 'image',
+      src: 'assets/images/hair_styling.jpg',
+      desc: 'Authentic temple jewelry flower braid and box-pleated silk saree draping.',
+      created_at: '2026-08-19T11:00:00.000Z'
+    },
+    {
+      id: 'media_6',
+      title: 'Signature HD Bridal Glow',
+      category: 'before-after',
+      type: 'image',
+      src: 'assets/images/bridal_transformation.jpg',
+      desc: '24-hour sweat-proof skin prep and natural radiance transformation.',
+      created_at: '2026-08-20T09:00:00.000Z'
+    }
+  ],
   blocked_dates: ['2026-09-15', '2026-10-22', '2026-11-08'],
   bookings: [
     {
