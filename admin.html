@@ -2318,6 +2318,10 @@
           });
         } catch (e) {}
 
+        const deletedServiceIds = JSON.parse(localStorage.getItem('ak_deleted_service_ids') || '[]');
+        if (!deletedServiceIds.includes(String(id))) deletedServiceIds.push(String(id));
+        localStorage.setItem('ak_deleted_service_ids', JSON.stringify(deletedServiceIds));
+
         servicesData = servicesData.filter(s => String(s.id) !== String(id));
         localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
         showToast('🗑️ Service deleted.');
@@ -2356,6 +2360,10 @@
           });
         } catch (e) {}
 
+        let unblockedDates = JSON.parse(localStorage.getItem('ak_unblocked_dates') || '[]');
+        unblockedDates = unblockedDates.filter(d => d !== date);
+        localStorage.setItem('ak_unblocked_dates', JSON.stringify(unblockedDates));
+
         if (!blockedDatesData.includes(date)) {
           blockedDatesData.push(date);
           localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
@@ -2373,6 +2381,10 @@
             headers: { 'x-admin-token': adminToken }
           });
         } catch (e) {}
+
+        const unblockedDates = JSON.parse(localStorage.getItem('ak_unblocked_dates') || '[]');
+        if (!unblockedDates.includes(date)) unblockedDates.push(date);
+        localStorage.setItem('ak_unblocked_dates', JSON.stringify(unblockedDates));
 
         blockedDatesData = blockedDatesData.filter(d => d !== date);
         localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));

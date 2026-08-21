@@ -1081,7 +1081,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const todayStr = new Date().toISOString().split("T")[0];
     dateInput.min = todayStr;
 
-    // Real-time Date Availability Checker
+    // Real-time Date Availability Checker (Server API + Resilient LocalStorage Sync)
     const checkAvailability = async (selectedDate) => {
       if (!selectedDate) {
         if (dateAvailabilityBadge) dateAvailabilityBadge.style.display = "none";
@@ -1089,39 +1089,62 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      let isBooked = false;
+      let serviceName = "Bridal Service";
+
+      // 1. Check Server API
       try {
         const response = await fetch(`/api/check-availability?date=${encodeURIComponent(selectedDate)}`);
-        const data = await response.json();
-
-        if (data.isBooked) {
-          if (dateAvailabilityBadge) {
-            dateAvailabilityBadge.textContent = "🔴 Date Booked";
-            dateAvailabilityBadge.className = "date-availability-badge booked";
-            dateAvailabilityBadge.style.display = "inline-flex";
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isBooked) {
+            isBooked = true;
+            if (data.service) serviceName = data.service;
           }
-          if (dateAvailabilityStatus) {
-            dateAvailabilityStatus.innerHTML = `⚠️ <strong>Note:</strong> This date already has a booking recorded (${data.service || "Bridal Service"}). You can still submit a booking request or reach us on WhatsApp for emergency slot queries.`;
-            dateAvailabilityStatus.className = "date-availability-status booked";
-            dateAvailabilityStatus.style.display = "block";
-          }
-          dateInput.style.borderColor = "#ef4444";
-        } else {
-          if (dateAvailabilityBadge) {
-            dateAvailabilityBadge.textContent = "🟢 Slot Available";
-            dateAvailabilityBadge.className = "date-availability-badge available";
-            dateAvailabilityBadge.style.display = "inline-flex";
-          }
-          if (dateAvailabilityStatus) {
-            dateAvailabilityStatus.innerHTML = `✅ <strong>Great news!</strong> This date is currently available for your bridal makeover.`;
-            dateAvailabilityStatus.className = "date-availability-status available";
-            dateAvailabilityStatus.style.display = "block";
-          }
-          dateInput.style.borderColor = "#10b981";
         }
-      } catch (err) {
-        // Silent fallback
-        if (dateAvailabilityBadge) dateAvailabilityBadge.style.display = "none";
-        if (dateAvailabilityStatus) dateAvailabilityStatus.style.display = "none";
+      } catch (err) {}
+
+      // 2. Check Local Blocked Dates & Confirmed Bookings (offline-resilient fallback)
+      if (!isBooked) {
+        try {
+          const storedBlocked = JSON.parse(localStorage.getItem("ak_offline_blocked_dates") || "[]");
+          const unblockedDates = JSON.parse(localStorage.getItem("ak_unblocked_dates") || "[]");
+          if (storedBlocked.includes(selectedDate) && !unblockedDates.includes(selectedDate)) {
+            isBooked = true;
+          }
+          const storedBookings = JSON.parse(localStorage.getItem("ak_offline_bookings") || "[]");
+          const matched = storedBookings.find(b => b.status === "confirmed" && b.preferred_date === selectedDate);
+          if (matched && !unblockedDates.includes(selectedDate)) {
+            isBooked = true;
+            if (matched.service) serviceName = matched.service;
+          }
+        } catch (e) {}
+      }
+
+      if (isBooked) {
+        if (dateAvailabilityBadge) {
+          dateAvailabilityBadge.textContent = "🔴 Date Booked";
+          dateAvailabilityBadge.className = "date-availability-badge booked";
+          dateAvailabilityBadge.style.display = "inline-flex";
+        }
+        if (dateAvailabilityStatus) {
+          dateAvailabilityStatus.innerHTML = `⚠️ <strong>Note:</strong> This date already has a booking recorded (${serviceName}). You can still submit a booking request or reach us on WhatsApp for emergency slot queries.`;
+          dateAvailabilityStatus.className = "date-availability-status booked";
+          dateAvailabilityStatus.style.display = "block";
+        }
+        dateInput.style.borderColor = "#ef4444";
+      } else {
+        if (dateAvailabilityBadge) {
+          dateAvailabilityBadge.textContent = "🟢 Slot Available";
+          dateAvailabilityBadge.className = "date-availability-badge available";
+          dateAvailabilityBadge.style.display = "inline-flex";
+        }
+        if (dateAvailabilityStatus) {
+          dateAvailabilityStatus.innerHTML = `✅ <strong>Great news!</strong> This date is currently available for your bridal makeover.`;
+          dateAvailabilityStatus.className = "date-availability-status available";
+          dateAvailabilityStatus.style.display = "block";
+        }
+        dateInput.style.borderColor = "#10b981";
       }
     };
 
@@ -1765,34 +1788,102 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Dynamic Services & Starting Prices Synchronization
+  // Dynamic Studio Settings Synchronization across Public Website
+  const fetchAndApplySettings = async () => {
+    let settings = null;
+    try {
+      const res = await fetch("/api/settings");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data) {
+          settings = data.data;
+          localStorage.setItem("ak_offline_settings", JSON.stringify(settings));
+        }
+      }
+    } catch (e) {}
+
+    if (!settings) {
+      try {
+        const stored = localStorage.getItem("ak_offline_settings");
+        if (stored) settings = JSON.parse(stored);
+      } catch (e) {}
+    }
+
+    if (!settings) return;
+
+    const phone = settings.phone || "+91 8190913110";
+    const waPhone = (settings.whatsapp || "918190913110").replace(/[^0-9]/g, "");
+    const email = settings.email || "1508apiramanayagam@gmail.com";
+
+    // Update Floating WhatsApp links
+    document.querySelectorAll('a[href*="wa.me"]').forEach((a) => {
+      const currentHref = a.getAttribute("href") || "";
+      const textMatch = currentHref.match(/[?&]text=([^&]+)/);
+      const textParam = textMatch ? `?text=${textMatch[1]}` : "";
+      a.href = `https://wa.me/${waPhone}${textParam}`;
+    });
+
+    // Update Call links
+    document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
+      const cleanPhone = phone.replace(/[^0-9+]/g, "");
+      a.href = `tel:${cleanPhone}`;
+      if (a.textContent.includes("+91") || a.textContent.includes("8190913110")) {
+        a.textContent = phone;
+      }
+    });
+
+    // Update Email links
+    document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
+      a.href = `mailto:${email}`;
+      if (a.textContent.includes("@")) {
+        a.textContent = email;
+      }
+    });
+  };
+
+  // Resilient Services & Starting Prices Synchronization
   const fetchAndRenderServices = async () => {
     const servicesContainer = document.getElementById("servicesContainer");
     const homepageServicesGrid = document.getElementById("homepageServicesGrid");
     if (!servicesContainer && !homepageServicesGrid) return;
 
-    const defaultServices = [];
-    let servicesList = [];
+    let serverServices = [];
     try {
       const res = await fetch("/api/services");
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
-          servicesList = data.data;
-          localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
+          serverServices = data.data;
         }
       }
     } catch (e) {}
 
-    if (servicesList.length === 0) {
-      try {
-        const stored = localStorage.getItem("ak_offline_services");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) servicesList = parsed;
-        }
-      } catch (e) {}
-    }
+    let localServices = [];
+    try {
+      const stored = localStorage.getItem("ak_offline_services");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) localServices = parsed;
+      }
+    } catch (e) {}
+
+    const deletedServiceIds = JSON.parse(localStorage.getItem("ak_deleted_service_ids") || "[]");
+
+    const sMap = new Map();
+    serverServices.forEach((s) => {
+      if (!deletedServiceIds.includes(String(s.id))) sMap.set(String(s.id), s);
+    });
+    localServices.forEach((s) => {
+      if (!deletedServiceIds.includes(String(s.id))) {
+        const existing = sMap.get(String(s.id));
+        sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
+      }
+    });
+
+    const servicesList = Array.from(sMap.values());
+    try {
+      localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
+    } catch (e) {}
 
     // 1. Render on services.html
     if (servicesContainer) {
@@ -1865,7 +1956,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // Initialize services and reviews
+  // Initialize all dynamic systems
+  fetchAndApplySettings();
   fetchAndRenderServices();
   if (reviewsGrid) {
     fetchAndRenderReviews();
