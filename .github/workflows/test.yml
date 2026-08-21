@@ -1,0 +1,33 @@
+name: AK Bridals CI — Automated Test Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  integration-tests:
+    name: Automated Integration & Security Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js (v18)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🚀 Start Server in Background
+        run: |
+          node server.js &
+          sleep 3
+
+      - name: 🧪 Execute Automated Test Suite (0 Failures Gate)
+        run: npm test
