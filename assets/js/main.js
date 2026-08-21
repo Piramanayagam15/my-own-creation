@@ -1343,18 +1343,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   const REVIEWS_STORAGE_KEY = "ak_bridals_verified_reviews_v5";
   const LocalReviewsStorage = {
     getAll: () => {
-      try {
-        const stored = localStorage.getItem(REVIEWS_STORAGE_KEY);
-        if (!stored) return [];
-        const parsed = JSON.parse(stored);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        return [];
-      }
+      const keys = ["ak_bridals_reviews_list", "ak_admin_all_reviews", "ak_bridals_verified_reviews_v5", "ak_offline_reviews"];
+      const rMap = new Map();
+      keys.forEach(k => {
+        try {
+          const stored = localStorage.getItem(k);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+              parsed.forEach(r => {
+                if (r && r.id && !rMap.has(String(r.id))) {
+                  rMap.set(String(r.id), r);
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      });
+      return Array.from(rMap.values());
     },
     saveAll: (reviews) => {
       try {
         localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+        localStorage.setItem("ak_bridals_reviews_list", JSON.stringify(reviews));
       } catch (e) {}
     },
     add: (newReview) => {
