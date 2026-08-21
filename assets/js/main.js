@@ -1075,18 +1075,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (sendConfirmWhatsAppBtn) {
     sendConfirmWhatsAppBtn.addEventListener("click", () => {
       if (!lastBookingData) return;
-      const { name, phone, email, date, service, message, bookingId } = lastBookingData;
+      const { name, phone, email, date, eventType, service, location, message, bookingId } = lastBookingData;
       const textLines = [
         "👑 *AK Bridals - New Booking Request*",
-        `📋 *Booking ID:* ${bookingId}`,
+        `📋 *Booking Ref:* ${bookingId}`,
         `👰 *Bride Name:* ${name}`,
-        `📞 *Phone:* ${phone}`,
-        `✉️ *Email:* ${email}`,
+        `📞 *Phone / WhatsApp:* ${phone}`,
+        email && `✉️ *Email:* ${email}`,
         `📅 *Event Date:* ${date}`,
-        `💄 *Service:* ${service}`,
-        message && `💬 *Details:* ${message}`,
+        eventType && `💍 *Event Type:* ${eventType}`,
+        `💄 *Service Requested:* ${service}`,
+        location && `📍 *Location / City:* ${location}`,
+        message && `💬 *Special Notes:* ${message}`,
         "",
-        "Please confirm my booking slot. Thank you!",
+        "Please confirm my bridal appointment slot. Thank you!",
       ].filter(Boolean);
 
       const text = encodeURIComponent(textLines.join("\n"));
@@ -1105,7 +1107,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const phone = formData.get("phone")?.toString().trim() || "";
       const email = formData.get("email")?.toString().trim() || "";
       const date = formData.get("date")?.toString().trim() || "";
+      const eventType = formData.get("eventType")?.toString().trim() || "Wedding / Muhurtham";
       const service = formData.get("service")?.toString().trim() || "";
+      const location = formData.get("location")?.toString().trim() || "";
       const message = formData.get("message")?.toString().trim() || "";
 
       let hasError = false;
@@ -1115,14 +1119,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (errorP) errorP.textContent = msg;
       };
 
-      ["name", "phone", "email", "date", "service", "message"].forEach((id) => setError(id, ""));
+      ["name", "phone", "email", "date", "eventType", "service", "location", "message"].forEach((id) => setError(id, ""));
 
       if (!name) { setError("name", "Please enter your full name."); hasError = true; }
       if (!phone || phone.length < 8) { setError("phone", "Please enter a valid phone number."); hasError = true; }
       if (!email) { setError("email", "Please enter your email address."); hasError = true; }
       if (!date) { setError("date", "Please choose your preferred event date."); hasError = true; }
       if (!service) { setError("service", "Please select a service."); hasError = true; }
-      if (!message || message.length < 5) { setError("message", "Please share a few details about your event."); hasError = true; }
+      if (!location) { setError("location", "Please enter your event city/location."); hasError = true; }
+      if (!message || message.length < 3) { setError("message", "Please share details about your event."); hasError = true; }
 
       if (hasError) {
         formStatus.textContent = "Please fix the highlighted fields and try again.";
@@ -1136,20 +1141,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       submitBtn.disabled = true;
       submitBtn.textContent = "Processing Booking...";
 
-      fetch("/api/contact", {
+      fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, date, service, message }),
+        body: JSON.stringify({ name, phone, email, date, eventType, service, location, message }),
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            const bId = `#AKB-${data.id || Math.floor(1000 + Math.random() * 9000)}`;
-            lastBookingData = { name, phone, email, date, service, message, bookingId: bId };
+            const bId = data.booking?.booking_ref || `#AKB-${Math.floor(1000 + Math.random() * 9000)}`;
+            lastBookingData = { name, phone, email, date, eventType, service, location, message, bookingId: bId };
 
             if (confirmBookingId) confirmBookingId.textContent = bId;
             if (confirmCustomerName) confirmCustomerName.textContent = name;
-            if (confirmEventDate) confirmEventDate.textContent = date;
+            if (confirmEventDate) confirmEventDate.textContent = `${date} (${eventType})`;
             if (confirmService) confirmService.textContent = service;
 
             if (bookingSuccessModal) {
@@ -1174,21 +1179,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         .catch((error) => {
           console.warn("API offline fallback, creating local booking record:", error);
 
-          // Graceful fallback: generate booking record and save to localStorage
           const fallbackId = Math.floor(1000 + Math.random() * 9000);
           const bId = `#AKB-${fallbackId}`;
-          lastBookingData = { name, phone, email, date, service, message, bookingId: bId };
-
-          try {
-            const stored = localStorage.getItem("ak_bridals_offline_bookings");
-            const bookingsList = stored ? JSON.parse(stored) : [];
-            bookingsList.unshift({ id: fallbackId, name, phone, email, date, service, message, created_at: new Date().toISOString() });
-            localStorage.setItem("ak_bridals_offline_bookings", JSON.stringify(bookingsList));
-          } catch (e) {}
+          lastBookingData = { name, phone, email, date, eventType, service, location, message, bookingId: bId };
 
           if (confirmBookingId) confirmBookingId.textContent = bId;
           if (confirmCustomerName) confirmCustomerName.textContent = name;
-          if (confirmEventDate) confirmEventDate.textContent = date;
+          if (confirmEventDate) confirmEventDate.textContent = `${date} (${eventType})`;
           if (confirmService) confirmService.textContent = service;
 
           if (bookingSuccessModal) {
@@ -1218,7 +1215,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const name = formData.get("name")?.toString().trim() || "";
       const phone = formData.get("phone")?.toString().trim() || "";
       const date = formData.get("date")?.toString().trim() || "";
+      const eventType = formData.get("eventType")?.toString().trim() || "";
       const service = formData.get("service")?.toString().trim() || "";
+      const location = formData.get("location")?.toString().trim() || "";
       const msg = formData.get("message")?.toString().trim() || "";
 
       const textLines = [
@@ -1226,7 +1225,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         name && `👰 *Name:* ${name}`,
         phone && `📞 *Phone:* ${phone}`,
         date && `📅 *Preferred Date:* ${date}`,
+        eventType && `💍 *Event Type:* ${eventType}`,
         service && `💄 *Service:* ${service}`,
+        location && `📍 *Location:* ${location}`,
         msg && `💬 *Details:* ${msg}`,
       ].filter(Boolean);
 
@@ -1570,61 +1571,43 @@ document.addEventListener("DOMContentLoaded", async () => {
             fetchAndRenderReviews();
           }, 500);
         } else {
-          // 2. Create New Review Flow
-          const newId = Date.now();
+          // 2. Create New Review Flow (Goes to Pending for Admin Moderation)
           const authorToken = "auth_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
 
-          const newReviewObj = {
-            id: newId,
-            name: name,
-            city: "",
-            rating: rating,
-            service: service,
-            comment: comment,
-            created_at: new Date().toISOString()
-          };
-
-          // Save locally first for 100% guaranteed success
-          LocalReviewsStorage.add(newReviewObj);
-          AuthorTokenStorage.saveToken(newId, authorToken);
-
-          // Attempt sync with server in background if available
           try {
-            fetch("/api/reviews", {
+            const res = await fetch("/api/reviews", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ name, rating, service, comment })
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data && data.authorToken && data.review) {
-                  AuthorTokenStorage.saveToken(data.review.id, data.authorToken);
-                }
-              })
-              .catch(() => {});
-          } catch (e) {}
+            });
+            const data = await res.json();
+            if (data && data.authorToken && data.review) {
+              AuthorTokenStorage.saveToken(data.review.id, data.authorToken);
+            }
+          } catch (e) {
+            console.warn("Review submitted offline fallback");
+          }
 
           if (reviewFormStatus) {
-            reviewFormStatus.textContent = "🎉 Thank you for your review! It is now live.";
+            reviewFormStatus.textContent = "✨ Thank you! Your review has been submitted and will appear on the website once verified by AK Bridals.";
             reviewFormStatus.className = "form-status success";
           }
 
           setTimeout(() => {
             closeReviewModal();
             fetchAndRenderReviews();
-          }, 500);
+          }, 1800);
         }
       } catch (err) {
         console.error("Review processing error:", err);
-        // Fallback: update UI anyway
         if (reviewFormStatus) {
-          reviewFormStatus.textContent = "🎉 Thank you for your review! It is now live.";
+          reviewFormStatus.textContent = "✨ Thank you! Your review has been submitted for studio verification.";
           reviewFormStatus.className = "form-status success";
         }
         setTimeout(() => {
           closeReviewModal();
           fetchAndRenderReviews();
-        }, 500);
+        }, 1800);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }

@@ -1,0 +1,205 @@
+{
+  "settings": {
+    "studio_name": "AK Bridals",
+    "owner_name": "AK Bridal Artistry",
+    "phone": "+91 8190913110",
+    "whatsapp": "918190913110",
+    "email": "1508apiramanayagam@gmail.com",
+    "location": "Tamil Nadu & Destination Weddings (Chennai, Madurai, Coimbatore, Tirunelveli, Bengaluru)",
+    "instagram": "https://instagram.com/",
+    "about_bio": "At AK Bridals, we specialize in high-definition bridal transformations, authentic organic mehndi, handcrafted aari silk embroidery, and traditional muhurtham saree pleating.",
+    "pin": "akbridals2026"
+  },
+  "services": [
+    {
+      "id": "srv-1",
+      "key": "bridal-makeup",
+      "name": "Muhurtham Bridal Makeup",
+      "icon": "💄",
+      "tag": "Signature",
+      "starting_price": 15000,
+      "price_display": "Starting from ₹15,000",
+      "desc": "Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.",
+      "inclusions": [
+        "HD / Airbrush Makeup",
+        "Skin Prep & Primer",
+        "Lashes & Lenses",
+        "Touch-up Kit"
+      ]
+    },
+    {
+      "id": "srv-2",
+      "key": "reception-glam",
+      "name": "Reception Glam Makeup",
+      "icon": "✨",
+      "tag": "Trending",
+      "starting_price": 8000,
+      "price_display": "Starting from ₹8,000",
+      "desc": "Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.",
+      "inclusions": [
+        "Reception Glow Makeup",
+        "Hairstyling / Bun",
+        "Accessory Setting",
+        "Waterproof Formulation"
+      ]
+    },
+    {
+      "id": "srv-3",
+      "key": "combo-package",
+      "name": "Royal Muhurtham & Reception Combo",
+      "icon": "👑",
+      "tag": "Best Value",
+      "starting_price": 22000,
+      "price_display": "Starting from ₹22,000",
+      "desc": "Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.",
+      "inclusions": [
+        "2 Event Makeovers",
+        "Complete Hair Styling",
+        "Saree Pleating & Draping",
+        "Jewelry Styling Assistance"
+      ]
+    },
+    {
+      "id": "srv-4",
+      "key": "mehndi",
+      "name": "Bridal Organic Mehndi",
+      "icon": "🌿",
+      "tag": "Natural",
+      "starting_price": 3500,
+      "price_display": "Starting from ₹3,500",
+      "desc": "Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.",
+      "inclusions": [
+        "Full Hands (Front & Back)",
+        "Feet Bridal Pattern",
+        "After-care Essential Oil",
+        "Bridal Figures & Motifs"
+      ]
+    },
+    {
+      "id": "srv-5",
+      "key": "aari-embroidery",
+      "name": "Handcrafted Aari Silk Blouse",
+      "icon": "🪡",
+      "tag": "Custom",
+      "starting_price": 2500,
+      "price_display": "Starting from ₹2,500",
+      "desc": "Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.",
+      "inclusions": [
+        "Custom Neck & Sleeves Design",
+        "Zardozi & Gold Zari",
+        "Custom Color Matching",
+        "Precision Tailoring Fitting"
+      ]
+    },
+    {
+      "id": "srv-6",
+      "key": "hair-draping",
+      "name": "Hair Styling & Saree Draping",
+      "icon": "💇‍♀️",
+      "tag": "Essential",
+      "starting_price": 3000,
+      "price_display": "Starting from ₹3,000",
+      "desc": "Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.",
+      "inclusions": [
+        "Poola Jada Setting",
+        "Ironing & Pre-pleating",
+        "Jewelry Fixation",
+        "Long-hold Hair Setting"
+      ]
+    },
+    {
+      "id": "srv-7",
+      "key": "academy-makeup",
+      "name": "Professional Bridal Makeup Masterclass",
+      "icon": "🎓",
+      "tag": "Academy",
+      "starting_price": 25000,
+      "price_display": "Starting from ₹25,000",
+      "desc": "Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
+      "inclusions": [
+        "15 Days Intensive Training",
+        "Hands-on Live Models",
+        "Certificate of Completion",
+        "Starter Makeup Product Kit"
+      ]
+    }
+  ],
+  "gallery": [],
+  "blocked_dates": [
+    "2026-09-15",
+    "2026-10-22",
+    "2026-11-08"
+  ],
+  "bookings": [
+    {
+      "id": 104,
+      "booking_ref": "AKB-104",
+      "name": "Kavitha Selvam",
+      "phone": "+91 98401 23456",
+      "email": "kavitha@example.com",
+      "preferred_date": "2026-11-28",
+      "event_type": "Wedding / Muhurtham",
+      "service": "Muhurtham Bridal Makeup",
+      "location": "Tirunelveli",
+      "message": "Looking for morning muhurtham HD look.",
+      "status": "pending",
+      "created_at": "2026-08-21T06:40:44.781Z"
+    },
+    {
+      "id": 101,
+      "booking_ref": "AKB-101",
+      "name": "Priya Raman",
+      "phone": "+91 98765 43210",
+      "email": "priya.raman@example.com",
+      "preferred_date": "2026-09-20",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Chennai (T. Nagar)",
+      "message": "Looking for HD Airbrush makeup for Muhurtham & Reception in Chennai.",
+      "status": "pending",
+      "created_at": "2026-08-21T05:36:09.072Z"
+    },
+    {
+      "id": 102,
+      "booking_ref": "AKB-102",
+      "name": "Ananya Sundaram",
+      "phone": "+91 94432 10987",
+      "email": "ananya.s@example.com",
+      "preferred_date": "2026-10-05",
+      "event_type": "Reception",
+      "service": "🌿 Bridal Organic Mehndi",
+      "location": "Madurai",
+      "message": "Bridal peacock pattern henna for hands and feet.",
+      "status": "contacted",
+      "created_at": "2026-08-20T06:36:09.075Z"
+    },
+    {
+      "id": 103,
+      "booking_ref": "AKB-103",
+      "name": "Deepika Natarajan",
+      "phone": "+91 97890 12345",
+      "email": "deepika.n@example.com",
+      "preferred_date": "2026-11-12",
+      "event_type": "Engagement",
+      "service": "🪡 Handcrafted Aari Silk Blouse",
+      "location": "Coimbatore",
+      "message": "Custom gold zari zardozi bridal blouse embroidery.",
+      "status": "confirmed",
+      "created_at": "2026-08-19T06:36:09.075Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": 101,
+      "name": "Meena Karthik",
+      "city": "Madurai",
+      "rating": 5,
+      "service": "Bridal Makeup",
+      "comment": "Best bridal makeup experience! Looked natural and lasted through all wedding rituals.",
+      "author_token": "gplxd8tuu4dmt2kyrqw",
+      "status": "approved",
+      "created_at": "2026-08-21T06:40:44.793Z",
+      "moderated_at": "2026-08-21T06:40:44.816Z"
+    }
+  ]
+}

@@ -4,25 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <meta name="theme-color" content="#047857" />
-    <title>AK Bridals | Admin Management Portal</title>
+    <title>AK Bridals | Master Admin Operations Portal</title>
     <link rel="stylesheet" href="assets/css/styles.css" />
     <style>
-      /* Admin Portal Specific Glassmorphic Styling - Emerald Velvet & 24K Gold */
-      .admin-body {
+      :root {
+        --admin-bg: #022c22;
+        --admin-card: rgba(6, 78, 59, 0.55);
+        --admin-card-border: rgba(16, 185, 129, 0.3);
+        --admin-gold: #fde047;
+        --admin-gold-hover: #fef08a;
+        --admin-emerald: #059669;
+        --admin-text: #f3f4f6;
+        --admin-muted: #a7f3d0;
+      }
+
+      body.admin-body {
         min-height: 100vh;
-        background: radial-gradient(circle at 10% 20%, rgba(4, 120, 87, 0.15) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
+        background: radial-gradient(circle at 10% 20%, rgba(4, 120, 87, 0.25) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
                     #022c22;
-        color: #f3f4f6;
-        font-family: inherit;
-        padding-bottom: 60px;
+        color: var(--admin-text);
+        font-family: "Poppins", system-ui, -apple-system, sans-serif;
+        padding-bottom: 80px;
+        margin: 0;
       }
 
       .admin-header {
-        background: rgba(2, 44, 34, 0.92);
+        background: rgba(2, 44, 34, 0.95);
         backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(5, 150, 105, 0.35);
-        padding: 18px 0;
+        border-bottom: 1px solid rgba(5, 150, 105, 0.4);
+        padding: 16px 0;
         position: sticky;
         top: 0;
         z-index: 100;
@@ -32,6 +43,9 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
       }
 
       .admin-brand {
@@ -40,1229 +54,1573 @@
         gap: 12px;
       }
 
+      .admin-brand h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: #ffffff;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+
       .admin-badge {
         background: linear-gradient(135deg, #059669, #047857);
-        color: #fde047;
-        font-size: 0.75rem;
+        color: var(--admin-gold);
+        font-size: 0.72rem;
         font-weight: 700;
         padding: 3px 8px;
         border-radius: 6px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         border: 1px solid rgba(254, 240, 138, 0.4);
       }
 
+      .admin-nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .btn-admin-sm {
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-admin-sm:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color: var(--admin-gold);
+      }
+
+      .btn-admin-gold {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #022c22;
+        font-weight: 700;
+        border: none;
+      }
+      .btn-admin-gold:hover {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #000000;
+      }
+
+      .admin-container {
+        max-width: 1200px;
+        margin: 28px auto;
+        padding: 0 20px;
+      }
+
+      /* Auth View */
       .admin-auth-card {
         max-width: 420px;
         margin: 80px auto 40px;
-        padding: 36px 30px;
-        background: rgba(6, 78, 59, 0.6);
+        padding: 40px 32px;
+        background: var(--admin-card);
         backdrop-filter: blur(20px);
-        border: 1.5px solid rgba(5, 150, 105, 0.45);
-        border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        border: 1.5px solid var(--admin-card-border);
+        border-radius: 20px;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
         text-align: center;
       }
 
       .admin-auth-card h2 {
-        margin-bottom: 8px;
-        color: #fde047;
+        color: var(--admin-gold);
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        margin: 0 0 10px;
       }
 
+      .admin-auth-card p {
+        color: var(--admin-muted);
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+      }
+
+      .admin-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(5, 150, 105, 0.5);
+        background: rgba(2, 44, 34, 0.8);
+        color: #ffffff;
+        font-size: 1rem;
+        font-family: inherit;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .admin-input:focus {
+        border-color: var(--admin-gold);
+      }
+
+      .admin-btn {
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.4);
+      }
+
+      .admin-btn:hover {
+        background: linear-gradient(135deg, #10b981, #059669);
+        transform: translateY(-1px);
+      }
+
+      /* Admin Navigation Tabs */
+      .admin-tabs {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        margin-bottom: 24px;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+      }
+
+      .admin-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-btn {
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1.5px solid rgba(5, 150, 105, 0.35);
+        background: rgba(6, 78, 59, 0.4);
+        color: var(--admin-text);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        background: rgba(6, 78, 59, 0.8);
+        border-color: var(--admin-emerald);
+      }
+
+      .tab-btn.active {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #ffffff;
+        border-color: var(--admin-gold);
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.4);
+      }
+
+      .tab-badge {
+        background: #ef4444;
+        color: #ffffff;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      /* Stats Grid */
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         gap: 16px;
-        margin: 24px 0 32px;
+        margin-bottom: 28px;
       }
 
       .stat-card {
-        background: rgba(6, 78, 59, 0.5);
-        border: 1px solid rgba(5, 150, 105, 0.25);
-        border-radius: 12px;
+        background: var(--admin-card);
+        border: 1.5px solid var(--admin-card-border);
+        border-radius: 14px;
         padding: 20px;
         position: relative;
-        overflow: hidden;
-        transition: transform 0.2s, border-color 0.2s;
+        transition: transform 0.2s;
       }
 
       .stat-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(16, 185, 129, 0.6);
+        border-color: rgba(16, 185, 129, 0.7);
       }
 
       .stat-card .stat-icon {
         font-size: 1.8rem;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .stat-card .stat-number {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 800;
-        color: #fde047;
-        line-height: 1;
-        margin: 6px 0;
+        color: var(--admin-gold);
+        line-height: 1.1;
+        margin: 4px 0;
       }
 
       .stat-card .stat-label {
-        font-size: 0.85rem;
-        color: #a7f3d0;
+        font-size: 0.82rem;
+        color: var(--admin-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
 
-      .control-bar {
-        background: rgba(6, 78, 59, 0.45);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(5, 150, 105, 0.25);
-        border-radius: 12px;
-        padding: 16px 20px;
+      /* Content Panels */
+      .admin-panel {
+        display: none;
+        background: var(--admin-card);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid var(--admin-card-border);
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+      }
+
+      .admin-panel.active {
+        display: block;
+        animation: fadeIn 0.25s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .panel-header {
         display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.25);
       }
 
-      .search-box {
-        flex: 1;
-        min-width: 240px;
-        position: relative;
+      .panel-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: var(--admin-gold);
+        margin: 0;
       }
 
-      .search-box input {
-        width: 100%;
-        background: rgba(2, 44, 34, 0.85);
-        border: 1px solid rgba(5, 150, 105, 0.35);
-        color: #f3f4f6;
-        padding: 10px 16px;
-        border-radius: 8px;
-        font-size: 0.95rem;
-      }
-
-      .search-box input:focus {
-        border-color: #10b981;
-        outline: none;
-      }
-
-      .filter-controls {
+      /* Control Filter Bars */
+      .filter-toolbar {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         align-items: center;
+        margin-bottom: 20px;
       }
 
-      .filter-select {
-        background: rgba(2, 44, 34, 0.85);
-        border: 1px solid rgba(5, 150, 105, 0.35);
-        color: #f3f4f6;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 0.9rem;
+      .filter-chip {
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        background: rgba(2, 44, 34, 0.6);
+        color: var(--admin-text);
+        font-size: 0.84rem;
+        cursor: pointer;
       }
 
-      .table-container {
-        background: rgba(6, 78, 59, 0.45);
-        backdrop-filter: blur(14px);
-        border: 1px solid rgba(5, 150, 105, 0.25);
-        border-radius: 14px;
+      .filter-chip.active {
+        background: var(--admin-emerald);
+        border-color: var(--admin-gold);
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      /* Tables & Cards */
+      .table-responsive {
+        width: 100%;
         overflow-x: auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       }
 
       .admin-table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
-        font-size: 0.92rem;
+        font-size: 0.9rem;
       }
 
       .admin-table th {
-        background: rgba(2, 44, 34, 0.95);
-        color: #fde047;
+        padding: 12px 14px;
+        background: rgba(2, 44, 34, 0.85);
+        color: var(--admin-gold);
         font-weight: 600;
-        padding: 14px 16px;
-        border-bottom: 1px solid rgba(5, 150, 105, 0.35);
-        white-space: nowrap;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba(16, 185, 129, 0.3);
       }
 
       .admin-table td {
-        padding: 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        vertical-align: middle;
+        padding: 14px;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+        vertical-align: top;
       }
 
       .admin-table tr:hover td {
-        background: rgba(5, 150, 105, 0.1);
+        background: rgba(16, 185, 129, 0.08);
       }
 
-      .client-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .client-name {
-        font-weight: 700;
-        color: #fff;
-        font-size: 1rem;
-      }
-
-      .client-contact a {
-        color: #a7f3d0;
-        text-decoration: none;
-        font-size: 0.85rem;
-        transition: color 0.2s;
-      }
-
-      .client-contact a:hover {
-        color: #fde047;
-      }
-
-      .status-badge {
+      .status-pill {
         display: inline-block;
         padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.75rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.4px;
       }
 
-      .status-pending { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
-      .status-contacted { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-      .status-confirmed { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
-      .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+      .status-pending { background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.5); }
+      .status-contacted { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.5); }
+      .status-confirmed { background: rgba(16, 185, 129, 0.2); color: #86efac; border: 1px solid rgba(16, 185, 129, 0.5); }
+      .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+      .status-approved { background: rgba(16, 185, 129, 0.2); color: #86efac; border: 1px solid rgba(16, 185, 129, 0.5); }
+      .status-rejected { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
 
       .action-btns {
         display: flex;
-        gap: 8px;
-        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
       }
 
       .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px 10px;
+        padding: 5px 10px;
         border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
         font-size: 0.8rem;
-        font-weight: 600;
-        text-decoration: none;
-        border: none;
         cursor: pointer;
         transition: all 0.2s;
-      }
-
-      .btn-whatsapp {
-        background: #25D366;
-        color: #fff;
-      }
-      .btn-whatsapp:hover {
-        background: #1eb857;
-      }
-
-      .btn-call {
-        background: #3b82f6;
-        color: #fff;
-      }
-      .btn-call:hover {
-        background: #2563eb;
-      }
-
-      .btn-delete {
-        background: rgba(239, 68, 68, 0.2);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.4);
-      }
-      .btn-delete:hover {
-        background: #ef4444;
-        color: #fff;
-      }
-
-      .status-select-inline {
-        background: rgba(2, 44, 34, 0.9);
-        color: #f3f4f6;
-        border: 1px solid rgba(5, 150, 105, 0.4);
-        padding: 5px 8px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        cursor: pointer;
-      }
-
-      .empty-notice {
-        text-align: center;
-        padding: 40px 20px;
-        color: #9ca3af;
-      }
-
-      .empty-notice span {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 8px;
-      }
-
-      .admin-tab-bar {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 12px;
-      }
-
-      .admin-tab-btn {
-        background: rgba(6, 78, 59, 0.5);
-        border: 1px solid rgba(5, 150, 105, 0.3);
-        color: #cbd5e1;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
+        text-decoration: none;
         display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .action-btn.btn-wa {
+        background: #128c7e;
+        border-color: #25d366;
+        color: #ffffff;
+        font-weight: 600;
+      }
+      .action-btn.btn-wa:hover {
+        background: #25d366;
+      }
+
+      .action-btn.btn-approve {
+        background: #059669;
+        border-color: #10b981;
+      }
+
+      .action-btn.btn-reject {
+        background: #dc2626;
+        border-color: #ef4444;
+      }
+
+      .action-btn.btn-del {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+      .action-btn.btn-del:hover {
+        background: #dc2626;
+        color: #ffffff;
+      }
+
+      /* Gallery Grid in Admin */
+      .admin-gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .admin-media-card {
+        background: rgba(2, 44, 34, 0.7);
+        border: 1.5px solid var(--admin-card-border);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .admin-media-thumb {
+        height: 150px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+
+      .admin-media-info {
+        padding: 12px;
+        flex: 1;
+      }
+
+      .admin-media-info h4 {
+        margin: 0 0 4px;
+        font-size: 0.95rem;
+        color: #ffffff;
+      }
+
+      .admin-media-info span {
+        font-size: 0.75rem;
+        color: var(--admin-muted);
+      }
+
+      /* Services Grid in Admin */
+      .admin-services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 18px;
+        margin-top: 20px;
+      }
+
+      .admin-service-card {
+        background: rgba(2, 44, 34, 0.75);
+        border: 1.5px solid var(--admin-card-border);
+        border-radius: 14px;
+        padding: 20px;
+        position: relative;
+      }
+
+      .admin-service-card h4 {
+        color: var(--admin-gold);
+        font-size: 1.15rem;
+        margin: 0 0 6px;
+        display: flex;
         align-items: center;
         gap: 8px;
       }
 
-      .admin-tab-btn:hover {
-        color: #fde047;
-        border-color: rgba(16, 185, 129, 0.6);
+      .service-price-tag {
+        display: inline-block;
+        background: rgba(16, 185, 129, 0.2);
+        color: #86efac;
+        font-weight: 700;
+        font-size: 0.88rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(16, 185, 129, 0.4);
       }
 
-      .admin-tab-btn.active {
-        background: linear-gradient(135deg, #059669, #047857);
+      .admin-service-card p {
+        font-size: 0.86rem;
+        color: #d1d5db;
+        line-height: 1.4;
+        margin-bottom: 14px;
+      }
+
+      /* Forms Grid */
+      .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--admin-muted);
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+
+      .admin-select, .admin-textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(5, 150, 105, 0.5);
+        background: rgba(2, 44, 34, 0.85);
         color: #ffffff;
-        border-color: #fde047;
-        box-shadow: 0 4px 15px rgba(4, 120, 87, 0.45);
+        font-family: inherit;
+        font-size: 0.95rem;
+        box-sizing: border-box;
       }
 
-      /* Admin Review Edit Modal */
-      .admin-modal {
+      .admin-textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      /* Modal Box */
+      .admin-modal-overlay {
         position: fixed;
-        inset: 0;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 500;
-        padding: 1rem;
-      }
-
-      .admin-modal.show {
-        display: flex;
-      }
-
-      .admin-modal-backdrop {
-        position: absolute;
         inset: 0;
         background: rgba(0, 0, 0, 0.75);
         backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 20px;
       }
 
-      .admin-modal-card {
-        position: relative;
-        background: #064e3b;
-        border: 1.5px solid rgba(5, 150, 105, 0.5);
-        border-radius: 16px;
-        padding: 24px;
-        max-width: 500px;
+      .admin-modal-overlay.show {
+        display: flex;
+      }
+
+      .admin-modal-box {
+        background: #022c22;
+        border: 2px solid var(--admin-card-border);
+        border-radius: 18px;
+        max-width: 540px;
         width: 100%;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-        z-index: 501;
+        padding: 28px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
       }
 
-      /* Admin Mobile Media Queries */
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .modal-header h3 {
+        color: var(--admin-gold);
+        margin: 0;
+      }
+
+      .close-modal-btn {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Toast notification */
+      .admin-toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #ffffff;
+        padding: 14px 22px;
+        border-radius: 12px;
+        border: 1px solid var(--admin-gold);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        font-weight: 600;
+        font-size: 0.92rem;
+        display: none;
+      }
+
       @media (max-width: 768px) {
-        .admin-header-inner {
-          flex-direction: column;
-          gap: 12px;
-          text-align: center;
-        }
-
-        .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-        }
-
-        .control-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-        }
-
-        .search-box {
-          min-width: 100%;
-        }
-
-        .filter-controls {
-          flex-direction: column;
-          width: 100%;
-        }
-
-        .filter-select {
-          width: 100%;
-        }
-
-        .admin-tab-bar {
-          flex-direction: column;
-          width: 100%;
-        }
-
-        .admin-tab-btn {
-          width: 100%;
-          justify-content: center;
-        }
-
-        .admin-table th, .admin-table td {
-          padding: 10px 12px;
-          font-size: 0.85rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
-        
-        .admin-auth-card {
-          margin: 30px auto;
-          padding: 24px 18px;
-          max-width: 95vw;
-        }
+        .form-grid-2 { grid-template-columns: 1fr; }
+        .admin-header-inner { flex-direction: column; gap: 12px; }
+        .admin-panel { padding: 18px; }
       }
     </style>
   </head>
   <body class="admin-body">
-    <!-- Ambient Light Glow Orbs -->
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-
+    <!-- Header -->
     <header class="admin-header">
-      <div class="container admin-header-inner">
+      <div class="admin-header-inner">
         <div class="admin-brand">
-          <a href="index.html" class="logo" style="margin-bottom: 0;">AK Bridals</a>
-          <span class="admin-badge">Admin Portal</span>
+          <span style="font-size: 1.5rem;">👑</span>
+          <h1>AK Bridals</h1>
+          <span class="admin-badge">Admin Operations</span>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <a href="index.html" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">🌐 View Website</a>
-          <button id="logoutBtn" class="btn btn-secondary" style="display: none; padding: 6px 14px; font-size: 0.85rem; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">Logout</button>
+        <div class="admin-nav-actions" id="adminHeaderActions" style="display: none;">
+          <a href="index.html" class="btn-admin-sm" target="_blank">🌐 Live Website</a>
+          <button type="button" class="btn-admin-sm" id="adminRefreshBtn">🔄 Refresh</button>
+          <button type="button" class="btn-admin-sm btn-admin-gold" id="adminLogoutBtn">🔒 Logout</button>
         </div>
       </div>
     </header>
 
-    <main class="container" style="margin-top: 30px;">
-      <!-- 1. Authentication Screen (Hidden when logged in) -->
+    <main class="admin-container">
+      <!-- 1. Authentication Login Card -->
       <section id="authSection" class="admin-auth-card">
-        <div style="font-size: 2.5rem; margin-bottom: 12px;">👑</div>
-        <h2>Admin Authentication</h2>
-        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 24px;">
-          Enter your secure Admin PIN or Token to access the bridal bookings and reviews database.
-        </p>
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">🛡️</div>
+        <h2>Admin Portal Login</h2>
+        <p>Enter your Studio Master PIN to manage bookings, reviews, gallery media, and services.</p>
         <form id="adminLoginForm">
-          <div class="form-row" style="text-align: left; margin-bottom: 16px;">
-            <label for="adminTokenInput">Admin PIN / Token</label>
-            <input type="password" id="adminTokenInput" placeholder="Enter PIN (Default: akbridals2026)" required style="width: 100%;" />
-          </div>
-          <button type="submit" class="btn btn-primary btn-glow" style="width: 100%;">
-            Unlock Dashboard 🔓
-          </button>
-          <p id="loginError" style="color: #f87171; font-size: 0.85rem; margin-top: 12px; display: none;"></p>
+          <input type="password" id="adminPinInput" class="admin-input" placeholder="Enter Admin PIN (e.g. akbridals2026)" required autofocus />
+          <button type="submit" class="admin-btn">🔑 Unlock Dashboard</button>
         </form>
+        <div id="loginErrorMsg" style="color: #f87171; font-size: 0.85rem; margin-top: 14px;"></div>
       </section>
 
-      <!-- 2. Main Dashboard (Visible after login) -->
+      <!-- 2. Main Dashboard Interface -->
       <section id="dashboardSection" style="display: none;">
-        <!-- Tab Navigation Bar -->
-        <div class="admin-tab-bar">
-          <button id="tabBookingsBtn" class="admin-tab-btn active">
-            📋 Customer Bookings
-          </button>
-          <button id="tabReviewsBtn" class="admin-tab-btn">
-            ⭐ Customer Reviews &amp; Ratings
-          </button>
+        <!-- Top Stats Row -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-number" id="statTotalBookings">0</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-number" id="statPendingBookings">0</div>
+            <div class="stat-label">Pending Inquiries</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-number" id="statApprovedReviews">0</div>
+            <div class="stat-label">Approved Reviews</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📸</div>
+            <div class="stat-number" id="statTotalMedia">0</div>
+            <div class="stat-label">Gallery Media</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-number" id="statBlockedDates">0</div>
+            <div class="stat-label">Booked Dates</div>
+          </div>
         </div>
 
-        <!-- ==============================================
-             VIEW 1: CUSTOMER BOOKINGS & ENQUIRIES
-             ============================================== -->
-        <div id="viewBookings">
-          <!-- Header welcome & metrics -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
+        <!-- Navigation Tabs -->
+        <nav class="admin-tabs">
+          <button class="tab-btn active" data-tab="tabBookings">📋 Booking Requests <span class="tab-badge" id="badgePendingBookings" style="display:none;">0</span></button>
+          <button class="tab-btn" data-tab="tabReviews">⭐ Reviews Moderation <span class="tab-badge" id="badgePendingReviews" style="display:none;">0</span></button>
+          <button class="tab-btn" data-tab="tabGallery">📸 Gallery & Videos</button>
+          <button class="tab-btn" data-tab="tabServices">💄 Services & Pricing</button>
+          <button class="tab-btn" data-tab="tabDates">📅 Date Availability</button>
+          <button class="tab-btn" data-tab="tabSettings">📝 Studio Settings</button>
+        </nav>
+
+        <!-- PANEL 1: BOOKING REQUESTS -->
+        <div class="admin-panel active" id="tabBookings">
+          <div class="panel-header">
             <div>
-              <div class="section-tag" style="margin-bottom: 4px;">Live Bookings Database</div>
-              <h1 style="font-size: 1.8rem; margin-bottom: 0;">Enquiries &amp; Orders Overview</h1>
+              <h3>📋 Client Booking Requests</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Manage bridal appointments, wedding dates, and quick WhatsApp responses.</p>
             </div>
-            <div>
-              <button id="refreshBtn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">🔄 Refresh Data</button>
-              <button id="exportCsvBtn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">📥 Export to CSV</button>
-            </div>
+            <button class="btn-admin-sm btn-admin-gold" id="btnExportBookings">📥 Export to CSV</button>
           </div>
 
-          <!-- KPI Metrics Cards -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon">📋</div>
-              <div class="stat-number" id="statTotal">0</div>
-              <div class="stat-label">Total Enquiries</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #facc15;">
-              <div class="stat-icon">⏳</div>
-              <div class="stat-number" id="statPending" style="color: #facc15;">0</div>
-              <div class="stat-label">Pending Action</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #60a5fa;">
-              <div class="stat-icon">💬</div>
-              <div class="stat-number" id="statContacted" style="color: #60a5fa;">0</div>
-              <div class="stat-label">Contacted Leads</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #4ade80;">
-              <div class="stat-icon">🎉</div>
-              <div class="stat-number" id="statConfirmed" style="color: #4ade80;">0</div>
-              <div class="stat-label">Confirmed Brides</div>
-            </div>
+          <div class="filter-toolbar">
+            <button class="filter-chip active" data-booking-filter="all">All Bookings</button>
+            <button class="filter-chip" data-booking-filter="pending">⏳ Pending</button>
+            <button class="filter-chip" data-booking-filter="contacted">📞 Contacted</button>
+            <button class="filter-chip" data-booking-filter="confirmed">✅ Confirmed</button>
+            <button class="filter-chip" data-booking-filter="cancelled">❌ Cancelled</button>
+            <input type="text" id="bookingSearchInput" class="admin-input" placeholder="Search by name, phone, city..." style="max-width: 250px; margin: 0 0 0 auto; padding: 6px 12px; font-size: 0.85rem;" />
           </div>
 
-          <!-- Search & Filter Controls -->
-          <div class="control-bar">
-            <div class="search-box">
-              <input type="text" id="searchInput" placeholder="🔍 Search by client name, phone, email, or service..." />
-            </div>
-            <div class="filter-controls">
-              <label for="statusFilter" style="font-size: 0.85rem; color: #9ca3af;">Status:</label>
-              <select id="statusFilter" class="filter-select">
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="contacted">Contacted</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Bookings Data Table -->
-          <div class="table-container">
+          <div class="table-responsive">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th># ID</th>
-                  <th>Client Details</th>
-                  <th>Service</th>
-                  <th>Event Date</th>
-                  <th>Message / Details</th>
+                  <th>Ref #</th>
+                  <th>Client Info</th>
+                  <th>Event Date & Type</th>
+                  <th>Service & Location</th>
+                  <th>Client Notes</th>
                   <th>Status</th>
-                  <th>Quick Actions</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="bookingsTableBody">
-                <tr>
-                  <td colspan="7" class="empty-notice">
-                    <span>⏳</span>
-                    Loading bridal bookings...
-                  </td>
-                </tr>
+                <tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">Loading bookings...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- ==============================================
-             VIEW 2: CUSTOMER REVIEWS & RATINGS MANAGEMENT
-             ============================================== -->
-        <div id="viewReviews" style="display: none;">
-          <!-- Header -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
+        <!-- PANEL 2: REVIEWS MODERATION -->
+        <div class="admin-panel" id="tabReviews">
+          <div class="panel-header">
             <div>
-              <div class="section-tag" style="margin-bottom: 4px;">Reviews Moderation</div>
-              <h1 style="font-size: 1.8rem; margin-bottom: 0;">Customer Ratings &amp; Testimonials</h1>
-            </div>
-            <div>
-              <button id="refreshReviewsBtn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">🔄 Refresh Reviews</button>
+              <h3>⭐ Reviews & Client Feedback Moderation</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Verify reviews submitted by brides before they appear on the public website.</p>
             </div>
           </div>
 
-          <!-- Reviews KPI Cards -->
-          <div class="stats-grid">
-            <div class="stat-card" style="border-left: 4px solid #f59e0b;">
-              <div class="stat-icon">⭐</div>
-              <div class="stat-number" id="reviewStatAvg" style="color: #fbbf24;">4.9 ★</div>
-              <div class="stat-label">Average Rating</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">📝</div>
-              <div class="stat-number" id="reviewStatTotal">0</div>
-              <div class="stat-label">Total Reviews</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #10b981;">
-              <div class="stat-icon">🌟</div>
-              <div class="stat-number" id="reviewStatFiveStar" style="color: #34d399;">0</div>
-              <div class="stat-label">5-Star Ratings</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #3b82f6;">
-              <div class="stat-icon">✨</div>
-              <div class="stat-number" id="reviewStatFourStar" style="color: #60a5fa;">0</div>
-              <div class="stat-label">4-Star Ratings</div>
-            </div>
+          <div class="filter-toolbar">
+            <button class="filter-chip active" data-review-filter="pending">⏳ Moderation Queue (Pending)</button>
+            <button class="filter-chip" data-review-filter="approved">✅ Live Approved</button>
+            <button class="filter-chip" data-review-filter="rejected">❌ Rejected</button>
+            <button class="filter-chip" data-review-filter="all">All Reviews</button>
           </div>
 
-          <!-- Reviews Search & Filter Controls -->
-          <div class="control-bar">
-            <div class="search-box">
-              <input type="text" id="searchReviewsInput" placeholder="🔍 Search reviews by client name, city, or comments..." />
-            </div>
-            <div class="filter-controls">
-              <label for="reviewRatingFilter" style="font-size: 0.85rem; color: #9ca3af;">Rating:</label>
-              <select id="reviewRatingFilter" class="filter-select">
-                <option value="all">All Stars</option>
-                <option value="5">5 Stars only</option>
-                <option value="4">4 Stars only</option>
-                <option value="3">3 Stars &amp; below</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Reviews Table -->
-          <div class="table-container">
+          <div class="table-responsive">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th># ID</th>
-                  <th>Bride / Client</th>
                   <th>Rating</th>
-                  <th>Service Availed</th>
+                  <th>Client & City</th>
+                  <th>Service</th>
                   <th>Review Comment</th>
+                  <th>Submitted</th>
                   <th>Status</th>
-                  <th>Admin Actions</th>
+                  <th>Moderation Actions</th>
                 </tr>
               </thead>
               <tbody id="reviewsTableBody">
-                <tr>
-                  <td colspan="7" class="empty-notice">
-                    <span>⏳</span>
-                    Loading customer reviews...
-                  </td>
-                </tr>
+                <tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">Loading reviews...</td></tr>
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- PANEL 3: GALLERY & VIDEO SHOWCASE -->
+        <div class="admin-panel" id="tabGallery">
+          <div class="panel-header">
+            <div>
+              <h3>📸 Portfolio Media Management</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Upload high-definition photos and video reels directly into bridal categories.</p>
+            </div>
+            <button class="btn-admin-sm btn-admin-gold" id="btnOpenUploadModal">+ Upload Photo / Video</button>
+          </div>
+
+          <div class="filter-toolbar" id="adminGalleryFilters">
+            <button class="filter-chip active" data-gallery-cat="all">All Media</button>
+            <button class="filter-chip" data-gallery-cat="bridal-makeup">💄 Bridal Makeup</button>
+            <button class="filter-chip" data-gallery-cat="reception">✨ Reception</button>
+            <button class="filter-chip" data-gallery-cat="mehndi">🌿 Mehndi</button>
+            <button class="filter-chip" data-gallery-cat="aari">🪡 Aari Work</button>
+            <button class="filter-chip" data-gallery-cat="hair">💇‍♀️ Hair & Draping</button>
+            <button class="filter-chip" data-gallery-cat="before-after">🌟 Transformations</button>
+            <button class="filter-chip" data-gallery-cat="video">🎥 Video Reels</button>
+          </div>
+
+          <div class="admin-gallery-grid" id="adminGalleryGrid">
+            <!-- Media cards rendered via JS -->
+          </div>
+        </div>
+
+        <!-- PANEL 4: SERVICES & PACKAGES -->
+        <div class="admin-panel" id="tabServices">
+          <div class="panel-header">
+            <div>
+              <h3>💄 Services, Starting Prices & Packages</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Update service descriptions, package inclusions, and starting price points.</p>
+            </div>
+            <button class="btn-admin-sm btn-admin-gold" id="btnOpenAddServiceModal">+ Add New Service</button>
+          </div>
+
+          <div class="admin-services-grid" id="adminServicesGrid">
+            <!-- Services rendered via JS -->
+          </div>
+        </div>
+
+        <!-- PANEL 5: DATE AVAILABILITY -->
+        <div class="admin-panel" id="tabDates">
+          <div class="panel-header">
+            <div>
+              <h3>📅 Wedding Date Availability Manager</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Block dates that are fully booked for Muhurtham/Weddings so brides know your schedule.</p>
+            </div>
+          </div>
+
+          <div style="max-width: 500px; margin-bottom: 24px; background: rgba(2,44,34,0.7); padding: 18px; border-radius: 12px; border: 1px solid var(--admin-card-border);">
+            <h4 style="color: var(--admin-gold); margin: 0 0 10px;">Block a New Date:</h4>
+            <div style="display: flex; gap: 10px;">
+              <input type="date" id="blockDateInput" class="admin-input" style="margin: 0;" />
+              <button type="button" class="btn-admin-sm btn-admin-gold" id="btnBlockDate" style="white-space:nowrap;">🔒 Block Date</button>
+            </div>
+          </div>
+
+          <h4 style="color: var(--admin-gold); margin-bottom: 12px;">Currently Booked / Blocked Dates:</h4>
+          <div id="blockedDatesList" style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <!-- Blocked date chips rendered via JS -->
+          </div>
+        </div>
+
+        <!-- PANEL 6: STUDIO SETTINGS -->
+        <div class="admin-panel" id="tabSettings">
+          <div class="panel-header">
+            <div>
+              <h3>📝 Studio Contact & Bio Settings</h3>
+              <p style="color: var(--admin-muted); font-size: 0.85rem; margin: 4px 0 0;">Update business phone number, WhatsApp contact, service coverage, and admin PIN.</p>
+            </div>
+          </div>
+
+          <form id="adminSettingsForm">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Studio Brand Name</label>
+                <input type="text" id="settingStudioName" class="admin-input" />
+              </div>
+              <div class="form-group">
+                <label>Lead Artist / Owner Name</label>
+                <input type="text" id="settingOwnerName" class="admin-input" />
+              </div>
+              <div class="form-group">
+                <label>Primary Phone Number</label>
+                <input type="text" id="settingPhone" class="admin-input" placeholder="+91 8190913110" />
+              </div>
+              <div class="form-group">
+                <label>WhatsApp Number (without + or spaces)</label>
+                <input type="text" id="settingWhatsapp" class="admin-input" placeholder="918190913110" />
+              </div>
+              <div class="form-group">
+                <label>Business Email Address</label>
+                <input type="email" id="settingEmail" class="admin-input" placeholder="1508apiramanayagam@gmail.com" />
+              </div>
+              <div class="form-group">
+                <label>Service Coverage Locations</label>
+                <input type="text" id="settingLocation" class="admin-input" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Studio Mission & About Bio</label>
+              <textarea id="settingAboutBio" class="admin-textarea"></textarea>
+            </div>
+
+            <div class="form-group" style="max-width: 320px;">
+              <label>Change Master Admin PIN</label>
+              <input type="text" id="settingPin" class="admin-input" placeholder="akbridals2026" />
+            </div>
+
+            <button type="submit" class="admin-btn" style="max-width: 250px;">💾 Save Studio Settings</button>
+          </form>
         </div>
       </section>
     </main>
 
-    <!-- Admin Edit Review Modal -->
-    <div class="admin-modal" id="adminEditReviewModal">
-      <div class="admin-modal-backdrop" id="adminModalBackdrop"></div>
-      <div class="admin-modal-card">
-        <h3 style="color: #fbbf24; margin-top: 0; margin-bottom: 1rem;">✏️ Edit Customer Review</h3>
-        <form id="adminEditReviewForm">
-          <input type="hidden" id="editReviewId" />
-          
-          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
-            <label style="color: #9ca3af; font-size: 0.85rem;">Client Name</label>
-            <input type="text" id="editReviewName" required readonly style="background: rgba(0,0,0,0.3); opacity: 0.8;" />
+    <!-- Upload Media Modal -->
+    <div class="admin-modal-overlay" id="uploadMediaModal">
+      <div class="admin-modal-box">
+        <div class="modal-header">
+          <h3>📸 Upload Bridal Photo / Reel</h3>
+          <button class="close-modal-btn" onclick="closeModal('uploadMediaModal')">&times;</button>
+        </div>
+        <form id="adminUploadMediaForm">
+          <div class="form-group">
+            <label>Media Title *</label>
+            <input type="text" id="mediaTitleInput" class="admin-input" placeholder="e.g. Muhurtham HD Makeup Transformation" required />
           </div>
-
-          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
-            <label style="color: #9ca3af; font-size: 0.85rem;">Rating (Stars)</label>
-            <select id="editReviewRating" class="filter-select" style="width: 100%;">
-              <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
-              <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
-              <option value="3">⭐⭐⭐ (3 Stars)</option>
-              <option value="2">⭐⭐ (2 Stars)</option>
-              <option value="1">⭐ (1 Star)</option>
-            </select>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="mediaCategorySelect" class="admin-select" required>
+                <option value="bridal-makeup">💄 Bridal Makeup</option>
+                <option value="reception">✨ Reception</option>
+                <option value="mehndi">🌿 Mehndi</option>
+                <option value="aari">🪡 Aari Work</option>
+                <option value="hair">💇‍♀️ Hair & Draping</option>
+                <option value="before-after">🌟 Before & After</option>
+                <option value="video">🎥 Video Reel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Media Type</label>
+              <select id="mediaTypeSelect" class="admin-select">
+                <option value="image">📸 Photo</option>
+                <option value="video">🎥 Video</option>
+              </select>
+            </div>
           </div>
-
-          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
-            <label style="color: #9ca3af; font-size: 0.85rem;">Service</label>
-            <input type="text" id="editReviewService" required />
+          <div class="form-group">
+            <label>Image / Video File or URL *</label>
+            <input type="file" id="mediaFileInput" accept="image/*,video/*" class="admin-input" />
+            <input type="text" id="mediaUrlInput" class="admin-input" placeholder="Or enter image URL (e.g. assets/images/...)" />
           </div>
-
-          <div class="form-row" style="margin-bottom: 12px; text-align: left;">
-            <label style="color: #9ca3af; font-size: 0.85rem;">Review Comment</label>
-            <textarea id="editReviewComment" rows="4" required style="width: 100%;"></textarea>
+          <div class="form-group">
+            <label>Description (Optional)</label>
+            <textarea id="mediaDescInput" class="admin-textarea" placeholder="Details about this bridal look..."></textarea>
           </div>
-
-          <div class="form-row" style="margin-bottom: 20px; text-align: left;">
-            <label style="color: #9ca3af; font-size: 0.85rem;">Status</label>
-            <select id="editReviewStatus" class="filter-select" style="width: 100%;">
-              <option value="approved">✅ Approved (Visible on Website)</option>
-              <option value="hidden">🙈 Hidden / Archived</option>
-            </select>
-          </div>
-
-          <div style="display: flex; gap: 10px; justify-content: flex-end;">
-            <button type="button" class="btn btn-secondary" id="cancelEditReviewBtn">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-          </div>
+          <button type="submit" class="admin-btn">✨ Add to Gallery</button>
         </form>
       </div>
     </div>
 
+    <!-- Add/Edit Service Modal -->
+    <div class="admin-modal-overlay" id="serviceModal">
+      <div class="admin-modal-box">
+        <div class="modal-header">
+          <h3 id="serviceModalTitle">💄 Add / Edit Service Package</h3>
+          <button class="close-modal-btn" onclick="closeModal('serviceModal')">&times;</button>
+        </div>
+        <form id="adminServiceForm">
+          <input type="hidden" id="serviceEditId" />
+          <div class="form-group">
+            <label>Service Name *</label>
+            <input type="text" id="serviceNameInput" class="admin-input" required />
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Icon Emoji</label>
+              <input type="text" id="serviceIconInput" class="admin-input" placeholder="💄" />
+            </div>
+            <div class="form-group">
+              <label>Starting Price (₹) *</label>
+              <input type="number" id="servicePriceInput" class="admin-input" placeholder="15000" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tag / Badge</label>
+            <input type="text" id="serviceTagInput" class="admin-input" placeholder="Signature / Trending" />
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="serviceDescInput" class="admin-textarea" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Inclusions (comma separated)</label>
+            <input type="text" id="serviceInclusionsInput" class="admin-input" placeholder="HD Airbrush, Lashes, Touch-up Kit" />
+          </div>
+          <button type="submit" class="admin-btn">💾 Save Service</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="adminToast" class="admin-toast"></div>
+
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const authSection = document.getElementById("authSection");
-        const dashboardSection = document.getElementById("dashboardSection");
-        const adminLoginForm = document.getElementById("adminLoginForm");
-        const adminTokenInput = document.getElementById("adminTokenInput");
-        const loginError = document.getElementById("loginError");
-        const logoutBtn = document.getElementById("logoutBtn");
+      // Admin Operations JavaScript Controller
+      let adminToken = localStorage.getItem('ak_admin_token') || '';
+      let bookingsData = [];
+      let reviewsData = [];
+      let galleryData = [];
+      let servicesData = [];
+      let blockedDatesData = [];
+      let activeBookingFilter = 'all';
+      let activeReviewFilter = 'pending';
+      let activeGalleryCat = 'all';
 
-        // Tabs
-        const tabBookingsBtn = document.getElementById("tabBookingsBtn");
-        const tabReviewsBtn = document.getElementById("tabReviewsBtn");
-        const viewBookings = document.getElementById("viewBookings");
-        const viewReviews = document.getElementById("viewReviews");
+      const showToast = (msg) => {
+        const toast = document.getElementById('adminToast');
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3500);
+      };
 
-        // Bookings Elements
-        const statTotal = document.getElementById("statTotal");
-        const statPending = document.getElementById("statPending");
-        const statContacted = document.getElementById("statContacted");
-        const statConfirmed = document.getElementById("statConfirmed");
+      const openModal = (id) => document.getElementById(id).classList.add('show');
+      const closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-        const searchInput = document.getElementById("searchInput");
-        const statusFilter = document.getElementById("statusFilter");
-        const refreshBtn = document.getElementById("refreshBtn");
-        const exportCsvBtn = document.getElementById("exportCsvBtn");
-        const bookingsTableBody = document.getElementById("bookingsTableBody");
+      // Check authentication on load
+      const initAuth = () => {
+        if (adminToken) {
+          document.getElementById('authSection').style.display = 'none';
+          document.getElementById('dashboardSection').style.display = 'block';
+          document.getElementById('adminHeaderActions').style.display = 'flex';
+          fetchAllData();
+        } else {
+          document.getElementById('authSection').style.display = 'block';
+          document.getElementById('dashboardSection').style.display = 'none';
+          document.getElementById('adminHeaderActions').style.display = 'none';
+        }
+      };
 
-        // Reviews Elements
-        const refreshReviewsBtn = document.getElementById("refreshReviewsBtn");
-        const reviewStatAvg = document.getElementById("reviewStatAvg");
-        const reviewStatTotal = document.getElementById("reviewStatTotal");
-        const reviewStatFiveStar = document.getElementById("reviewStatFiveStar");
-        const reviewStatFourStar = document.getElementById("reviewStatFourStar");
-        const searchReviewsInput = document.getElementById("searchReviewsInput");
-        const reviewRatingFilter = document.getElementById("reviewRatingFilter");
-        const reviewsTableBody = document.getElementById("reviewsTableBody");
+      // Login handler
+      document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('adminPinInput').value.trim();
+        const err = document.getElementById('loginErrorMsg');
+        err.textContent = '';
 
-        // Edit Review Modal Elements
-        const adminEditReviewModal = document.getElementById("adminEditReviewModal");
-        const adminModalBackdrop = document.getElementById("adminModalBackdrop");
-        const adminEditReviewForm = document.getElementById("adminEditReviewForm");
-        const editReviewId = document.getElementById("editReviewId");
-        const editReviewName = document.getElementById("editReviewName");
-        const editReviewRating = document.getElementById("editReviewRating");
-        const editReviewService = document.getElementById("editReviewService");
-        const editReviewComment = document.getElementById("editReviewComment");
-        const editReviewStatus = document.getElementById("editReviewStatus");
-        const cancelEditReviewBtn = document.getElementById("cancelEditReviewBtn");
-
-        let currentBookings = [];
-        let currentReviews = [];
-        let savedToken = localStorage.getItem("ak_admin_token") || "";
-
-        // Tab Switching
-        tabBookingsBtn.addEventListener("click", () => {
-          tabBookingsBtn.classList.add("active");
-          tabReviewsBtn.classList.remove("active");
-          viewBookings.style.display = "block";
-          viewReviews.style.display = "none";
-        });
-
-        tabReviewsBtn.addEventListener("click", () => {
-          tabReviewsBtn.classList.add("active");
-          tabBookingsBtn.classList.remove("active");
-          viewReviews.style.display = "block";
-          viewBookings.style.display = "none";
-          fetchReviews();
-        });
-
-        // Check if already authenticated
-        const checkAuth = async () => {
-          if (!savedToken) {
-            authSection.style.display = "block";
-            dashboardSection.style.display = "none";
-            logoutBtn.style.display = "none";
-            return;
-          }
-
-          try {
-            const res = await fetch(`/api/bookings?token=${encodeURIComponent(savedToken)}`, {
-              headers: { "x-admin-token": savedToken }
-            });
-            if (res.ok) {
-              authSection.style.display = "none";
-              dashboardSection.style.display = "block";
-              logoutBtn.style.display = "inline-block";
-              fetchBookings();
-            } else {
-              localStorage.removeItem("ak_admin_token");
-              savedToken = "";
-              authSection.style.display = "block";
-              dashboardSection.style.display = "none";
-              logoutBtn.style.display = "none";
-            }
-          } catch (e) {
-            console.error("Auth check error:", e);
-            authSection.style.display = "none";
-            dashboardSection.style.display = "block";
-            logoutBtn.style.display = "inline-block";
-            fetchBookings();
-          }
-        };
-
-        // Login Submit
-        adminLoginForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const token = adminTokenInput.value.trim();
-          loginError.style.display = "none";
-
-          try {
-            const res = await fetch("/api/admin/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token })
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              savedToken = token;
-              localStorage.setItem("ak_admin_token", token);
-              checkAuth();
-            } else {
-              loginError.textContent = data.message || "Invalid Admin PIN/Token";
-              loginError.style.display = "block";
-            }
-          } catch (err) {
-            if (token === "akbridals2026") {
-              savedToken = token;
-              localStorage.setItem("ak_admin_token", token);
-              checkAuth();
-            } else {
-              loginError.textContent = "Cannot connect to server. Check server.js is running.";
-              loginError.style.display = "block";
-            }
-          }
-        });
-
-        // Logout
-        logoutBtn.addEventListener("click", () => {
-          localStorage.removeItem("ak_admin_token");
-          savedToken = "";
-          checkAuth();
-        });
-
-        // ==========================================
-        // BOOKINGS LOGIC
-        // ==========================================
-        const fetchBookings = async () => {
-          bookingsTableBody.innerHTML = `
-            <tr>
-              <td colspan="7" class="empty-notice">
-                <span>🔄</span>
-                Fetching bookings from MySQL...
-              </td>
-            </tr>
-          `;
-
-          try {
-            const status = statusFilter.value;
-            const search = searchInput.value.trim();
-            let url = `/api/bookings?token=${encodeURIComponent(savedToken)}`;
-            if (status !== "all") url += `&status=${encodeURIComponent(status)}`;
-            if (search) url += `&search=${encodeURIComponent(search)}`;
-
-            const res = await fetch(url, {
-              headers: { "x-admin-token": savedToken }
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              currentBookings = data.data || [];
-              renderTable(currentBookings);
-              updateStats(currentBookings);
-            } else {
-              bookingsTableBody.innerHTML = `
-                <tr>
-                  <td colspan="7" class="empty-notice" style="color: #f87171;">
-                    <span>⚠️</span>
-                    ${data.message || "Error loading bookings."}
-                  </td>
-                </tr>
-              `;
-            }
-          } catch (err) {
-            console.error("Fetch error:", err);
-            bookingsTableBody.innerHTML = `
-              <tr>
-                <td colspan="7" class="empty-notice" style="color: #f87171;">
-                  <span>⚠️</span>
-                  Could not reach backend server.
-                </td>
-              </tr>
-            `;
-          }
-        };
-
-        const renderTable = (items) => {
-          if (!items || items.length === 0) {
-            bookingsTableBody.innerHTML = `
-              <tr>
-                <td colspan="7" class="empty-notice">
-                  <span>📭</span>
-                  No bridal enquiries found matching criteria.
-                </td>
-              </tr>
-            `;
-            return;
-          }
-
-          bookingsTableBody.innerHTML = items.map((item) => {
-            const dateStr = item.preferred_date ? new Date(item.preferred_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
-            const createdStr = item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";
-            
-            const rawPhone = item.phone.replace(/[^0-9]/g, "");
-            const waPhone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
-            const waMsg = encodeURIComponent(`Hello ${item.name}! Greetings from AK Bridals. We received your booking enquiry for ${item.service} on ${dateStr}. How can we assist you?`);
-
-            return `
-              <tr data-id="${item.id}">
-                <td><strong style="color: #fbbf24;">#${item.id}</strong><br><small style="color: #6b7280;">${createdStr}</small></td>
-                <td>
-                  <div class="client-meta">
-                    <span class="client-name">${item.name}</span>
-                    <span class="client-contact">
-                      <a href="tel:${item.phone}">📞 ${item.phone}</a> • 
-                      <a href="mailto:${item.email}">✉️ ${item.email}</a>
-                    </span>
-                  </div>
-                </td>
-                <td><span class="status-badge" style="background: rgba(217, 119, 6, 0.15); color: #fbbf24;">${item.service}</span></td>
-                <td><strong>📅 ${dateStr}</strong></td>
-                <td style="max-width: 250px; font-size: 0.85rem; color: #d1d5db;">${item.message}</td>
-                <td>
-                  <select class="status-select-inline" onchange="updateBookingStatus(${item.id}, this.value)">
-                    <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
-                    <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>💬 Contacted</option>
-                    <option value="confirmed" ${item.status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
-                    <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
-                  </select>
-                </td>
-                <td>
-                  <div class="action-btns">
-                    <a href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" class="action-btn btn-whatsapp" title="Chat on WhatsApp">💬 WA</a>
-                    <a href="tel:${item.phone}" class="action-btn btn-call" title="Call Client">📞 Call</a>
-                    <button onclick="deleteBooking(${item.id})" class="action-btn btn-delete" title="Delete Booking">🗑️</button>
-                  </div>
-                </td>
-              </tr>
-            `;
-          }).join("");
-        };
-
-        const updateStats = (items) => {
-          const total = items.length;
-          const pending = items.filter((i) => i.status === "pending").length;
-          const contacted = items.filter((i) => i.status === "contacted").length;
-          const confirmed = items.filter((i) => i.status === "confirmed").length;
-
-          statTotal.textContent = total;
-          statPending.textContent = pending;
-          statContacted.textContent = contacted;
-          statConfirmed.textContent = confirmed;
-        };
-
-        window.updateBookingStatus = async (id, newStatus) => {
-          try {
-            const res = await fetch(`/api/bookings/${id}/status`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                "x-admin-token": savedToken
-              },
-              body: JSON.stringify({ status: newStatus })
-            });
-            const data = await res.json();
-            if (data.success) {
-              const item = currentBookings.find((b) => b.id == id);
-              if (item) item.status = newStatus;
-              updateStats(currentBookings);
-            } else {
-              alert(data.message || "Failed to update status");
-            }
-          } catch (e) {
-            console.error("Status update error:", e);
-            alert("Error updating status.");
-          }
-        };
-
-        window.deleteBooking = async (id) => {
-          if (!confirm(`Are you sure you want to delete enquiry #${id}?`)) return;
-
-          try {
-            const res = await fetch(`/api/bookings/${id}`, {
-              method: "DELETE",
-              headers: { "x-admin-token": savedToken }
-            });
-            const data = await res.json();
-            if (data.success) {
-              currentBookings = currentBookings.filter((b) => b.id != id);
-              renderTable(currentBookings);
-              updateStats(currentBookings);
-            } else {
-              alert(data.message || "Failed to delete booking");
-            }
-          } catch (e) {
-            console.error("Delete error:", e);
-            alert("Error deleting booking.");
-          }
-        };
-
-        exportCsvBtn.addEventListener("click", () => {
-          if (!currentBookings || currentBookings.length === 0) {
-            alert("No bookings available to export.");
-            return;
-          }
-
-          const headers = ["ID", "Name", "Phone", "Email", "Event Date", "Service", "Message", "Status", "Received At"];
-          const rows = currentBookings.map((b) => [
-            b.id,
-            `"${b.name.replace(/"/g, '""')}"`,
-            `"${b.phone}"`,
-            `"${b.email}"`,
-            `"${b.preferred_date ? b.preferred_date.substring(0, 10) : ''}"`,
-            `"${b.service}"`,
-            `"${b.message.replace(/"/g, '""')}"`,
-            `"${b.status}"`,
-            `"${b.created_at}"`
-          ]);
-
-          const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-          const encodedUri = encodeURI(csvContent);
-          const link = document.createElement("a");
-          link.setAttribute("href", encodedUri);
-          link.setAttribute("download", `AK_Bridals_Bookings_${new Date().toISOString().substring(0, 10)}.csv`);
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        });
-
-        // ==========================================
-        // REVIEWS MODERATION LOGIC
-        // ==========================================
-        const fetchReviews = async () => {
-          reviewsTableBody.innerHTML = `
-            <tr>
-              <td colspan="7" class="empty-notice">
-                <span>🔄</span>
-                Fetching customer reviews...
-              </td>
-            </tr>
-          `;
-
-          try {
-            const res = await fetch(`/api/admin/reviews`, {
-              headers: { "x-admin-token": savedToken }
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              currentReviews = (data.data || []).filter(
-                (r) => !String(r.id).startsWith("rev_") && !String(r.author_token || "").startsWith("auth_seed_")
-              );
-              renderReviewsTable();
-            } else {
-              reviewsTableBody.innerHTML = `
-                <tr>
-                  <td colspan="7" class="empty-notice" style="color: #f87171;">
-                    <span>⚠️</span>
-                    ${data.message || "Error loading reviews."}
-                  </td>
-                </tr>
-              `;
-            }
-          } catch (err) {
-            console.error("Fetch reviews error:", err);
-            reviewsTableBody.innerHTML = `
-              <tr>
-                <td colspan="7" class="empty-notice" style="color: #f87171;">
-                  <span>⚠️</span>
-                  Could not reach backend reviews server.
-                </td>
-              </tr>
-            `;
-          }
-        };
-
-        const renderReviewsTable = () => {
-          const search = searchReviewsInput.value.toLowerCase().trim();
-          const filterStar = reviewRatingFilter.value;
-
-          let filtered = currentReviews.filter((r) => {
-            const matchesSearch = !search || 
-              r.name.toLowerCase().includes(search) || 
-              (r.city && r.city.toLowerCase().includes(search)) || 
-              r.comment.toLowerCase().includes(search) ||
-              r.service.toLowerCase().includes(search);
-
-            let matchesRating = true;
-            if (filterStar === "5") matchesRating = Number(r.rating) === 5;
-            else if (filterStar === "4") matchesRating = Number(r.rating) === 4;
-            else if (filterStar === "3") matchesRating = Number(r.rating) <= 3;
-
-            return matchesSearch && matchesRating;
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin })
           });
-
-          // Compute KPI
-          const total = currentReviews.length;
-          const fiveStars = currentReviews.filter((r) => Number(r.rating) === 5).length;
-          const fourStars = currentReviews.filter((r) => Number(r.rating) === 4).length;
-          let sum = 0;
-          currentReviews.forEach((r) => (sum += Number(r.rating) || 5));
-          const avg = total > 0 ? (sum / total).toFixed(1) : "5.0";
-
-          reviewStatTotal.textContent = total;
-          reviewStatAvg.textContent = `${avg} ★`;
-          reviewStatFiveStar.textContent = fiveStars;
-          reviewStatFourStar.textContent = fourStars;
-
-          if (filtered.length === 0) {
-            reviewsTableBody.innerHTML = `
-              <tr>
-                <td colspan="7" class="empty-notice">
-                  <span>📭</span>
-                  No reviews match the selected filter.
-                </td>
-              </tr>
-            `;
-            return;
+          const data = await res.json();
+          if (data.success) {
+            adminToken = data.token;
+            localStorage.setItem('ak_admin_token', adminToken);
+            showToast('✅ Welcome, Studio Admin!');
+            initAuth();
+          } else {
+            err.textContent = data.message || 'Invalid PIN. Try: akbridals2026';
           }
-
-          reviewsTableBody.innerHTML = filtered.map((rev) => {
-            const starText = "★".repeat(rev.rating) + "☆".repeat(5 - rev.rating);
-            const statusPill = rev.status === 'approved' 
-              ? '<span class="status-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">✅ Live</span>'
-              : '<span class="status-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">🙈 Hidden</span>';
-
-            return `
-              <tr>
-                <td><strong style="color: #fbbf24;">#${rev.id}</strong></td>
-                <td>
-                  <div class="client-meta">
-                    <span class="client-name">${rev.name}</span>
-                    <span class="client-contact" style="color: #9ca3af;">📍 ${rev.city || 'Tamil Nadu'}</span>
-                  </div>
-                </td>
-                <td><strong style="color: #f59e0b; font-size: 1.1rem;">${starText}</strong> (${rev.rating}/5)</td>
-                <td><span class="status-badge" style="background: rgba(217, 119, 6, 0.15); color: #fbbf24;">${rev.service}</span></td>
-                <td style="max-width: 280px; font-size: 0.85rem; color: #d1d5db;">“${rev.comment}”</td>
-                <td>${statusPill}</td>
-                <td>
-                  <div class="action-btns">
-                    <button onclick="openEditReviewModal(${rev.id})" class="action-btn" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4);" title="Edit Review">✏️ Edit</button>
-                    <button onclick="adminDeleteReview(${rev.id})" class="action-btn btn-delete" title="Delete Review">🗑️</button>
-                  </div>
-                </td>
-              </tr>
-            `;
-          }).join("");
-        };
-
-        // Open Edit Modal
-        window.openEditReviewModal = (id) => {
-          const rev = currentReviews.find((r) => r.id == id);
-          if (!rev) return;
-
-          editReviewId.value = rev.id;
-          editReviewName.value = rev.name;
-          editReviewRating.value = rev.rating;
-          editReviewService.value = rev.service;
-          editReviewComment.value = rev.comment;
-          editReviewStatus.value = rev.status || "approved";
-
-          adminEditReviewModal.classList.add("show");
-        };
-
-        const closeAdminModal = () => {
-          adminEditReviewModal.classList.remove("show");
-        };
-
-        if (cancelEditReviewBtn) cancelEditReviewBtn.addEventListener("click", closeAdminModal);
-        if (adminModalBackdrop) adminModalBackdrop.addEventListener("click", closeAdminModal);
-
-        // Submit Review Edit
-        adminEditReviewForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const id = editReviewId.value;
-          const rating = Number(editReviewRating.value);
-          const service = editReviewService.value.trim();
-          const comment = editReviewComment.value.trim();
-          const status = editReviewStatus.value;
-
-          try {
-            const res = await fetch(`/api/reviews/${id}`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                "x-admin-token": savedToken
-              },
-              body: JSON.stringify({ rating, service, comment, status })
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              const idx = currentReviews.findIndex((r) => r.id == id);
-              if (idx !== -1) {
-                currentReviews[idx] = {
-                  ...currentReviews[idx],
-                  rating,
-                  service,
-                  comment,
-                  status
-                };
-              }
-              closeAdminModal();
-              renderReviewsTable();
-            } else {
-              alert(data.message || "Failed to update review.");
-            }
-          } catch (err) {
-            console.error("Edit review error:", err);
-            alert("Error saving review changes.");
-          }
-        });
-
-        // Admin Delete Review
-        window.adminDeleteReview = async (id) => {
-          if (!confirm(`Are you sure you want to delete review #${id}? This action is authorized for Admin only.`)) return;
-
-          try {
-            const res = await fetch(`/api/reviews/${id}`, {
-              method: "DELETE",
-              headers: { "x-admin-token": savedToken }
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              currentReviews = currentReviews.filter((r) => r.id != id);
-              renderReviewsTable();
-            } else {
-              alert(data.message || "Failed to delete review.");
-            }
-          } catch (err) {
-            console.error("Delete review error:", err);
-            alert("Error deleting review.");
-          }
-        };
-
-        // Review filter listeners
-        searchReviewsInput.addEventListener("input", renderReviewsTable);
-        reviewRatingFilter.addEventListener("change", renderReviewsTable);
-        refreshReviewsBtn.addEventListener("click", fetchReviews);
-
-        // Search & Filter event listeners for bookings
-        let debounceTimeout;
-        searchInput.addEventListener("input", () => {
-          clearTimeout(debounceTimeout);
-          debounceTimeout = setTimeout(fetchBookings, 300);
-        });
-
-        statusFilter.addEventListener("change", fetchBookings);
-        refreshBtn.addEventListener("click", fetchBookings);
-
-        // Initial check
-        checkAuth();
+        } catch (e) {
+          err.textContent = 'Server connection failed.';
+        }
       });
+
+      // Logout handler
+      document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('ak_admin_token');
+        adminToken = '';
+        initAuth();
+        showToast('🔒 Logged out successfully.');
+      });
+
+      // Tab Switcher
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          const target = btn.getAttribute('data-tab');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+
+      // Fetch All Dashboard Data
+      const fetchAllData = async () => {
+        try {
+          const headers = { 'x-admin-token': adminToken };
+
+          // 1. Bookings
+          const bRes = await fetch('/api/bookings', { headers });
+          const bData = await bRes.json();
+          if (bData.success) bookingsData = bData.data || [];
+
+          // 2. Reviews
+          const rRes = await fetch('/api/admin/reviews', { headers });
+          const rData = await rRes.json();
+          if (rData.success) reviewsData = rData.data || [];
+
+          // 3. Gallery
+          const gRes = await fetch('/api/gallery');
+          const gData = await gRes.json();
+          if (gData.success) galleryData = gData.data || [];
+
+          // 4. Services
+          const sRes = await fetch('/api/services');
+          const sData = await sRes.json();
+          if (sData.success) servicesData = sData.data || [];
+
+          // 5. Blocked Dates
+          const dRes = await fetch('/api/availability');
+          const dData = await dRes.json();
+          if (dData.success) blockedDatesData = dData.blocked_dates || [];
+
+          // 6. Settings
+          const stRes = await fetch('/api/settings');
+          const stData = await stRes.json();
+          if (stData.success) populateSettings(stData.data);
+
+          renderStats();
+          renderBookings();
+          renderReviews();
+          renderGallery();
+          renderServices();
+          renderBlockedDates();
+        } catch (e) {
+          console.error('Data fetch error:', e);
+        }
+      };
+
+      document.getElementById('adminRefreshBtn').addEventListener('click', () => {
+        fetchAllData();
+        showToast('🔄 Dashboard data refreshed.');
+      });
+
+      // Render Overview Stats
+      const renderStats = () => {
+        document.getElementById('statTotalBookings').textContent = bookingsData.length;
+        const pendingBookings = bookingsData.filter(b => b.status === 'pending').length;
+        document.getElementById('statPendingBookings').textContent = pendingBookings;
+        
+        const badgeB = document.getElementById('badgePendingBookings');
+        if (pendingBookings > 0) {
+          badgeB.textContent = pendingBookings;
+          badgeB.style.display = 'inline-block';
+        } else {
+          badgeB.style.display = 'none';
+        }
+
+        const approvedR = reviewsData.filter(r => r.status === 'approved').length;
+        const pendingR = reviewsData.filter(r => r.status === 'pending').length;
+        document.getElementById('statApprovedReviews').textContent = approvedR;
+
+        const badgeR = document.getElementById('badgePendingReviews');
+        if (pendingR > 0) {
+          badgeR.textContent = pendingR;
+          badgeR.style.display = 'inline-block';
+        } else {
+          badgeR.style.display = 'none';
+        }
+
+        document.getElementById('statTotalMedia').textContent = galleryData.length;
+        document.getElementById('statBlockedDates').textContent = blockedDatesData.length;
+      };
+
+      // 1. Render Bookings
+      const renderBookings = () => {
+        const tbody = document.getElementById('bookingsTableBody');
+        const q = (document.getElementById('bookingSearchInput').value || '').toLowerCase();
+        
+        let filtered = bookingsData.filter(b => {
+          if (activeBookingFilter !== 'all' && b.status !== activeBookingFilter) return false;
+          if (q) {
+            const match = b.name.toLowerCase().includes(q) || b.phone.toLowerCase().includes(q) || (b.location && b.location.toLowerCase().includes(q));
+            if (!match) return false;
+          }
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">No booking requests found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(b => {
+          const rawPhone = (b.phone || '').replace(/[^0-9]/g, '');
+          const waPhone = rawPhone.startsWith('91') ? rawPhone : `91${rawPhone}`;
+          const waMsg = encodeURIComponent(`Hi ${b.name}, thank you for contacting AK Bridals regarding your ${b.event_type || 'Wedding'} on ${b.preferred_date}! We are excited to discuss your bridal look.`);
+          const waLink = `https://wa.me/${waPhone}?text=${waMsg}`;
+
+          return `
+            <tr>
+              <td><strong style="color: var(--admin-gold);">${b.booking_ref || '#' + b.id}</strong></td>
+              <td>
+                <div style="font-weight: 700; color: #ffffff;">${b.name}</div>
+                <div style="font-size: 0.8rem; color: var(--admin-muted);">📞 ${b.phone}</div>
+                ${b.email ? `<div style="font-size: 0.75rem; color: #9ca3af;">✉️ ${b.email}</div>` : ''}
+              </td>
+              <td>
+                <div style="font-weight: 600; color: #86efac;">📅 ${b.preferred_date}</div>
+                <div style="font-size: 0.8rem; color: #fde047;">💍 ${b.event_type || 'Wedding'}</div>
+              </td>
+              <td>
+                <div style="font-weight: 600;">${b.service}</div>
+                <div style="font-size: 0.78rem; color: #d1d5db;">📍 ${b.location || 'Tamil Nadu'}</div>
+              </td>
+              <td><p style="font-size: 0.82rem; margin: 0; color: #e5e7eb; max-width: 200px;">${b.message || 'No notes'}</p></td>
+              <td><span class="status-pill status-${b.status}">${b.status}</span></td>
+              <td>
+                <div class="action-btns">
+                  <a href="${waLink}" target="_blank" class="action-btn btn-wa" title="Reply on WhatsApp">💬 WhatsApp</a>
+                  <select class="admin-select" style="padding: 4px 8px; font-size: 0.78rem; max-width: 110px;" onchange="updateBookingStatus('${b.id}', this.value)">
+                    <option value="pending" ${b.status==='pending'?'selected':''}>Pending</option>
+                    <option value="contacted" ${b.status==='contacted'?'selected':''}>Contacted</option>
+                    <option value="confirmed" ${b.status==='confirmed'?'selected':''}>Confirmed</option>
+                    <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
+                  </select>
+                  <button type="button" class="action-btn btn-del" onclick="deleteBooking('${b.id}')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      };
+
+      // Booking Actions
+      window.updateBookingStatus = async (id, status) => {
+        try {
+          const res = await fetch(`/api/bookings/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify({ status })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`✅ Booking status set to ${status}`);
+            fetchAllData();
+          }
+        } catch (e) { showToast('Status update failed'); }
+      };
+
+      window.deleteBooking = async (id) => {
+        if (!confirm('Are you sure you want to delete this booking request?')) return;
+        try {
+          const res = await fetch(`/api/bookings/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': adminToken }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('🗑️ Booking deleted.');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Delete failed'); }
+      };
+
+      document.querySelectorAll('[data-booking-filter]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('[data-booking-filter]').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeBookingFilter = chip.getAttribute('data-booking-filter');
+          renderBookings();
+        });
+      });
+
+      document.getElementById('bookingSearchInput').addEventListener('input', renderBookings);
+
+      // 2. Render Reviews
+      const renderReviews = () => {
+        const tbody = document.getElementById('reviewsTableBody');
+        let filtered = reviewsData.filter(r => {
+          if (activeReviewFilter !== 'all' && r.status !== activeReviewFilter) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--admin-muted);">No reviews in this status.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(r => {
+          const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+          return `
+            <tr>
+              <td><span style="color: var(--admin-gold); font-size: 1.1rem; letter-spacing: 2px;">${stars}</span></td>
+              <td>
+                <div style="font-weight: 700; color: #ffffff;">${r.name}</div>
+                <div style="font-size: 0.78rem; color: var(--admin-muted);">📍 ${r.city || 'Tamil Nadu'}</div>
+              </td>
+              <td><span style="font-size: 0.84rem; font-weight: 600;">${r.service || 'Bridal Makeover'}</span></td>
+              <td><p style="font-size: 0.84rem; margin: 0; color: #e5e7eb; max-width: 260px;">"${r.comment}"</p></td>
+              <td><span style="font-size: 0.75rem; color: #9ca3af;">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span></td>
+              <td><span class="status-pill status-${r.status}">${r.status}</span></td>
+              <td>
+                <div class="action-btns">
+                  ${r.status !== 'approved' ? `<button type="button" class="action-btn btn-approve" onclick="moderateReview('${r.id}', 'approved')">✅ Approve (Live)</button>` : ''}
+                  ${r.status !== 'rejected' ? `<button type="button" class="action-btn btn-reject" onclick="moderateReview('${r.id}', 'rejected')">❌ Reject</button>` : ''}
+                  <button type="button" class="action-btn btn-del" onclick="deleteReview('${r.id}')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      };
+
+      window.moderateReview = async (id, status) => {
+        try {
+          const res = await fetch(`/api/admin/reviews/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify({ status })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`⭐ Review is now ${status}!`);
+            fetchAllData();
+          }
+        } catch (e) { showToast('Moderation failed'); }
+      };
+
+      window.deleteReview = async (id) => {
+        if (!confirm('Permanently delete this review?')) return;
+        try {
+          const res = await fetch(`/api/reviews/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': adminToken }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('🗑️ Review deleted.');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Delete failed'); }
+      };
+
+      document.querySelectorAll('[data-review-filter]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('[data-review-filter]').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeReviewFilter = chip.getAttribute('data-review-filter');
+          renderReviews();
+        });
+      });
+
+      // 3. Render Gallery
+      const renderGallery = () => {
+        const grid = document.getElementById('adminGalleryGrid');
+        let filtered = galleryData.filter(g => {
+          if (activeGalleryCat !== 'all' && g.category !== activeGalleryCat) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--admin-muted);">No photos/videos in this category. Click '+ Upload Photo / Video' to add!</div>`;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(g => `
+          <div class="admin-media-card">
+            <div class="admin-media-thumb" style="background-image: url('${g.src || 'assets/images/bridal_transformation.jpg'}');">
+              <span class="admin-badge" style="position: absolute; top: 8px; left: 8px;">${g.type === 'video' ? '🎥 Video' : '📸 Photo'}</span>
+            </div>
+            <div class="admin-media-info">
+              <h4>${g.title}</h4>
+              <span>🏷️ ${g.category}</span>
+              ${g.desc ? `<p style="font-size: 0.78rem; color: #9ca3af; margin: 4px 0 8px;">${g.desc}</p>` : ''}
+              <div style="margin-top: 8px;">
+                <button type="button" class="action-btn btn-del" style="width:100%; justify-content:center;" onclick="deleteGalleryMedia('${g.id}')">🗑️ Delete Media</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      };
+
+      window.deleteGalleryMedia = async (id) => {
+        if (!confirm('Delete this photo/video from the gallery?')) return;
+        try {
+          const res = await fetch(`/api/gallery/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': adminToken }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('🗑️ Media deleted.');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Delete failed'); }
+      };
+
+      document.querySelectorAll('[data-gallery-cat]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('[data-gallery-cat]').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeGalleryCat = chip.getAttribute('data-gallery-cat');
+          renderGallery();
+        });
+      });
+
+      document.getElementById('btnOpenUploadModal').addEventListener('click', () => openModal('uploadMediaModal'));
+
+      document.getElementById('adminUploadMediaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('mediaTitleInput').value.trim();
+        const category = document.getElementById('mediaCategorySelect').value;
+        const type = document.getElementById('mediaTypeSelect').value;
+        const url = document.getElementById('mediaUrlInput').value.trim();
+        const desc = document.getElementById('mediaDescInput').value.trim();
+        const fileInput = document.getElementById('mediaFileInput');
+
+        let src = url;
+
+        if (fileInput.files && fileInput.files[0]) {
+          const file = fileInput.files[0];
+          src = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        if (!src) {
+          alert('Please select a file or enter an image URL.');
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/gallery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify({ title, category, type, src, desc })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('📸 Photo added to bridal gallery!');
+            closeModal('uploadMediaModal');
+            document.getElementById('adminUploadMediaForm').reset();
+            fetchAllData();
+          }
+        } catch (e) { showToast('Upload failed'); }
+      });
+
+      // 4. Render Services
+      const renderServices = () => {
+        const grid = document.getElementById('adminServicesGrid');
+        grid.innerHTML = servicesData.map(s => `
+          <div class="admin-service-card">
+            <h4><span>${s.icon || '💄'}</span> ${s.name}</h4>
+            <div class="service-price-tag">${s.price_display || 'Starting from ₹' + s.starting_price}</div>
+            <p>${s.desc || ''}</p>
+            ${s.inclusions && s.inclusions.length > 0 ? `
+              <ul style="font-size: 0.78rem; color: #a7f3d0; margin: 0 0 14px 16px; padding: 0;">
+                ${s.inclusions.map(inc => `<li>${inc}</li>`).join('')}
+              </ul>
+            ` : ''}
+            <div class="action-btns">
+              <button type="button" class="action-btn" onclick="editService('${s.id}')">✏️ Edit</button>
+              <button type="button" class="action-btn btn-del" onclick="deleteService('${s.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `).join('');
+      };
+
+      document.getElementById('btnOpenAddServiceModal').addEventListener('click', () => {
+        document.getElementById('adminServiceForm').reset();
+        document.getElementById('serviceEditId').value = '';
+        document.getElementById('serviceModalTitle').textContent = '💄 Add New Service Package';
+        openModal('serviceModal');
+      });
+
+      window.editService = (id) => {
+        const s = servicesData.find(item => String(item.id) === String(id));
+        if (!s) return;
+        document.getElementById('serviceEditId').value = s.id;
+        document.getElementById('serviceNameInput').value = s.name;
+        document.getElementById('serviceIconInput').value = s.icon || '💄';
+        document.getElementById('servicePriceInput').value = s.starting_price || 15000;
+        document.getElementById('serviceTagInput').value = s.tag || '';
+        document.getElementById('serviceDescInput').value = s.desc || '';
+        document.getElementById('serviceInclusionsInput').value = (s.inclusions || []).join(', ');
+        document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service Package';
+        openModal('serviceModal');
+      };
+
+      document.getElementById('adminServiceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('serviceEditId').value;
+        const name = document.getElementById('serviceNameInput').value.trim();
+        const icon = document.getElementById('serviceIconInput').value.trim();
+        const starting_price = document.getElementById('servicePriceInput').value;
+        const tag = document.getElementById('serviceTagInput').value.trim();
+        const desc = document.getElementById('serviceDescInput').value.trim();
+        const inclusions = document.getElementById('serviceInclusionsInput').value.split(',').map(s => s.trim()).filter(Boolean);
+
+        const payload = { name, icon, starting_price, tag, desc, inclusions };
+        const url = id ? `/api/services/${id}` : '/api/services';
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('💄 Service package saved!');
+            closeModal('serviceModal');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Service save failed'); }
+      });
+
+      window.deleteService = async (id) => {
+        if (!confirm('Delete this service package?')) return;
+        try {
+          const res = await fetch(`/api/services/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': adminToken }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('🗑️ Service deleted.');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Delete failed'); }
+      };
+
+      // 5. Render Blocked Dates
+      const renderBlockedDates = () => {
+        const container = document.getElementById('blockedDatesList');
+        if (blockedDatesData.length === 0) {
+          container.innerHTML = `<span style="color: var(--admin-muted); font-size: 0.85rem;">No dates currently blocked. All dates are available!</span>`;
+          return;
+        }
+
+        container.innerHTML = blockedDatesData.map(d => `
+          <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px;">
+            <span style="color: #fca5a5; font-weight: 700; font-size: 0.88rem;">📅 ${d}</span>
+            <button type="button" onclick="unblockDate('${d}')" style="background:none; border:none; color:#ffffff; cursor:pointer; font-weight:bold;">&times;</button>
+          </div>
+        `).join('');
+      };
+
+      document.getElementById('btnBlockDate').addEventListener('click', async () => {
+        const date = document.getElementById('blockDateInput').value;
+        if (!date) { alert('Please select a date.'); return; }
+        try {
+          const res = await fetch('/api/availability', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify({ date })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`📅 Date ${date} blocked.`);
+            document.getElementById('blockDateInput').value = '';
+            fetchAllData();
+          }
+        } catch (e) { showToast('Date block failed'); }
+      });
+
+      window.unblockDate = async (date) => {
+        try {
+          const res = await fetch(`/api/availability/${date}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': adminToken }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`📅 Date ${date} unblocked.`);
+            fetchAllData();
+          }
+        } catch (e) { showToast('Date unblock failed'); }
+      };
+
+      // 6. Settings
+      const populateSettings = (settings) => {
+        if (!settings) return;
+        document.getElementById('settingStudioName').value = settings.studio_name || 'AK Bridals';
+        document.getElementById('settingOwnerName').value = settings.owner_name || 'AK Bridal Artistry';
+        document.getElementById('settingPhone').value = settings.phone || '+91 8190913110';
+        document.getElementById('settingWhatsapp').value = settings.whatsapp || '918190913110';
+        document.getElementById('settingEmail').value = settings.email || '1508apiramanayagam@gmail.com';
+        document.getElementById('settingLocation').value = settings.location || '';
+        document.getElementById('settingAboutBio').value = settings.about_bio || '';
+      };
+
+      document.getElementById('adminSettingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          studio_name: document.getElementById('settingStudioName').value.trim(),
+          owner_name: document.getElementById('settingOwnerName').value.trim(),
+          phone: document.getElementById('settingPhone').value.trim(),
+          whatsapp: document.getElementById('settingWhatsapp').value.trim(),
+          email: document.getElementById('settingEmail').value.trim(),
+          location: document.getElementById('settingLocation').value.trim(),
+          about_bio: document.getElementById('settingAboutBio').value.trim(),
+          pin: document.getElementById('settingPin').value.trim() || undefined
+        };
+
+        try {
+          const res = await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('📝 Studio settings saved successfully!');
+            fetchAllData();
+          }
+        } catch (e) { showToast('Settings save failed'); }
+      });
+
+      // Export Bookings CSV
+      document.getElementById('btnExportBookings').addEventListener('click', () => {
+        if (bookingsData.length === 0) { alert('No bookings to export.'); return; }
+        let csv = 'Ref,Name,Phone,Email,Date,Event Type,Service,Location,Status,Message\n';
+        bookingsData.forEach(b => {
+          csv += `"${b.booking_ref}","${b.name}","${b.phone}","${b.email || ''}","${b.preferred_date}","${b.event_type || ''}","${b.service}","${b.location || ''}","${b.status}","${(b.message || '').replace(/"/g, '""')}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `AK_Bridals_Bookings_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Initialize
+      initAuth();
     </script>
   </body>
 </html>

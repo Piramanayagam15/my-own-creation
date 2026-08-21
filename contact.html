@@ -103,31 +103,46 @@
             </div>
 
             <div class="form-row">
+              <label for="eventType">Event Type *</label>
+              <select id="eventType" name="eventType" required>
+                <option value="Wedding / Muhurtham">Wedding / Muhurtham</option>
+                <option value="Reception Glam">Reception Glam</option>
+                <option value="Engagement">Engagement</option>
+                <option value="Sangeet / Mehendi Function">Sangeet / Mehendi Function</option>
+                <option value="Pre-Wedding Shoot">Pre-Wedding Shoot</option>
+                <option value="Baby Shower / Valakaappu">Baby Shower / Valakaappu</option>
+                <option value="Academy Masterclass">Academy Masterclass Course</option>
+                <option value="Other">Other Occasion</option>
+              </select>
+              <p class="field-error" data-error-for="eventType"></p>
+            </div>
+
+            <div class="form-row">
               <label for="service">Service Interested In *</label>
               <select id="service" name="service" required>
                 <option value="">Select a service</option>
-                <option value="Bridal Makeup">Bridal Makeup (HD / Airbrush)</option>
-                <option value="Mehndi (Henna)">Mehndi (Bridal Henna)</option>
-                <option value="Aari Embroidery">Aari Embroidery Blouse</option>
-                <option value="Blouse Designing">Custom Blouse Designing</option>
-                <option value="Hair Styling &amp; Draping">
-                  Hair Styling &amp; Saree Draping
-                </option>
-                <option value="Complete Grand Bridal Package">
-                  Complete Grand Bridal Package
-                </option>
-                <option value="Training / Tutorials">
-                  Professional Academy Masterclass
-                </option>
-                <option value="Other">Other Custom Service</option>
+                <option value="Muhurtham Bridal Makeup (Starting from ₹15,000)">Muhurtham Bridal Makeup (Starting from ₹15,000)</option>
+                <option value="Reception Glam Makeup (Starting from ₹8,000)">Reception Glam Makeup (Starting from ₹8,000)</option>
+                <option value="Royal Muhurtham &amp; Reception Combo (Starting from ₹22,000)">Royal Muhurtham &amp; Reception Combo (Starting from ₹22,000)</option>
+                <option value="Bridal Organic Mehndi (Starting from ₹3,500)">Bridal Organic Mehndi (Starting from ₹3,500)</option>
+                <option value="Handcrafted Aari Blouse (Starting from ₹2,500)">Handcrafted Aari Blouse (Starting from ₹2,500)</option>
+                <option value="Hair Styling &amp; Saree Draping (Starting from ₹3,000)">Hair Styling &amp; Saree Draping (Starting from ₹3,000)</option>
+                <option value="Professional Academy Course (From ₹8,000)">Professional Academy Course (From ₹8,000)</option>
+                <option value="Other Custom Requirement">Other Custom Requirement</option>
               </select>
               <p class="field-error" data-error-for="service"></p>
             </div>
 
             <div class="form-row">
+              <label for="location">Event Location / City *</label>
+              <input type="text" id="location" name="location" placeholder="e.g. Chennai, Madurai, Coimbatore, Bengaluru, Tirunelveli" required />
+              <p class="field-error" data-error-for="location"></p>
+            </div>
+
+            <div class="form-row">
               <label for="message">Message / Event Details *</label>
-              <textarea id="message" name="message" rows="4"
-                placeholder="Tell us about your wedding/event date, venue, timings and looks required..."
+              <textarea id="message" name="message" rows="3"
+                placeholder="Tell us about your wedding/event venue, timings and looks required..."
                 required></textarea>
               <p class="field-error" data-error-for="message"></p>
             </div>
