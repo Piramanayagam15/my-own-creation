@@ -62,8 +62,7 @@ const defaultStore = {
     email: '1508apiramanayagam@gmail.com',
     location: 'Tamil Nadu & Destination Weddings (Chennai, Madurai, Coimbatore, Tirunelveli, Bengaluru)',
     instagram: 'https://instagram.com/',
-    about_bio: 'At AK Bridals, we specialize in high-definition bridal transformations, authentic organic mehndi, handcrafted aari silk embroidery, and traditional muhurtham saree pleating.',
-    pin: 'akbridals2026'
+    about_bio: 'At AK Bridals, we specialize in high-definition bridal transformations, authentic organic mehndi, handcrafted aari silk embroidery, and traditional muhurtham saree pleating.'
   },
   services: [
     {
@@ -1157,11 +1156,16 @@ app.post('/api/admin/reset-all-data', authAdmin, async (req, res) => {
   res.json({ success: true, message: 'All store data purged successfully.' });
 });
 
-// 9. Unified Multi-Device Real-Time Sync Endpoint
-app.get('/api/sync', (req, res) => {
+// 9. Unified Multi-Device Real-Time Sync Endpoint (Protected)
+app.get('/api/sync', authAdmin, (req, res) => {
+  const syncStore = { ...store };
+  if (syncStore.settings) {
+    syncStore.settings = { ...syncStore.settings };
+    delete syncStore.settings.pin;
+  }
   res.json({
     success: true,
-    data: store
+    data: syncStore
   });
 });
 

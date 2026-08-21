@@ -220,6 +220,18 @@ async function runTests() {
       }
     });
 
+    const adminHtmlPath = path.join(__dirname, '..', 'admin.html');
+    if (fs.existsSync(adminHtmlPath)) {
+      const adminHtmlContent = fs.readFileSync(adminHtmlPath, 'utf8');
+      assert(!adminHtmlContent.includes('akbridals2026'), 'admin.html contains ZERO hardcoded PINs or example password leaks');
+    }
+
+    const unauthSyncRes = await request('GET', '/api/sync');
+    assert(unauthSyncRes.status === 401, 'Unauthenticated /api/sync endpoint blocked (401)');
+
+    const publicSettingsRes = await request('GET', '/api/settings');
+    assert(publicSettingsRes.body.data && publicSettingsRes.body.data.pin === undefined, 'Public /api/settings never exposes admin PIN');
+
     // Cleanup: Reset test bookings and reviews so store stays clean
     await request('DELETE', `/api/bookings/${bookingId}`, null, authHeaders);
     await request('DELETE', `/api/reviews/${newRevId}`, null, authHeaders);

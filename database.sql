@@ -115,6 +115,5 @@ INSERT INTO studio_settings (setting_key, setting_value) VALUES
   ('email', '1508apiramanayagam@gmail.com'),
   ('location', 'Tamil Nadu & Destination Weddings'),
   ('instagram', 'https://instagram.com/'),
-  ('about_bio', 'At AK Bridals, we specialize in bridal makeovers, organic mehndi, handcrafted aari embroidery, and saree pleating.'),
-  ('pin', 'akbridals2026')
+  ('about_bio', 'At AK Bridals, we specialize in bridal makeovers, organic mehndi, handcrafted aari embroidery, and saree pleating.')
 ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value);
