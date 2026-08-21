@@ -1404,23 +1404,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeReviewsList = [];
   let editingReviewId = null;
 
-  // Fetch and render reviews (with automatic fallback to LocalReviewsStorage)
+  // Fetch and render reviews (Strictly only Approved reviews from Server API)
   const fetchAndRenderReviews = async () => {
     if (!reviewsGrid) return;
-
-    activeReviewsList = LocalReviewsStorage.getAll();
 
     try {
       const res = await fetch("/api/reviews");
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        if (data.success && Array.isArray(data.data)) {
           activeReviewsList = data.data;
           LocalReviewsStorage.saveAll(activeReviewsList);
         }
+      } else {
+        activeReviewsList = LocalReviewsStorage.getAll();
       }
     } catch (e) {
-      // Offline fallback: Use activeReviewsList already loaded
+      activeReviewsList = LocalReviewsStorage.getAll();
     }
 
     renderReviewsUI(activeReviewsList);
