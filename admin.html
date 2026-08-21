@@ -897,6 +897,16 @@
 
             <button type="submit" class="admin-btn" style="max-width: 250px;">💾 Save Studio Settings</button>
           </form>
+
+          <div style="margin-top: 40px; padding: 22px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px;">
+            <h4 style="color: #f87171; margin-top: 0; margin-bottom: 8px;">⚠️ Delete / Reset All Data</h4>
+            <p style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 14px; line-height: 1.5;">
+              Purge all existing demo gallery media, reviews, bookings, and blocked dates from the database and local storage to start 100% fresh.
+            </p>
+            <button type="button" class="action-btn btn-del" id="btnPurgeAllData" style="background: #dc2626; color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+              🗑️ Delete &amp; Reset All Data Clean
+            </button>
+          </div>
         </div>
       </section>
     </main>
@@ -1086,15 +1096,9 @@
           const target = btn.getAttribute('data-tab');
           document.getElementById(target).classList.add('active');
         });
-      });
-
-      // Fetch All Dashboard Data (with Automatic LocalStorage Sync)
-      const fetchAllData = async () => {
-        const headers = { 'x-admin-token': adminToken };
-
-        // 1. Bookings
+      }        // 1. Bookings
         try {
-          const bRes = await fetch('/api/bookings', { headers });
+          const bRes = await fetch('/api/admin/bookings', { headers });
           if (bRes.ok) {
             const bData = await bRes.json();
             if (bData.success) {
@@ -1119,14 +1123,7 @@
           } else throw new Error('API not ok');
         } catch (e) {
           const stored = localStorage.getItem('ak_admin_all_reviews') || localStorage.getItem('ak_bridals_reviews_list');
-          reviewsData = stored ? JSON.parse(stored) : [
-            { id: 201, name: "Keerthana Rajesh", city: "Chennai", rating: 5, service: "💄 Muhurtham Bridal Makeup", comment: "AK Bridals made my wedding day truly magical! The HD airbrush makeup stayed completely fresh, sweat-proof, and glowing from 5 AM Muhurtham until the evening rituals.", status: "approved", created_at: "2026-08-15T09:30:00.000Z" },
-            { id: 202, name: "Soundarya Manoharan", city: "Madurai", rating: 5, service: "🌿 Bridal Organic Mehndi", comment: "The organic henna was breathtaking! The bridal peacock and temple motifs were so sharp and intricate. The color developed into an intense dark maroon stain that lasted over two weeks.", status: "approved", created_at: "2026-08-16T11:20:00.000Z" },
-            { id: 203, name: "Divya Venkatesh", city: "Coimbatore", rating: 5, service: "🪡 Handcrafted Aari Silk Blouse", comment: "Superb zardozi needlework and gold zari detailing on my wedding saree blouse. The precision tailoring fit was 100% flawless and perfectly matched my antique bridal jewelry.", status: "approved", created_at: "2026-08-17T14:15:00.000Z" },
-            { id: 204, name: "Sangeetha Ramesh", city: "Tirunelveli", rating: 5, service: "💇‍♀️ Hair Styling & Saree Draping", comment: "The traditional poola jada floral setting and box-pleated Kanchipuram silk saree draping was immaculate. It stayed perfectly in place through all wedding rituals with zero discomfort.", status: "approved", created_at: "2026-08-18T08:45:00.000Z" },
-            { id: 205, name: "Aarthi Subramanian", city: "Bengaluru", rating: 5, service: "👑 Royal Muhurtham & Reception Combo", comment: "Booked AK Bridals for both my Muhurtham and Reception. Loved how they gave two completely distinct looks — pure traditional muhurtham bride for morning and glamorous dewy glow for night!", status: "approved", created_at: "2026-08-19T16:00:00.000Z" },
-            { id: 206, name: "Janani Vijay", city: "Trichy", rating: 4, service: "🎓 Professional Academy Course", comment: "Attended the bridal masterclass. Excellent practical training with live models and clear product guidance. Gave me immense confidence to take on bridal makeup bookings independently.", status: "approved", created_at: "2026-08-20T10:10:00.000Z" }
-          ];
+          reviewsData = stored ? JSON.parse(stored) : [];
         }
 
         // 3. Gallery
@@ -1141,20 +1138,7 @@
           } else throw new Error('API not ok');
         } catch (e) {
           const stored = localStorage.getItem('ak_offline_gallery') || localStorage.getItem('ak_bridals_gallery_items_v2');
-          const defaultGalleryList = [
-            { id: "media_1", title: "Royal Muhurtham Transformation", category: "bridal-makeup", type: "image", src: "assets/images/bridal_transformation.jpg", desc: "Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.", created_at: "2026-08-15T10:00:00.000Z" },
-            { id: "media_2", title: "Glamorous Evening Reception Look", category: "reception", type: "image", src: "assets/images/reception_glam.jpg", desc: "Modern glowing dewy finish with soft rose-gold highlights for reception night.", created_at: "2026-08-16T12:00:00.000Z" },
-            { id: "media_3", title: "Organic Bridal Mehndi Artistry", category: "mehndi", type: "image", src: "assets/images/mehndi_art.jpg", desc: "Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.", created_at: "2026-08-17T14:00:00.000Z" },
-            { id: "media_4", title: "Handcrafted Zardozi Silk Blouse", category: "aari", type: "image", src: "assets/images/aari_embroidery.jpg", desc: "Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.", created_at: "2026-08-18T16:00:00.000Z" },
-            { id: "media_5", title: "Traditional Poola Jada Floral Setting", category: "hair", type: "image", src: "assets/images/hair_styling.jpg", desc: "Authentic temple jewelry flower braid and box-pleated silk saree draping.", created_at: "2026-08-19T11:00:00.000Z" },
-            { id: "media_6", title: "Signature HD Bridal Glow", category: "before-after", type: "image", src: "assets/images/bridal_transformation.jpg", desc: "24-hour sweat-proof skin prep and natural radiance transformation.", created_at: "2026-08-20T09:00:00.000Z" }
-          ];
-          try {
-            const parsed = stored ? JSON.parse(stored) : null;
-            galleryData = (Array.isArray(parsed) && parsed.length > 0) ? parsed : defaultGalleryList;
-          } catch (err) {
-            galleryData = defaultGalleryList;
-          }
+          galleryData = stored ? JSON.parse(stored) : [];
         }
 
         // 4. Services
@@ -1169,13 +1153,7 @@
           } else throw new Error('API not ok');
         } catch (e) {
           const stored = localStorage.getItem('ak_offline_services');
-          servicesData = stored ? JSON.parse(stored) : [
-            { id: 'srv-1', key: 'bridal-makeup', name: 'Muhurtham Bridal Makeup', icon: '💄', tag: 'Signature', starting_price: 0, price_display: 'Customized Package', desc: 'Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish.', inclusions: ['HD / Airbrush Makeup', 'Skin Prep', 'Lashes', 'Touch-up Kit'] },
-            { id: 'srv-2', key: 'reception-glam', name: 'Reception Glam Makeup', icon: '✨', tag: 'Trending', starting_price: 0, price_display: 'Customized Glam', desc: 'Modern, glowing evening transformation for reception & sangeet.', inclusions: ['Glow Makeup', 'Hairstyling', 'Accessory Setting'] },
-            { id: 'srv-3', key: 'mehndi', name: 'Bridal Organic Mehndi', icon: '🌿', tag: 'Natural', starting_price: 0, price_display: 'Customized Henna', desc: '100% chemical-free organic herbal henna for rich maroon stains.', inclusions: ['Full Hands', 'Bridal Pattern', 'Natural Oils'] },
-            { id: 'srv-4', key: 'aari-embroidery', name: 'Handcrafted Aari Silk Blouse', icon: '🪡', tag: 'Custom', starting_price: 0, price_display: 'Boutique Stitching', desc: 'Custom bridal blouse designing with gold zari and zardozi.', inclusions: ['Custom Neck Design', 'Gold Zari', 'Tailoring'] },
-            { id: 'srv-5', key: 'hair-draping', name: 'Hair Styling & Saree Draping', icon: '💇‍♀️', tag: 'Essential', starting_price: 0, price_display: 'Professional Styling', desc: 'Traditional poola jada, flower veni setting, and silk saree draping.', inclusions: ['Poola Jada Setting', 'Ironing', 'Pre-pleating'] }
-          ];
+          servicesData = stored ? JSON.parse(stored) : [];
         }
 
         // 5. Blocked Dates
@@ -1187,6 +1165,11 @@
               blockedDatesData = dData.blocked_dates || [];
               localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
             }
+          } else throw new Error('API not ok');
+        } catch (e) {
+          const stored = localStorage.getItem('ak_offline_blocked_dates');
+          blockedDatesData = stored ? JSON.parse(stored) : [];
+        }
           } else throw new Error('API not ok');
         } catch (e) {
           const stored = localStorage.getItem('ak_offline_blocked_dates');
@@ -1776,6 +1759,36 @@
         a.download = `AK_Bridals_Bookings_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
+      });
+
+      // Purge / Reset All Data Clean
+      document.getElementById('btnPurgeAllData')?.addEventListener('click', async () => {
+        if (!confirm('⚠️ Are you sure you want to delete ALL gallery photos, reviews, bookings, services, and blocked dates?\n\nThis will reset everything to 100% clean empty state.')) return;
+        
+        localStorage.removeItem('ak_offline_bookings');
+        localStorage.removeItem('ak_bridals_offline_bookings');
+        localStorage.removeItem('ak_admin_all_reviews');
+        localStorage.removeItem('ak_bridals_reviews_list');
+        localStorage.removeItem('ak_bridals_verified_reviews_v4');
+        localStorage.removeItem('ak_bridals_verified_reviews_v5');
+        localStorage.removeItem('ak_offline_gallery');
+        localStorage.removeItem('ak_bridals_gallery_items_v2');
+        localStorage.removeItem('ak_offline_services');
+        localStorage.removeItem('ak_offline_blocked_dates');
+        localStorage.removeItem('ak_deleted_gallery_ids');
+        localStorage.removeItem('ak_my_review_tokens');
+
+        try {
+          await fetch('/api/admin/reset-all-data', {
+            method: 'POST',
+            headers: { 'x-admin-token': adminToken }
+          });
+        } catch (e) {}
+
+        showToast('🧹 All data purged! System is completely fresh.');
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
       });
 
       // Initialize

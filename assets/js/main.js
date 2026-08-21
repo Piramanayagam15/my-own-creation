@@ -401,64 +401,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     video: "🎥",
   };
 
-  const defaultGalleryMedia = [
-    {
-      id: "media_1",
-      title: "Royal Muhurtham Transformation",
-      category: "bridal-makeup",
-      type: "image",
-      src: "assets/images/bridal_transformation.jpg",
-      desc: "Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.",
-      created_at: "2026-08-15T10:00:00.000Z"
-    },
-    {
-      id: "media_2",
-      title: "Glamorous Evening Reception Look",
-      category: "reception",
-      type: "image",
-      src: "assets/images/reception_glam.jpg",
-      desc: "Modern glowing dewy finish with soft rose-gold highlights for reception night.",
-      created_at: "2026-08-16T12:00:00.000Z"
-    },
-    {
-      id: "media_3",
-      title: "Organic Bridal Mehndi Artistry",
-      category: "mehndi",
-      type: "image",
-      src: "assets/images/mehndi_art.jpg",
-      desc: "Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.",
-      created_at: "2026-08-17T14:00:00.000Z"
-    },
-    {
-      id: "media_4",
-      title: "Handcrafted Zardozi Silk Blouse",
-      category: "aari",
-      type: "image",
-      src: "assets/images/aari_embroidery.jpg",
-      desc: "Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.",
-      created_at: "2026-08-18T16:00:00.000Z"
-    },
-    {
-      id: "media_5",
-      title: "Traditional Poola Jada Floral Setting",
-      category: "hair",
-      type: "image",
-      src: "assets/images/hair_styling.jpg",
-      desc: "Authentic temple jewelry flower braid and box-pleated silk saree draping.",
-      created_at: "2026-08-19T11:00:00.000Z"
-    },
-    {
-      id: "media_6",
-      title: "Signature HD Bridal Glow",
-      category: "before-after",
-      type: "image",
-      src: "assets/images/bridal_transformation.jpg",
-      desc: "24-hour sweat-proof skin prep and natural radiance transformation.",
-      created_at: "2026-08-20T09:00:00.000Z"
-    }
-  ];
+  const defaultGalleryMedia = [];
 
-  // Render all gallery media (Loads from Server API, Admin LocalStorage, and Curated Portfolio)
+  // Render all gallery media (Loads dynamically from Server API and Admin LocalStorage)
   const renderGallery = async () => {
     if (!galleryGrid) return;
 
@@ -503,24 +448,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (e) {}
 
-    // Combine everything without losing any new admin uploads
+    // Combine strictly active user/admin uploads
     const mediaMap = new Map();
 
-    // 1. Seed defaults
-    defaultGalleryMedia.forEach((item) => {
-      if (!deletedIds.includes(String(item.id))) {
-        mediaMap.set(String(item.id), item);
-      }
-    });
-
-    // 2. Add API items from server
+    // 1. Add API items from server
     apiItems.forEach((item) => {
       if (!deletedIds.includes(String(item.id))) {
         mediaMap.set(String(item.id), item);
       }
     });
 
-    // 3. Add Local Storage items (Admin uploads take highest priority)
+    // 2. Add Local Storage items (Admin uploads take highest priority)
     localItems.forEach((item) => {
       if (!deletedIds.includes(String(item.id))) {
         mediaMap.set(String(item.id), item);
@@ -1343,81 +1281,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const ratingAvgStars = document.getElementById("ratingAvgStars");
   const totalReviewsCount = document.getElementById("totalReviewsCount");
 
-  const initialVerifiedReviews = [
-    {
-      id: 201,
-      name: "Keerthana Rajesh",
-      city: "Chennai",
-      rating: 5,
-      service: "💄 Muhurtham Bridal Makeup",
-      comment: "AK Bridals made my wedding day truly magical! The HD airbrush makeup stayed completely fresh, sweat-proof, and glowing from 5 AM Muhurtham until the evening rituals.",
-      created_at: "2026-08-15T09:30:00.000Z"
-    },
-    {
-      id: 202,
-      name: "Soundarya Manoharan",
-      city: "Madurai",
-      rating: 5,
-      service: "🌿 Bridal Organic Mehndi",
-      comment: "The organic henna was breathtaking! The bridal peacock and temple motifs were so sharp and intricate. The color developed into an intense dark maroon stain that lasted over two weeks.",
-      created_at: "2026-08-16T11:20:00.000Z"
-    },
-    {
-      id: 203,
-      name: "Divya Venkatesh",
-      city: "Coimbatore",
-      rating: 5,
-      service: "🪡 Handcrafted Aari Silk Blouse",
-      comment: "Superb zardozi needlework and gold zari detailing on my wedding saree blouse. The precision tailoring fit was 100% flawless and perfectly matched my antique bridal jewelry.",
-      created_at: "2026-08-17T14:15:00.000Z"
-    },
-    {
-      id: 204,
-      name: "Sangeetha Ramesh",
-      city: "Tirunelveli",
-      rating: 5,
-      service: "💇‍♀️ Hair Styling & Saree Draping",
-      comment: "The traditional poola jada floral setting and box-pleated Kanchipuram silk saree draping was immaculate. It stayed perfectly in place through all wedding rituals with zero discomfort.",
-      created_at: "2026-08-18T08:45:00.000Z"
-    },
-    {
-      id: 205,
-      name: "Aarthi Subramanian",
-      city: "Bengaluru",
-      rating: 5,
-      service: "👑 Royal Muhurtham & Reception Combo",
-      comment: "Booked AK Bridals for both my Muhurtham and Reception. Loved how they gave two completely distinct looks — pure traditional muhurtham bride for morning and glamorous dewy glow for night!",
-      created_at: "2026-08-19T16:00:00.000Z"
-    },
-    {
-      id: 206,
-      name: "Janani Vijay",
-      city: "Trichy",
-      rating: 4,
-      service: "🎓 Professional Academy Course",
-      comment: "Attended the bridal masterclass. Excellent practical training with live models and clear product guidance. Gave me immense confidence to take on bridal makeup bookings independently.",
-      created_at: "2026-08-20T10:10:00.000Z"
-    }
-  ];
+  const initialVerifiedReviews = [];
 
   // Local Storage for Reviews Persistence (Strictly User-Added & Verified Reviews Only)
-  const REVIEWS_STORAGE_KEY = "ak_bridals_verified_reviews_v4";
+  const REVIEWS_STORAGE_KEY = "ak_bridals_verified_reviews_v5";
   const LocalReviewsStorage = {
     getAll: () => {
       try {
         const stored = localStorage.getItem(REVIEWS_STORAGE_KEY);
-        if (!stored) {
-          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(initialVerifiedReviews));
-          return [...initialVerifiedReviews];
-        }
+        if (!stored) return [];
         const parsed = JSON.parse(stored);
-        if (!Array.isArray(parsed) || parsed.length === 0) {
-          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(initialVerifiedReviews));
-          return [...initialVerifiedReviews];
-        }
-        return parsed;
+        return Array.isArray(parsed) ? parsed : [];
       } catch (e) {
-        return [...initialVerifiedReviews];
+        return [];
       }
     },
     saveAll: (reviews) => {
@@ -1851,66 +1727,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       {
         id: "srv-3",
         key: "combo-package",
-        name: "Royal Muhurtham & Reception Combo",
-        icon: "👑",
-        tag: "Best Value",
-        starting_price: 22000,
-        price_display: "Starting from ₹22,000",
-        desc: "Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.",
-        inclusions: ["2 Event Makeovers", "Complete Hair Styling", "Saree Pleating & Draping", "Jewelry Styling Assistance"]
-      },
-      {
-        id: "srv-4",
-        key: "mehndi",
-        name: "Bridal Organic Mehndi",
-        icon: "🌿",
-        tag: "Natural",
-        starting_price: 3500,
-        price_display: "Starting from ₹3,500",
-        desc: "Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.",
-        inclusions: ["Full Hands (Front & Back)", "Feet Bridal Pattern", "After-care Essential Oil", "Bridal Figures & Motifs"]
-      },
-      {
-        id: "srv-5",
-        key: "aari-embroidery",
-        name: "Handcrafted Aari Silk Blouse",
-        icon: "🪡",
-        tag: "Custom",
-        starting_price: 2500,
-        price_display: "Starting from ₹2,500",
-        desc: "Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.",
-        inclusions: ["Custom Neck & Sleeves Design", "Zardozi & Gold Zari", "Custom Color Matching", "Precision Tailoring Fitting"]
-      },
-      {
-        id: "srv-6",
-        key: "hair-draping",
-        name: "Hair Styling & Saree Draping",
-        icon: "💇‍♀️",
-        tag: "Essential",
-        starting_price: 3000,
-        price_display: "Starting from ₹3,000",
-        desc: "Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.",
-        inclusions: ["Poola Jada Setting", "Ironing & Pre-pleating", "Jewelry Fixation", "Long-hold Hair Setting"]
-      },
-      {
-        id: "srv-7",
-        key: "academy-makeup",
-        name: "Professional Bridal Makeup Masterclass",
-        icon: "🎓",
-        tag: "Academy",
-        starting_price: 25000,
-        price_display: "Starting from ₹25,000",
-        desc: "Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
-        inclusions: ["15 Days Intensive Training", "Hands-on Live Models", "Certificate of Completion", "Starter Makeup Product Kit"]
-      }
-    ];
-
     let servicesList = [];
     try {
       const res = await fetch("/api/services");
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        if (data.success && Array.isArray(data.data)) {
           servicesList = data.data;
           localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
         }
@@ -1922,61 +1744,79 @@ document.addEventListener("DOMContentLoaded", async () => {
         const stored = localStorage.getItem("ak_offline_services");
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) servicesList = parsed;
+          if (Array.isArray(parsed)) servicesList = parsed;
         }
       } catch (e) {}
     }
 
-    if (servicesList.length === 0) {
-      servicesList = defaultServices;
-    }
-
     // 1. Render on services.html
     if (servicesContainer) {
-      servicesContainer.innerHTML = servicesList.map(s => {
-        const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${s.starting_price.toLocaleString('en-IN')}` : s.tag || 'Custom Package');
-        const inclusionsList = (s.inclusions && s.inclusions.length > 0) 
-          ? (Array.isArray(s.inclusions) ? s.inclusions : String(s.inclusions).split(',')).map(inc => `<li><span>✓</span> ${inc.trim()}</li>`).join('') 
-          : '<li><span>✓</span> Premium Bridal Styling & Consultation</li>';
-        
-        return `
-          <article id="${s.key || s.id}" class="service-block reveal-on-scroll revealed">
-            <div class="card-icon-header">
-              <span class="service-icon">${s.icon || '💄'}</span>
-              <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
-            </div>
-            <h2>${s.name}</h2>
-            <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
-            <ul class="feature-list">
-              ${inclusionsList}
-            </ul>
-            <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
-              <a href="contact.html?service=${s.key || s.id}" class="btn btn-primary btn-glow">Book This Look</a>
-              <a href="https://wa.me/918190913110?text=Hi%20AK%20Bridals,%20I%20would%20like%20to%20enquire%20about%20the%20${encodeURIComponent(s.name)}." target="_blank" class="btn btn-secondary">💬 WhatsApp Enquiry</a>
-            </div>
-          </article>
+      if (servicesList.length === 0) {
+        servicesContainer.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 1rem;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💄</span>
+            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">No Services Listed Yet</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">Use the Admin Portal to add bridal makeup packages, starting prices, and custom services.</p>
+            <a href="admin.html" class="btn btn-primary">👑 Open Admin Portal</a>
+          </div>
         `;
-      }).join('');
+      } else {
+        servicesContainer.innerHTML = servicesList.map(s => {
+          const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${Number(s.starting_price).toLocaleString('en-IN')}` : s.tag || 'Custom Package');
+          const inclusionsList = (s.inclusions && s.inclusions.length > 0) 
+            ? (Array.isArray(s.inclusions) ? s.inclusions : String(s.inclusions).split(',')).map(inc => `<li><span>✓</span> ${inc.trim()}</li>`).join('') 
+            : '<li><span>✓</span> Premium Bridal Styling & Consultation</li>';
+          
+          return `
+            <article id="${s.key || s.id}" class="service-block reveal-on-scroll revealed">
+              <div class="card-icon-header">
+                <span class="service-icon">${s.icon || '💄'}</span>
+                <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
+              </div>
+              <h2>${s.name}</h2>
+              <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
+              <ul class="feature-list">
+                ${inclusionsList}
+              </ul>
+              <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="contact.html?service=${s.key || s.id}" class="btn btn-primary btn-glow">Book This Look</a>
+                <a href="https://wa.me/918190913110?text=Hi%20AK%20Bridals,%20I%20would%20like%20to%20enquire%20about%20the%20${encodeURIComponent(s.name)}." target="_blank" class="btn btn-secondary">💬 WhatsApp Enquiry</a>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
     }
 
     // 2. Render on index.html
     if (homepageServicesGrid) {
-      homepageServicesGrid.innerHTML = servicesList.map(s => {
-        const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${s.starting_price.toLocaleString('en-IN')}` : s.tag || 'Custom Package');
-        return `
-          <article class="card card-hover-float reveal-on-scroll revealed" id="card-${s.key || s.id}">
-            <div class="card-icon-header">
-              <span class="service-icon">${s.icon || '💄'}</span>
-              <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
-            </div>
-            <h3>${s.name}</h3>
-            <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
-            <div style="margin-top: 14px;">
-              <a href="contact.html?service=${s.key || s.id}" class="btn-text-gold">Book This Look &rarr;</a>
-            </div>
-          </article>
+      if (servicesList.length === 0) {
+        homepageServicesGrid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 1rem;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💄</span>
+            <h3 style="color: #ffffff; font-size: 1.25rem; margin-bottom: 8px;">No Services Listed Yet</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem; max-width: 480px; margin: 0 auto 20px;">Services and packages added in the Admin Portal will appear here.</p>
+            <a href="admin.html" class="btn btn-primary">👑 Open Admin Portal</a>
+          </div>
         `;
-      }).join('');
+      } else {
+        homepageServicesGrid.innerHTML = servicesList.map(s => {
+          const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${Number(s.starting_price).toLocaleString('en-IN')}` : s.tag || 'Custom Package');
+          return `
+            <article class="card card-hover-float reveal-on-scroll revealed" id="card-${s.key || s.id}">
+              <div class="card-icon-header">
+                <span class="service-icon">${s.icon || '💄'}</span>
+                <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
+              </div>
+              <h3>${s.name}</h3>
+              <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
+              <div style="margin-top: 14px;">
+                <a href="contact.html?service=${s.key || s.id}" class="btn-text-gold">Book This Look &rarr;</a>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
     }
   };
 

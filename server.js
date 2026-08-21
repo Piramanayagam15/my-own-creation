@@ -41,260 +41,11 @@ const defaultStore = {
     about_bio: 'At AK Bridals, we specialize in high-definition bridal transformations, authentic organic mehndi, handcrafted aari silk embroidery, and traditional muhurtham saree pleating.',
     pin: 'akbridals2026'
   },
-  services: [
-    {
-      id: 'srv-1',
-      key: 'bridal-makeup',
-      name: 'Muhurtham Bridal Makeup',
-      icon: '💄',
-      tag: 'Signature',
-      starting_price: 0,
-      price_display: 'Customized Bridal Package',
-      desc: 'Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.',
-      inclusions: ['HD / Airbrush Makeup', 'Skin Prep & Primer', 'Lashes & Lenses', 'Touch-up Kit']
-    },
-    {
-      id: 'srv-2',
-      key: 'reception-glam',
-      name: 'Reception Glam Makeup',
-      icon: '✨',
-      tag: 'Trending',
-      starting_price: 0,
-      price_display: 'Customized Reception Glam',
-      desc: 'Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.',
-      inclusions: ['Reception Glow Makeup', 'Hairstyling / Bun', 'Accessory Setting', 'Waterproof Formulation']
-    },
-    {
-      id: 'srv-3',
-      key: 'combo-package',
-      name: 'Royal Muhurtham & Reception Combo',
-      icon: '👑',
-      tag: 'Best Value',
-      starting_price: 0,
-      price_display: 'Full Event Bridal Combo',
-      desc: 'Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.',
-      inclusions: ['2 Event Makeovers', 'Complete Hair Styling', 'Saree Pleating & Draping', 'Jewelry Styling Assistance']
-    },
-    {
-      id: 'srv-4',
-      key: 'mehndi',
-      name: 'Bridal Organic Mehndi',
-      icon: '🌿',
-      tag: 'Natural',
-      starting_price: 0,
-      price_display: 'Customized Mehndi Pattern',
-      desc: 'Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.',
-      inclusions: ['Full Hands (Front & Back)', 'Feet Bridal Pattern', 'After-care Essential Oil', 'Bridal Figures & Motifs']
-    },
-    {
-      id: 'srv-5',
-      key: 'aari-embroidery',
-      name: 'Handcrafted Aari Silk Blouse',
-      icon: '🪡',
-      tag: 'Custom',
-      starting_price: 0,
-      price_display: 'Boutique Custom Stitching',
-      desc: 'Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.',
-      inclusions: ['Custom Neck & Sleeves Design', 'Zardozi & Gold Zari', 'Custom Color Matching', 'Precision Tailoring Fitting']
-    },
-    {
-      id: 'srv-6',
-      key: 'hair-draping',
-      name: 'Hair Styling & Saree Draping',
-      icon: '💇‍♀️',
-      tag: 'Essential',
-      starting_price: 0,
-      price_display: 'Professional Styling',
-      desc: 'Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.',
-      inclusions: ['Poola Jada Setting', 'Ironing & Pre-pleating', 'Jewelry Fixation', 'Long-hold Hair Setting']
-    },
-    {
-      id: 'srv-7',
-      key: 'academy-makeup',
-      name: 'Professional Bridal Academy Course',
-      icon: '🎓',
-      tag: 'Academy',
-      starting_price: 0,
-      price_display: 'Certified Masterclass',
-      desc: 'Comprehensive hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.',
-      inclusions: ['Intensive Training Batch', 'Hands-on Live Models', 'Certificate of Completion', 'Starter Kit Guidance']
-    }
-  ],
-  gallery: [
-    {
-      id: 'media_1',
-      title: 'Royal Muhurtham Transformation',
-      category: 'bridal-makeup',
-      type: 'image',
-      src: 'assets/images/bridal_transformation.jpg',
-      desc: 'Flawless HD airbrush bridal makeup with traditional kundan jewellery styling.',
-      created_at: '2026-08-15T10:00:00.000Z'
-    },
-    {
-      id: 'media_2',
-      title: 'Glamorous Evening Reception Look',
-      category: 'reception',
-      type: 'image',
-      src: 'assets/images/reception_glam.jpg',
-      desc: 'Modern glowing dewy finish with soft rose-gold highlights for reception night.',
-      created_at: '2026-08-16T12:00:00.000Z'
-    },
-    {
-      id: 'media_3',
-      title: 'Organic Bridal Mehndi Artistry',
-      category: 'mehndi',
-      type: 'image',
-      src: 'assets/images/mehndi_art.jpg',
-      desc: 'Intricate peacock and Radha-Krishna bridal motifs with dark natural maroon stain.',
-      created_at: '2026-08-17T14:00:00.000Z'
-    },
-    {
-      id: 'media_4',
-      title: 'Handcrafted Zardozi Silk Blouse',
-      category: 'aari',
-      type: 'image',
-      src: 'assets/images/aari_embroidery.jpg',
-      desc: 'Fine antique gold zari and cutwork needle embroidery on Kanchipuram silk.',
-      created_at: '2026-08-18T16:00:00.000Z'
-    },
-    {
-      id: 'media_5',
-      title: 'Traditional Poola Jada Floral Setting',
-      category: 'hair',
-      type: 'image',
-      src: 'assets/images/hair_styling.jpg',
-      desc: 'Authentic temple jewelry flower braid and box-pleated silk saree draping.',
-      created_at: '2026-08-19T11:00:00.000Z'
-    },
-    {
-      id: 'media_6',
-      title: 'Signature HD Bridal Glow',
-      category: 'before-after',
-      type: 'image',
-      src: 'assets/images/bridal_transformation.jpg',
-      desc: '24-hour sweat-proof skin prep and natural radiance transformation.',
-      created_at: '2026-08-20T09:00:00.000Z'
-    }
-  ],
-  blocked_dates: ['2026-09-15', '2026-10-22', '2026-11-08'],
-  bookings: [
-    {
-      id: 101,
-      booking_ref: 'AKB-101',
-      name: 'Priya Raman',
-      phone: '+91 98765 43210',
-      email: 'priya.raman@example.com',
-      preferred_date: '2026-09-20',
-      event_type: 'Wedding / Muhurtham',
-      service: '💄 Muhurtham Bridal Makeup',
-      location: 'Chennai (T. Nagar)',
-      message: 'Looking for HD Airbrush makeup for Muhurtham & Reception in Chennai.',
-      status: 'pending',
-      created_at: new Date(Date.now() - 3600000).toISOString()
-    },
-    {
-      id: 102,
-      booking_ref: 'AKB-102',
-      name: 'Ananya Sundaram',
-      phone: '+91 94432 10987',
-      email: 'ananya.s@example.com',
-      preferred_date: '2026-10-05',
-      event_type: 'Reception',
-      service: '🌿 Bridal Organic Mehndi',
-      location: 'Madurai',
-      message: 'Bridal peacock pattern henna for hands and feet.',
-      status: 'contacted',
-      created_at: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      id: 103,
-      booking_ref: 'AKB-103',
-      name: 'Deepika Natarajan',
-      phone: '+91 97890 12345',
-      email: 'deepika.n@example.com',
-      preferred_date: '2026-11-12',
-      event_type: 'Engagement',
-      service: '🪡 Handcrafted Aari Silk Blouse',
-      location: 'Coimbatore',
-      message: 'Custom gold zari zardozi bridal blouse embroidery.',
-      status: 'confirmed',
-      created_at: new Date(Date.now() - 2 * 86400000).toISOString()
-    }
-  ],
-  reviews: [
-    {
-      id: 201,
-      name: 'Keerthana Rajesh',
-      city: 'Chennai',
-      rating: 5,
-      service: '💄 Muhurtham Bridal Makeup',
-      comment: 'AK Bridals made my wedding day truly magical! The HD airbrush makeup stayed completely fresh, sweat-proof, and glowing from 5 AM Muhurtham until the evening rituals.',
-      author_token: 'auth_keerthana_201',
-      status: 'approved',
-      created_at: '2026-08-15T09:30:00.000Z',
-      moderated_at: '2026-08-15T10:00:00.000Z'
-    },
-    {
-      id: 202,
-      name: 'Soundarya Manoharan',
-      city: 'Madurai',
-      rating: 5,
-      service: '🌿 Bridal Organic Mehndi',
-      comment: 'The organic henna was breathtaking! The bridal peacock and temple motifs were so sharp and intricate. The color developed into an intense dark maroon stain that lasted over two weeks.',
-      author_token: 'auth_soundarya_202',
-      status: 'approved',
-      created_at: '2026-08-16T11:20:00.000Z',
-      moderated_at: '2026-08-16T12:00:00.000Z'
-    },
-    {
-      id: 203,
-      name: 'Divya Venkatesh',
-      city: 'Coimbatore',
-      rating: 5,
-      service: '🪡 Handcrafted Aari Silk Blouse',
-      comment: 'Superb zardozi needlework and gold zari detailing on my wedding saree blouse. The precision tailoring fit was 100% flawless and perfectly matched my antique bridal jewelry.',
-      author_token: 'auth_divya_203',
-      status: 'approved',
-      created_at: '2026-08-17T14:15:00.000Z',
-      moderated_at: '2026-08-17T15:00:00.000Z'
-    },
-    {
-      id: 204,
-      name: 'Sangeetha Ramesh',
-      city: 'Tirunelveli',
-      rating: 5,
-      service: '💇‍♀️ Hair Styling & Saree Draping',
-      comment: 'The traditional poola jada floral setting and box-pleated Kanchipuram silk saree draping was immaculate. It stayed perfectly in place through all wedding rituals with zero discomfort.',
-      author_token: 'auth_sangeetha_204',
-      status: 'approved',
-      created_at: '2026-08-18T08:45:00.000Z',
-      moderated_at: '2026-08-18T09:30:00.000Z'
-    },
-    {
-      id: 205,
-      name: 'Aarthi Subramanian',
-      city: 'Bengaluru',
-      rating: 5,
-      service: '👑 Royal Muhurtham & Reception Combo',
-      comment: 'Booked AK Bridals for both my Muhurtham and Reception. Loved how they gave two completely distinct looks — pure traditional muhurtham bride for morning and glamorous dewy glow for night!',
-      author_token: 'auth_aarthi_205',
-      status: 'approved',
-      created_at: '2026-08-19T16:00:00.000Z',
-      moderated_at: '2026-08-19T17:00:00.000Z'
-    },
-    {
-      id: 206,
-      name: 'Janani Vijay',
-      city: 'Trichy',
-      rating: 4,
-      service: '🎓 Professional Academy Course',
-      comment: 'Attended the bridal masterclass. Excellent practical training with live models and clear product guidance. Gave me immense confidence to take on bridal makeup bookings independently.',
-      author_token: 'auth_janani_206',
-      status: 'approved',
-      created_at: '2026-08-20T10:10:00.000Z',
-      moderated_at: '2026-08-20T11:00:00.000Z'
-    }
-  ]
+  services: [],
+  gallery: [],
+  blocked_dates: [],
+  bookings: [],
+  reviews: []
 };
 
 // Load data from file or initialize
@@ -923,6 +674,17 @@ app.put('/api/settings', authAdmin, (req, res) => {
 
   saveStore();
   res.json({ success: true, message: 'Studio settings updated successfully.', data: store.settings });
+});
+
+// 8. Admin: Reset / Purge All Data (POST /api/admin/reset-all-data)
+app.post('/api/admin/reset-all-data', authAdmin, (req, res) => {
+  store.gallery = [];
+  store.reviews = [];
+  store.bookings = [];
+  store.blocked_dates = [];
+  store.services = [];
+  saveStore();
+  res.json({ success: true, message: 'All store data purged successfully.' });
 });
 
 // Start Server
