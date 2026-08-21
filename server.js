@@ -472,18 +472,16 @@ app.post('/api/gallery', authAdmin, (req, res) => {
       return res.status(400).json({ success: false, message: 'Title, category, and image/video are required.' });
     }
 
-    const nextId = (store.gallery && store.gallery.length > 0)
-      ? Math.max(...store.gallery.map(g => Number(g.id) || 100)) + 1
-      : 101;
+    const uniqueId = req.body.id || `media_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
     const newItem = {
-      id: nextId,
+      id: uniqueId,
       title: title.trim(),
       category: category.trim(),
       type: type === 'video' ? 'video' : 'image',
       src: src.trim(),
       desc: (desc || '').trim(),
-      created_at: new Date().toISOString()
+      created_at: req.body.created_at || new Date().toISOString()
     };
 
     if (!store.gallery) store.gallery = [];
