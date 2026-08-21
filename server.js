@@ -887,14 +887,20 @@ app.put('/api/admin/reviews/:id/status', authAdmin, handleModerateReview);
 app.put('/api/admin/reviews/:id/moderate', authAdmin, handleModerateReview);
 
 // 3e. Admin or Author: Delete Review
-app.delete('/api/reviews/:id', async (req, res) => {
+const handleDeleteReview = async (req, res) => {
   const { id } = req.params;
   const adminToken = req.headers['x-admin-token'] || req.query.token;
   const authorToken = req.headers['x-author-token'];
 
-  const isAdmin = adminToken && (adminToken === ADMIN_TOKEN || adminToken === store.settings?.pin || activeSessions.has(adminToken));
+  const currentPin = store.settings?.pin || ADMIN_TOKEN;
+  const isAdmin = adminToken && (
+    safeCompare(adminToken, ADMIN_TOKEN) || 
+    safeCompare(adminToken, currentPin) || 
+    (await DB.adminSessions.validate(adminToken))
+  );
 
-  const review = (store.reviews || []).find(r => String(r.id) === String(id));
+  const allReviews = await DB.reviews.getAll();
+  const review = allReviews.find(r => String(r.id) === String(id));
   if (!review) {
     return res.status(404).json({ success: false, message: 'Review not found.' });
   }
@@ -907,7 +913,10 @@ app.delete('/api/reviews/:id', async (req, res) => {
 
   await DB.reviews.delete(id);
   res.json({ success: true, message: `Review #${id} deleted successfully.` });
-});
+};
+
+app.delete('/api/reviews/:id', handleDeleteReview);
+app.delete('/api/admin/reviews/:id', authAdmin, handleDeleteReview);
 
 // ========================================================
 // 4. GALLERY & VIDEO SHOWCASE API
@@ -1056,6 +1065,8 @@ const handleBlockDate = async (req, res) => {
 
 app.post('/api/availability', authAdmin, handleBlockDate);
 app.post('/api/availability/block', authAdmin, handleBlockDate);
+app.post('/api/admin/availability', authAdmin, handleBlockDate);
+app.post('/api/admin/availability/block', authAdmin, handleBlockDate);
 
 // 6c. Admin: Unblock a Date
 const handleUnblockDate = async (req, res) => {
@@ -1068,6 +1079,8 @@ const handleUnblockDate = async (req, res) => {
 
 app.delete('/api/availability/:date', authAdmin, handleUnblockDate);
 app.post('/api/availability/unblock', authAdmin, handleUnblockDate);
+app.delete('/api/admin/availability/:date', authAdmin, handleUnblockDate);
+app.post('/api/admin/availability/unblock', authAdmin, handleUnblockDate);
 
 // 6d. Public: Real-time Date Availability Checker
 app.get('/api/check-availability', async (req, res) => {
