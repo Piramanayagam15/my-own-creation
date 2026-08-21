@@ -458,54 +458,96 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   ];
 
-  // Render all gallery media (Loads from Server API, Admin LocalStorage, or Curated Portfolio)
+  // Render all gallery media (Loads from Server API, Admin LocalStorage, and Curated Portfolio)
   const renderGallery = async () => {
     if (!galleryGrid) return;
 
-    let mediaList = [];
+    // Check URL parameters on first load (e.g. gallery.html?category=mehndi)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCat = urlParams.get("category") || urlParams.get("filter");
+    if (urlCat && activeFilter === "all") {
+      activeFilter = urlCat;
+      if (galleryFilterTabs) {
+        galleryFilterTabs.querySelectorAll(".filter-btn").forEach((b) => {
+          if (b.getAttribute("data-filter") === urlCat) {
+            b.classList.add("active");
+          } else {
+            b.classList.remove("active");
+          }
+        });
+      }
+    }
 
-    // 1. Fetch from server API (/api/gallery)
+    let deletedIds = [];
+    try {
+      deletedIds = JSON.parse(localStorage.getItem("ak_deleted_gallery_ids") || "[]");
+    } catch (e) {}
+
+    let localItems = [];
+    try {
+      const stored = localStorage.getItem("ak_offline_gallery") || localStorage.getItem("ak_bridals_gallery_items_v2");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) localItems = parsed;
+      }
+    } catch (e) {}
+
+    let apiItems = [];
     try {
       const res = await fetch("/api/gallery");
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          mediaList = data.data;
-          localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
-          localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
+        if (data.success && Array.isArray(data.data)) {
+          apiItems = data.data;
         }
       }
     } catch (e) {}
 
-    // 2. Fallback to localStorage (admin uploads offline / static)
-    if (mediaList.length === 0) {
-      try {
-        const stored = localStorage.getItem("ak_offline_gallery") || localStorage.getItem("ak_bridals_gallery_items_v2");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            mediaList = parsed;
+    // Combine everything without losing any new admin uploads
+    const mediaMap = new Map();
+
+    // 1. Seed defaults
+    defaultGalleryMedia.forEach((item) => {
+      if (!deletedIds.includes(String(item.id))) {
+        mediaMap.set(String(item.id), item);
+      }
+    });
+
+    // 2. Add API items from server
+    apiItems.forEach((item) => {
+      if (!deletedIds.includes(String(item.id))) {
+        mediaMap.set(String(item.id), item);
+      }
+    });
+
+    // 3. Add Local Storage items (Admin uploads take highest priority)
+    localItems.forEach((item) => {
+      if (!deletedIds.includes(String(item.id))) {
+        mediaMap.set(String(item.id), item);
+      }
+    });
+
+    // 4. Also check IndexedDB if any
+    try {
+      const idbMedia = await GalleryDB.getAll();
+      if (Array.isArray(idbMedia)) {
+        idbMedia.forEach((item) => {
+          if (!deletedIds.includes(String(item.id))) {
+            mediaMap.set(String(item.id), item);
           }
-        }
-      } catch (e) {}
-    }
+        });
+      }
+    } catch (e) {}
 
-    // 3. Fallback to IndexedDB (if items exist)
-    if (mediaList.length === 0) {
-      try {
-        const idbMedia = await GalleryDB.getAll();
-        if (idbMedia && idbMedia.length > 0) {
-          mediaList = idbMedia;
-        }
-      } catch (e) {}
-    }
+    const mediaList = Array.from(mediaMap.values()).sort((a, b) => {
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    });
 
-    // 4. Fallback to default curated gallery items
-    if (mediaList.length === 0) {
-      mediaList = [...defaultGalleryMedia];
+    // Cache the combined list
+    try {
       localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
       localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
-    }
+    } catch (e) {}
 
     // Filter items based on activeFilter
     const filteredItems = mediaList.filter((item) => {

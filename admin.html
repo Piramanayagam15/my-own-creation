@@ -1498,6 +1498,11 @@
         galleryData = galleryData.filter(g => String(g.id) !== String(id));
         localStorage.setItem('ak_offline_gallery', JSON.stringify(galleryData));
         localStorage.setItem('ak_bridals_gallery_items_v2', JSON.stringify(galleryData));
+        try {
+          let deleted = JSON.parse(localStorage.getItem('ak_deleted_gallery_ids') || '[]');
+          if (!deleted.includes(String(id))) deleted.push(String(id));
+          localStorage.setItem('ak_deleted_gallery_ids', JSON.stringify(deleted));
+        } catch (err) {}
         showToast('🗑️ Media deleted.');
         renderStats();
         renderGallery();
