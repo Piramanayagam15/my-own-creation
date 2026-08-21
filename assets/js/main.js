@@ -1777,7 +1777,169 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Initialize reviews
+  // Dynamic Services & Starting Prices Synchronization
+  const fetchAndRenderServices = async () => {
+    const servicesContainer = document.getElementById("servicesContainer");
+    const homepageServicesGrid = document.getElementById("homepageServicesGrid");
+    if (!servicesContainer && !homepageServicesGrid) return;
+
+    const defaultServices = [
+      {
+        id: "srv-1",
+        key: "bridal-makeup",
+        name: "Muhurtham Bridal Makeup",
+        icon: "💄",
+        tag: "Signature",
+        starting_price: 15000,
+        price_display: "Starting from ₹15,000",
+        desc: "Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.",
+        inclusions: ["HD / Airbrush Makeup", "Skin Prep & Primer", "Lashes & Lenses", "Touch-up Kit"]
+      },
+      {
+        id: "srv-2",
+        key: "reception-glam",
+        name: "Reception Glam Makeup",
+        icon: "✨",
+        tag: "Trending",
+        starting_price: 8000,
+        price_display: "Starting from ₹8,000",
+        desc: "Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.",
+        inclusions: ["Reception Glow Makeup", "Hairstyling / Bun", "Accessory Setting", "Waterproof Formulation"]
+      },
+      {
+        id: "srv-3",
+        key: "combo-package",
+        name: "Royal Muhurtham & Reception Combo",
+        icon: "👑",
+        tag: "Best Value",
+        starting_price: 22000,
+        price_display: "Starting from ₹22,000",
+        desc: "Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.",
+        inclusions: ["2 Event Makeovers", "Complete Hair Styling", "Saree Pleating & Draping", "Jewelry Styling Assistance"]
+      },
+      {
+        id: "srv-4",
+        key: "mehndi",
+        name: "Bridal Organic Mehndi",
+        icon: "🌿",
+        tag: "Natural",
+        starting_price: 3500,
+        price_display: "Starting from ₹3,500",
+        desc: "Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.",
+        inclusions: ["Full Hands (Front & Back)", "Feet Bridal Pattern", "After-care Essential Oil", "Bridal Figures & Motifs"]
+      },
+      {
+        id: "srv-5",
+        key: "aari-embroidery",
+        name: "Handcrafted Aari Silk Blouse",
+        icon: "🪡",
+        tag: "Custom",
+        starting_price: 2500,
+        price_display: "Starting from ₹2,500",
+        desc: "Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.",
+        inclusions: ["Custom Neck & Sleeves Design", "Zardozi & Gold Zari", "Custom Color Matching", "Precision Tailoring Fitting"]
+      },
+      {
+        id: "srv-6",
+        key: "hair-draping",
+        name: "Hair Styling & Saree Draping",
+        icon: "💇‍♀️",
+        tag: "Essential",
+        starting_price: 3000,
+        price_display: "Starting from ₹3,000",
+        desc: "Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.",
+        inclusions: ["Poola Jada Setting", "Ironing & Pre-pleating", "Jewelry Fixation", "Long-hold Hair Setting"]
+      },
+      {
+        id: "srv-7",
+        key: "academy-makeup",
+        name: "Professional Bridal Makeup Masterclass",
+        icon: "🎓",
+        tag: "Academy",
+        starting_price: 25000,
+        price_display: "Starting from ₹25,000",
+        desc: "Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
+        inclusions: ["15 Days Intensive Training", "Hands-on Live Models", "Certificate of Completion", "Starter Makeup Product Kit"]
+      }
+    ];
+
+    let servicesList = [];
+    try {
+      const res = await fetch("/api/services");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          servicesList = data.data;
+          localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
+        }
+      }
+    } catch (e) {}
+
+    if (servicesList.length === 0) {
+      try {
+        const stored = localStorage.getItem("ak_offline_services");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) servicesList = parsed;
+        }
+      } catch (e) {}
+    }
+
+    if (servicesList.length === 0) {
+      servicesList = defaultServices;
+    }
+
+    // 1. Render on services.html
+    if (servicesContainer) {
+      servicesContainer.innerHTML = servicesList.map(s => {
+        const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${s.starting_price.toLocaleString('en-IN')}` : s.tag || 'Custom Package');
+        const inclusionsList = (s.inclusions && s.inclusions.length > 0) 
+          ? (Array.isArray(s.inclusions) ? s.inclusions : String(s.inclusions).split(',')).map(inc => `<li><span>✓</span> ${inc.trim()}</li>`).join('') 
+          : '<li><span>✓</span> Premium Bridal Styling & Consultation</li>';
+        
+        return `
+          <article id="${s.key || s.id}" class="service-block reveal-on-scroll revealed">
+            <div class="card-icon-header">
+              <span class="service-icon">${s.icon || '💄'}</span>
+              <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
+            </div>
+            <h2>${s.name}</h2>
+            <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
+            <ul class="feature-list">
+              ${inclusionsList}
+            </ul>
+            <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+              <a href="contact.html?service=${s.key || s.id}" class="btn btn-primary btn-glow">Book This Look</a>
+              <a href="https://wa.me/918190913110?text=Hi%20AK%20Bridals,%20I%20would%20like%20to%20enquire%20about%20the%20${encodeURIComponent(s.name)}." target="_blank" class="btn btn-secondary">💬 WhatsApp Enquiry</a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // 2. Render on index.html
+    if (homepageServicesGrid) {
+      homepageServicesGrid.innerHTML = servicesList.map(s => {
+        const priceTag = s.price_display || (s.starting_price > 0 ? `Starting from ₹${s.starting_price.toLocaleString('en-IN')}` : s.tag || 'Custom Package');
+        return `
+          <article class="card card-hover-float reveal-on-scroll revealed" id="card-${s.key || s.id}">
+            <div class="card-icon-header">
+              <span class="service-icon">${s.icon || '💄'}</span>
+              <span class="price-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">${priceTag}</span>
+            </div>
+            <h3>${s.name}</h3>
+            <p>${s.desc || 'Flawless customized bridal styling and artistry.'}</p>
+            <div style="margin-top: 14px;">
+              <a href="contact.html?service=${s.key || s.id}" class="btn-text-gold">Book This Look &rarr;</a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+  };
+
+  // Initialize services and reviews
+  fetchAndRenderServices();
   if (reviewsGrid) {
     fetchAndRenderReviews();
   }

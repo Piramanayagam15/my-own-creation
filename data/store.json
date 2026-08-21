@@ -187,6 +187,21 @@
   ],
   "bookings": [
     {
+      "id": 109,
+      "booking_ref": "AKB-109",
+      "name": "Sneha Varadarajan",
+      "phone": "+91 98410 55555",
+      "email": "sneha.v@example.com",
+      "preferred_date": "2026-12-15",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Madurai",
+      "message": "Please contact me regarding bridal availability.",
+      "status": "confirmed",
+      "created_at": "2026-08-21T07:37:41.128Z",
+      "updated_at": "2026-08-21T07:37:41.137Z"
+    },
+    {
       "id": 108,
       "booking_ref": "AKB-108",
       "name": "Sneha Varadarajan",
@@ -303,6 +318,18 @@
     }
   ],
   "reviews": [
+    {
+      "id": 106,
+      "name": "Pooja Sundaram",
+      "city": "Tirunelveli",
+      "rating": 5,
+      "service": "💄 Muhurtham Bridal Makeup",
+      "comment": "Absolutely stunning makeover! The makeup lasted throughout my entire muhurtham.",
+      "author_token": "si969oe0odemt2mzztf",
+      "status": "approved",
+      "created_at": "2026-08-21T07:37:41.139Z",
+      "moderated_at": "2026-08-21T07:37:41.149Z"
+    },
     {
       "id": 105,
       "name": "Pooja Sundaram",
