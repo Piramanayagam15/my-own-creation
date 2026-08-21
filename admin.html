@@ -1792,8 +1792,10 @@
       const renderGallery = () => {
         const grid = document.getElementById('adminGalleryGrid');
         let filtered = galleryData.filter(g => {
-          if (activeGalleryCat !== 'all' && g.category !== activeGalleryCat) return false;
-          return true;
+          const isVideo = g.type === 'video' || g.category === 'video';
+          if (activeGalleryCat === 'all') return true;
+          if (activeGalleryCat === 'video') return isVideo;
+          return g.category === activeGalleryCat;
         });
 
         if (filtered.length === 0) {

@@ -439,52 +439,39 @@ document.addEventListener("DOMContentLoaded", async () => {
       deletedIds = JSON.parse(localStorage.getItem("ak_deleted_gallery_ids") || "[]");
     } catch (e) {}
 
-    let localItems = [];
-    try {
-      const stored = localStorage.getItem("ak_offline_gallery") || localStorage.getItem("ak_bridals_gallery_items_v2");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) localItems = parsed;
-      }
-    } catch (e) {}
-
     let apiItems = [];
+    let apiSuccess = false;
     try {
       const res = await fetch("/api/gallery");
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           apiItems = data.data;
+          apiSuccess = true;
         }
       }
     } catch (e) {}
 
     let mediaList = [];
-    if (apiItems.length > 0) {
+    if (apiSuccess) {
       mediaList = apiItems.filter(item => !deletedIds.includes(String(item.id)));
-    } else {
-      const mediaMap = new Map();
-      localItems.forEach((item) => {
-        if (!deletedIds.includes(String(item.id))) mediaMap.set(String(item.id), item);
-      });
       try {
-        const idbMedia = await GalleryDB.getAll();
-        if (Array.isArray(idbMedia)) {
-          idbMedia.forEach((item) => {
-            if (!deletedIds.includes(String(item.id))) mediaMap.set(String(item.id), item);
-          });
+        localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
+        localStorage.removeItem("ak_bridals_gallery_items_v2");
+      } catch (e) {}
+    } else {
+      let localItems = [];
+      try {
+        const stored = localStorage.getItem("ak_offline_gallery");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) localItems = parsed;
         }
       } catch (e) {}
-      mediaList = Array.from(mediaMap.values());
+      mediaList = localItems.filter(item => !deletedIds.includes(String(item.id)));
     }
 
     mediaList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-    // Cache the active list
-    try {
-      localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
-      localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
-    } catch (e) {}
 
     // Filter items based on activeFilter
     const filteredItems = mediaList.filter((item) => {
