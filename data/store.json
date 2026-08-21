@@ -17,8 +17,8 @@
       "name": "Muhurtham Bridal Makeup",
       "icon": "💄",
       "tag": "Signature",
-      "starting_price": 0,
-      "price_display": "Customized Bridal Package",
+      "starting_price": 15000,
+      "price_display": "Starting from ₹15,000",
       "desc": "Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.",
       "inclusions": [
         "HD / Airbrush Makeup",
@@ -33,8 +33,8 @@
       "name": "Reception Glam Makeup",
       "icon": "✨",
       "tag": "Trending",
-      "starting_price": 0,
-      "price_display": "Customized Reception Glam",
+      "starting_price": 8000,
+      "price_display": "Starting from ₹8,000",
       "desc": "Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.",
       "inclusions": [
         "Reception Glow Makeup",
@@ -49,8 +49,8 @@
       "name": "Royal Muhurtham & Reception Combo",
       "icon": "👑",
       "tag": "Best Value",
-      "starting_price": 0,
-      "price_display": "Full Event Bridal Combo",
+      "starting_price": 22000,
+      "price_display": "Starting from ₹22,000",
       "desc": "Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.",
       "inclusions": [
         "2 Event Makeovers",
@@ -65,8 +65,8 @@
       "name": "Bridal Organic Mehndi",
       "icon": "🌿",
       "tag": "Natural",
-      "starting_price": 0,
-      "price_display": "Customized Mehndi Pattern",
+      "starting_price": 3500,
+      "price_display": "Starting from ₹3,500",
       "desc": "Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.",
       "inclusions": [
         "Full Hands (Front & Back)",
@@ -81,8 +81,8 @@
       "name": "Handcrafted Aari Silk Blouse",
       "icon": "🪡",
       "tag": "Custom",
-      "starting_price": 0,
-      "price_display": "Boutique Custom Stitching",
+      "starting_price": 2500,
+      "price_display": "Starting from ₹2,500",
       "desc": "Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.",
       "inclusions": [
         "Custom Neck & Sleeves Design",
@@ -97,8 +97,8 @@
       "name": "Hair Styling & Saree Draping",
       "icon": "💇‍♀️",
       "tag": "Essential",
-      "starting_price": 0,
-      "price_display": "Professional Styling",
+      "starting_price": 3000,
+      "price_display": "Starting from ₹3,000",
       "desc": "Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.",
       "inclusions": [
         "Poola Jada Setting",
@@ -110,27 +110,90 @@
     {
       "id": "srv-7",
       "key": "academy-makeup",
-      "name": "Professional Bridal Academy Course",
+      "name": "Professional Bridal Makeup Masterclass",
       "icon": "🎓",
       "tag": "Academy",
-      "starting_price": 0,
-      "price_display": "Certified Masterclass",
-      "desc": "Comprehensive hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
+      "starting_price": 25000,
+      "price_display": "Starting from ₹25,000",
+      "desc": "Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
       "inclusions": [
-        "Intensive Training Batch",
+        "15 Days Intensive Training",
         "Hands-on Live Models",
         "Certificate of Completion",
-        "Starter Kit Guidance"
+        "Starter Makeup Product Kit"
       ]
     }
   ],
-  "gallery": [],
+  "gallery": [
+    {
+      "id": 102,
+      "title": "Royal Engagement Glamour",
+      "category": "reception",
+      "type": "image",
+      "src": "assets/images/bridal_transformation.jpg",
+      "desc": "Elegant soft shimmer reception glow.",
+      "created_at": "2026-08-21T07:14:39.458Z"
+    },
+    {
+      "id": 101,
+      "title": "Royal Engagement Glamour",
+      "category": "reception",
+      "type": "image",
+      "src": "assets/images/bridal_transformation.jpg",
+      "desc": "Elegant soft shimmer reception glow.",
+      "created_at": "2026-08-21T07:13:16.489Z"
+    }
+  ],
   "blocked_dates": [
     "2026-09-15",
     "2026-10-22",
     "2026-11-08"
   ],
   "bookings": [
+    {
+      "id": 107,
+      "booking_ref": "AKB-107",
+      "name": "Sneha Varadarajan",
+      "phone": "+91 98410 55555",
+      "email": "sneha.v@example.com",
+      "preferred_date": "2026-12-15",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Madurai",
+      "message": "Please contact me regarding bridal availability.",
+      "status": "confirmed",
+      "created_at": "2026-08-21T07:15:05.486Z",
+      "updated_at": "2026-08-21T07:15:05.491Z"
+    },
+    {
+      "id": 106,
+      "booking_ref": "AKB-106",
+      "name": "Sneha Varadarajan",
+      "phone": "+91 98410 55555",
+      "email": "sneha.v@example.com",
+      "preferred_date": "2026-12-15",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Madurai",
+      "message": "Please contact me regarding bridal availability.",
+      "status": "confirmed",
+      "created_at": "2026-08-21T07:14:39.415Z",
+      "updated_at": "2026-08-21T07:14:39.422Z"
+    },
+    {
+      "id": 105,
+      "booking_ref": "AKB-105",
+      "name": "Sneha Varadarajan",
+      "phone": "+91 98410 55555",
+      "email": "sneha.v@example.com",
+      "preferred_date": "2026-12-15",
+      "event_type": "Wedding / Muhurtham",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "location": "Madurai",
+      "message": "Please contact me regarding bridal availability.",
+      "status": "pending",
+      "created_at": "2026-08-21T07:13:16.413Z"
+    },
     {
       "id": 104,
       "booking_ref": "AKB-104",
@@ -190,76 +253,51 @@
   ],
   "reviews": [
     {
-      "id": 201,
-      "name": "Keerthana Rajesh",
-      "city": "Chennai",
-      "rating": 5,
-      "service": "💄 Muhurtham Bridal Makeup",
-      "comment": "AK Bridals made my wedding day truly magical! The HD airbrush makeup stayed completely fresh, sweat-proof, and glowing from 5 AM Muhurtham until the evening rituals.",
-      "author_token": "auth_keerthana_201",
-      "status": "approved",
-      "created_at": "2026-08-15T09:30:00.000Z",
-      "moderated_at": "2026-08-15T10:00:00.000Z"
-    },
-    {
-      "id": 202,
-      "name": "Soundarya Manoharan",
-      "city": "Madurai",
-      "rating": 5,
-      "service": "🌿 Bridal Organic Mehndi",
-      "comment": "The organic henna was breathtaking! The bridal peacock and temple motifs were so sharp and intricate. The color developed into an intense dark maroon stain that lasted over two weeks.",
-      "author_token": "auth_soundarya_202",
-      "status": "approved",
-      "created_at": "2026-08-16T11:20:00.000Z",
-      "moderated_at": "2026-08-16T12:00:00.000Z"
-    },
-    {
-      "id": 203,
-      "name": "Divya Venkatesh",
-      "city": "Coimbatore",
-      "rating": 5,
-      "service": "🪡 Handcrafted Aari Silk Blouse",
-      "comment": "Superb zardozi needlework and gold zari detailing on my wedding saree blouse. The precision tailoring fit was 100% flawless and perfectly matched my antique bridal jewelry.",
-      "author_token": "auth_divya_203",
-      "status": "approved",
-      "created_at": "2026-08-17T14:15:00.000Z",
-      "moderated_at": "2026-08-17T15:00:00.000Z"
-    },
-    {
-      "id": 204,
-      "name": "Sangeetha Ramesh",
+      "id": 104,
+      "name": "Pooja Sundaram",
       "city": "Tirunelveli",
       "rating": 5,
-      "service": "💇‍♀️ Hair Styling & Saree Draping",
-      "comment": "The traditional poola jada floral setting and box-pleated Kanchipuram silk saree draping was immaculate. It stayed perfectly in place through all wedding rituals with zero discomfort.",
-      "author_token": "auth_sangeetha_204",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "comment": "Absolutely stunning makeover! The makeup lasted throughout my entire muhurtham.",
+      "author_token": "9x0yluvwb9kmt2m6xsl",
       "status": "approved",
-      "created_at": "2026-08-18T08:45:00.000Z",
-      "moderated_at": "2026-08-18T09:30:00.000Z"
+      "created_at": "2026-08-21T07:15:05.493Z",
+      "moderated_at": "2026-08-21T07:15:05.501Z"
     },
     {
-      "id": 205,
-      "name": "Aarthi Subramanian",
-      "city": "Bengaluru",
+      "id": 103,
+      "name": "Pooja Sundaram",
+      "city": "Tirunelveli",
       "rating": 5,
-      "service": "👑 Royal Muhurtham & Reception Combo",
-      "comment": "Booked AK Bridals for both my Muhurtham and Reception. Loved how they gave two completely distinct looks — pure traditional muhurtham bride for morning and glamorous dewy glow for night!",
-      "author_token": "auth_aarthi_205",
+      "service": "💄 Muhurtham Bridal Makeup",
+      "comment": "Absolutely stunning makeover! The makeup lasted throughout my entire muhurtham.",
+      "author_token": "tpdfqehs9kmt2m6doh",
       "status": "approved",
-      "created_at": "2026-08-19T16:00:00.000Z",
-      "moderated_at": "2026-08-19T17:00:00.000Z"
+      "created_at": "2026-08-21T07:14:39.425Z",
+      "moderated_at": "2026-08-21T07:14:39.433Z"
     },
     {
-      "id": 206,
-      "name": "Janani Vijay",
-      "city": "Trichy",
-      "rating": 4,
-      "service": "🎓 Professional Academy Course",
-      "comment": "Attended the bridal masterclass. Excellent practical training with live models and clear product guidance. Gave me immense confidence to take on bridal makeup bookings independently.",
-      "author_token": "auth_janani_206",
+      "id": 102,
+      "name": "Pooja Sundaram",
+      "city": "Tirunelveli",
+      "rating": 5,
+      "service": "💄 Muhurtham Bridal Makeup",
+      "comment": "Absolutely stunning makeover! The makeup lasted throughout my entire muhurtham.",
+      "author_token": "kb2dsdje1kmt2m4ln4",
+      "status": "pending",
+      "created_at": "2026-08-21T07:13:16.432Z"
+    },
+    {
+      "id": 101,
+      "name": "Meena Karthik",
+      "city": "Madurai",
+      "rating": 5,
+      "service": "Bridal Makeup",
+      "comment": "Best bridal makeup experience! Looked natural and lasted through all wedding rituals.",
+      "author_token": "gplxd8tuu4dmt2kyrqw",
       "status": "approved",
-      "created_at": "2026-08-20T10:10:00.000Z",
-      "moderated_at": "2026-08-20T11:00:00.000Z"
+      "created_at": "2026-08-21T06:40:44.793Z",
+      "moderated_at": "2026-08-21T06:40:44.816Z"
     }
   ]
 }

@@ -440,21 +440,21 @@
           <!-- Rating KPI Summary Banner -->
           <div class="rating-kpi-card reveal-on-scroll">
             <div class="rating-score-box">
-              <div class="rating-big-num" id="ratingAvgScore">5.0</div>
+              <div class="rating-big-num" id="ratingAvgScore">4.8</div>
               <div class="stars-row" id="ratingAvgStars">★★★★★</div>
-              <p class="rating-based-text">Based on <strong id="totalReviewsCount">0</strong> verified reviews</p>
+              <p class="rating-based-text">Based on <strong id="totalReviewsCount">6</strong> verified reviews</p>
             </div>
 
             <div class="rating-breakdown-box">
               <div class="rating-bar-row">
                 <span class="bar-label">5 Stars</span>
-                <div class="bar-track"><div class="bar-fill" id="barFill5" style="width: 0%;"></div></div>
-                <span class="bar-percent" id="barPct5">0%</span>
+                <div class="bar-track"><div class="bar-fill" id="barFill5" style="width: 83%;"></div></div>
+                <span class="bar-percent" id="barPct5">83%</span>
               </div>
               <div class="rating-bar-row">
                 <span class="bar-label">4 Stars</span>
-                <div class="bar-track"><div class="bar-fill" id="barFill4" style="width: 0%;"></div></div>
-                <span class="bar-percent" id="barPct4">0%</span>
+                <div class="bar-track"><div class="bar-fill" id="barFill4" style="width: 17%;"></div></div>
+                <span class="bar-percent" id="barPct4">17%</span>
               </div>
               <div class="rating-bar-row">
                 <span class="bar-label">3 Stars</span>
@@ -485,8 +485,110 @@
             </div>
           </div>
 
-          <!-- Reviews Grid (Rendered dynamically via main.js) -->
-          <div class="reviews-grid" id="reviewsGrid"></div>
+          <!-- Reviews Grid (Pre-rendered and hydrated via main.js) -->
+          <div class="reviews-grid" id="reviewsGrid">
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #059669, #10b981);">KR</div>
+                  <div>
+                    <h4 class="author-name">Keerthana Rajesh <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Chennai</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★★</div>
+                  <span class="review-service-pill">💄 Muhurtham Bridal Makeup</span>
+                </div>
+              </div>
+              <p class="review-comment">“AK Bridals made my wedding day truly magical! The HD airbrush makeup stayed completely fresh, sweat-proof, and glowing from 5 AM Muhurtham until the evening rituals.”</p>
+            </article>
+
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #d97706, #f59e0b);">SM</div>
+                  <div>
+                    <h4 class="author-name">Soundarya Manoharan <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Madurai</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★★</div>
+                  <span class="review-service-pill">🌿 Bridal Organic Mehndi</span>
+                </div>
+              </div>
+              <p class="review-comment">“The organic henna was breathtaking! The bridal peacock and temple motifs were so sharp and intricate. The color developed into an intense dark maroon stain that lasted over two weeks.”</p>
+            </article>
+
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #7c3aed, #8b5cf6);">DV</div>
+                  <div>
+                    <h4 class="author-name">Divya Venkatesh <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Coimbatore</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★★</div>
+                  <span class="review-service-pill">🪡 Handcrafted Aari Silk Blouse</span>
+                </div>
+              </div>
+              <p class="review-comment">“Superb zardozi needlework and gold zari detailing on my wedding saree blouse. The precision tailoring fit was 100% flawless and perfectly matched my antique bridal jewelry.”</p>
+            </article>
+
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #db2777, #ec4899);">SR</div>
+                  <div>
+                    <h4 class="author-name">Sangeetha Ramesh <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Tirunelveli</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★★</div>
+                  <span class="review-service-pill">💇‍♀️ Hair Styling &amp; Saree Draping</span>
+                </div>
+              </div>
+              <p class="review-comment">“The traditional poola jada floral setting and box-pleated Kanchipuram silk saree draping was immaculate. It stayed perfectly in place through all wedding rituals with zero discomfort.”</p>
+            </article>
+
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #0284c7, #38bdf8);">AS</div>
+                  <div>
+                    <h4 class="author-name">Aarthi Subramanian <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Bengaluru</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★★</div>
+                  <span class="review-service-pill">👑 Royal Combo</span>
+                </div>
+              </div>
+              <p class="review-comment">“Booked AK Bridals for both my Muhurtham and Reception. Loved how they gave two completely distinct looks — pure traditional muhurtham bride for morning and glamorous dewy glow for night!”</p>
+            </article>
+
+            <article class="review-card reveal-on-scroll revealed">
+              <div class="review-header">
+                <div class="review-author-info">
+                  <div class="author-avatar" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">JV</div>
+                  <div>
+                    <h4 class="author-name">Janani Vijay <span class="verified-badge" title="Verified Bride">✓ Verified</span></h4>
+                    <span class="author-city">📍 Trichy</span>
+                  </div>
+                </div>
+                <div class="review-meta-right">
+                  <div class="review-stars">★★★★☆</div>
+                  <span class="review-service-pill">🎓 Academy Masterclass</span>
+                </div>
+              </div>
+              <p class="review-comment">“Attended the bridal masterclass. Excellent practical training with live models and clear product guidance. Gave me immense confidence to take on bridal makeup bookings independently.”</p>
+            </article>
+          </div>
         </div>
       </section>
 

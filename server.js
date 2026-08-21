@@ -403,8 +403,8 @@ const handleNewBooking = (req, res) => {
 app.post('/api/bookings', handleNewBooking);
 app.post('/api/contact', handleNewBooking);
 
-// 2b. Admin: Get all bookings (GET /api/bookings)
-app.get('/api/bookings', authAdmin, (req, res) => {
+// 2b. Admin: Get all bookings (GET /api/bookings and GET /api/admin/bookings)
+const handleGetBookings = (req, res) => {
   const { status, search } = req.query;
   let list = [...store.bookings];
 
@@ -427,15 +427,18 @@ app.get('/api/bookings', authAdmin, (req, res) => {
     count: list.length,
     data: list
   });
-});
+};
 
-// 2c. Admin: Update booking status (PATCH /api/bookings/:id/status)
-app.patch('/api/bookings/:id/status', authAdmin, (req, res) => {
+app.get('/api/bookings', authAdmin, handleGetBookings);
+app.get('/api/admin/bookings', authAdmin, handleGetBookings);
+
+// 2c. Admin: Update booking status (PATCH /api/bookings/:id/status & PUT /api/admin/bookings/:id)
+const handleUpdateBookingStatus = (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
   const validStatuses = ['pending', 'contacted', 'confirmed', 'cancelled'];
-  if (!validStatuses.includes(status)) {
+  if (status && !validStatuses.includes(status)) {
     return res.status(400).json({ success: false, message: 'Invalid booking status.' });
   }
 
@@ -444,19 +447,35 @@ app.patch('/api/bookings/:id/status', authAdmin, (req, res) => {
     return res.status(404).json({ success: false, message: 'Booking not found.' });
   }
 
-  booking.status = status;
+  if (status) booking.status = status;
   booking.updated_at = new Date().toISOString();
   saveStore();
 
   res.json({
     success: true,
-    message: `Booking #${id} status updated to ${status}.`,
+    message: `Booking #${id} status updated to ${status || booking.status}.`,
     booking
   });
-});
+};
+
+app.patch('/api/bookings/:id/status', authAdmin, handleUpdateBookingStatus);
+app.put('/api/bookings/:id', authAdmin, handleUpdateBookingStatus);
+app.put('/api/admin/bookings/:id', authAdmin, handleUpdateBookingStatus);
 
 // 2d. Admin: Delete booking (DELETE /api/bookings/:id)
 app.delete('/api/bookings/:id', authAdmin, (req, res) => {
+  const { id } = req.params;
+  const beforeCount = store.bookings.length;
+  store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
+
+  if (store.bookings.length === beforeCount) {
+    return res.status(404).json({ success: false, message: 'Booking not found.' });
+  }
+
+  saveStore();
+  res.json({ success: true, message: `Booking #${id} deleted successfully.` });
+});
+app.delete('/api/admin/bookings/:id', authAdmin, (req, res) => {
   const { id } = req.params;
   const beforeCount = store.bookings.length;
   store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
@@ -557,12 +576,15 @@ app.post('/api/reviews', (req, res) => {
   }
 });
 
-// 3d. Admin: Moderate Review - Approve or Reject (PATCH /api/admin/reviews/:id/status)
-app.patch('/api/admin/reviews/:id/status', authAdmin, (req, res) => {
+// 3d. Admin: Moderate Review - Approve or Reject (PATCH & PUT /api/admin/reviews/:id/status or /moderate)
+const handleModerateReview = (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  if (!['approved', 'rejected', 'pending'].includes(status)) {
+  const validStatuses = ['approved', 'rejected', 'pending'];
+  const targetStatus = status || 'approved';
+
+  if (!validStatuses.includes(targetStatus)) {
     return res.status(400).json({ success: false, message: 'Status must be approved, rejected, or pending.' });
   }
 
@@ -571,16 +593,20 @@ app.patch('/api/admin/reviews/:id/status', authAdmin, (req, res) => {
     return res.status(404).json({ success: false, message: 'Review not found.' });
   }
 
-  review.status = status;
+  review.status = targetStatus;
   review.moderated_at = new Date().toISOString();
   saveStore();
 
   res.json({
     success: true,
-    message: `Review #${id} is now ${status}.`,
+    message: `Review #${id} is now ${targetStatus}.`,
     review
   });
-});
+};
+
+app.patch('/api/admin/reviews/:id/status', authAdmin, handleModerateReview);
+app.put('/api/admin/reviews/:id/status', authAdmin, handleModerateReview);
+app.put('/api/admin/reviews/:id/moderate', authAdmin, handleModerateReview);
 
 // 3e. Admin or Author: Delete Review (DELETE /api/reviews/:id)
 app.delete('/api/reviews/:id', (req, res) => {
@@ -661,7 +687,8 @@ app.post('/api/gallery', authAdmin, (req, res) => {
     res.status(201).json({
       success: true,
       message: '📸 Media added to bridal gallery successfully.',
-      item: newItem
+      item: newItem,
+      media: newItem
     });
   } catch (error) {
     console.error('Gallery upload error:', error.message);
@@ -772,8 +799,8 @@ app.get('/api/availability', (req, res) => {
   });
 });
 
-// 6b. Admin: Block a Date (POST /api/availability)
-app.post('/api/availability', authAdmin, (req, res) => {
+// 6b. Admin: Block a Date (POST /api/availability & POST /api/availability/block)
+const handleBlockDate = (req, res) => {
   const { date } = req.body;
   if (!date) return res.status(400).json({ success: false, message: 'Date is required (YYYY-MM-DD).' });
 
@@ -784,14 +811,35 @@ app.post('/api/availability', authAdmin, (req, res) => {
   }
 
   res.json({ success: true, message: `Date ${date} marked as booked.`, blocked_dates: store.blocked_dates });
-});
+};
 
-// 6c. Admin: Unblock a Date (DELETE /api/availability/:date)
-app.delete('/api/availability/:date', authAdmin, (req, res) => {
-  const { date } = req.params;
+app.post('/api/availability', authAdmin, handleBlockDate);
+app.post('/api/availability/block', authAdmin, handleBlockDate);
+
+// 6c. Admin: Unblock a Date (DELETE /api/availability/:date & POST /api/availability/unblock)
+const handleUnblockDate = (req, res) => {
+  const date = req.params.date || (req.body && req.body.date);
+  if (!date) return res.status(400).json({ success: false, message: 'Date is required.' });
+
   store.blocked_dates = (store.blocked_dates || []).filter(d => d !== date);
   saveStore();
   res.json({ success: true, message: `Date ${date} unblocked.`, blocked_dates: store.blocked_dates });
+};
+
+app.delete('/api/availability/:date', authAdmin, handleUnblockDate);
+app.post('/api/availability/unblock', authAdmin, handleUnblockDate);
+
+// 6d. Public: Real-time Date Availability Checker (GET /api/check-availability)
+app.get('/api/check-availability', (req, res) => {
+  const { date } = req.query;
+  const isBooked = (store.blocked_dates || []).includes(date);
+  const booking = isBooked ? (store.bookings || []).find(b => b.preferred_date === date && b.status !== 'cancelled') : null;
+  res.json({
+    success: true,
+    date,
+    isBooked,
+    service: booking ? booking.service : null
+  });
 });
 
 // ========================================================
