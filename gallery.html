@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#047857" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Bridal Gallery &amp; Videos | AK Bridals</title>
     <meta
       name="description"
@@ -11,29 +14,33 @@
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
+    <!-- Background Animated Ambient Light Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
     <header class="site-header">
       <div class="container header-inner">
-        <a href="index.html" class="logo">
-          <span class="logo-mark">AK</span>
-          <span class="logo-text">AK Bridals</span>
-        </a>
+        <a href="index.html" class="logo">AK Bridals</a>
+        <nav class="nav" id="mainNav">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="services.html" class="nav-link">Services</a>
+          <a href="gallery.html" class="nav-link active">Gallery</a>
+          <a href="index.html#reviews" class="nav-link">Reviews</a>
+          <a href="about.html" class="nav-link">About</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+          <a href="contact.html" class="btn btn-primary nav-cta">Book Now</a>
+        </nav>
         <button
           class="nav-toggle"
           id="navToggle"
-          aria-label="Toggle navigation menu"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
         >
           <span></span>
           <span></span>
           <span></span>
         </button>
-        <nav class="site-nav" id="siteNav">
-          <a href="index.html">Home</a>
-          <a href="services.html">Services</a>
-          <a href="gallery.html" class="active">Gallery</a>
-          <a href="about.html">About</a>
-          <a href="contact.html">Contact</a>
-          <a href="contact.html" class="btn btn-primary nav-cta">Book Now</a>
-        </nav>
       </div>
     </header>
 
