@@ -9,7 +9,8 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'akbridals2026';
+const ADMIN_TOKEN = process.env.ADMIN_PASSWORD || process.env.ADMIN_TOKEN || 'akbridals2026';
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'ak_bridals_secret_session_key_2026';
 
 // Production Security Headers
 app.use((req, res, next) => {
