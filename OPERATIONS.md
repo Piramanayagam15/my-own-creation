@@ -110,5 +110,31 @@ Run the automated test suite at any time to verify system health:
 ```bash
 npm test
 ```
-
 *Expected Result:* `27 PASSED, 0 FAILED` (100% Core System Health).
+
+---
+
+## 🔄 6. Zero-Downtime Rollback Procedure
+
+In the unlikely event of an issue after a deployment, use either of the following rollback paths:
+
+### Path A: Vercel Instant Rollback (0-Second Downtime)
+1. Go to **Vercel Dashboard ➔ Project (`my-own-creation`) ➔ Deployments**.
+2. Locate the previous healthy deployment (marked with ✅ *Production*).
+3. Click the three dots `...` ➔ Select **"Instant Rollback"** (or **"Promote to Production"**).
+4. Live traffic routes to the previous stable release instantly with zero downtime.
+
+### Path B: Git Repository Rollback
+```bash
+# Revert to previous stable commit:
+git revert HEAD --no-edit
+git push origin main
+```
+
+---
+
+## 🔑 7. Security & Credential Rotation Protocol
+
+* **Admin Password Rotation:** Update `ADMIN_PASSWORD` in your Vercel Environment Variables or `.env` file, then restart the service. All active sessions are immediately invalidated.
+* **Session Secret Rotation:** Update `ADMIN_SESSION_SECRET` with a newly generated 32-byte hex string.
+* **Emergency IP Unlock:** If the studio admin accidentally gets locked out from 5 wrong attempts, submitting the valid `ADMIN_PASSWORD` automatically clears the rate limiter lockout immediately.
