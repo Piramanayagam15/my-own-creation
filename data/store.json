@@ -17,8 +17,8 @@
       "name": "Muhurtham Bridal Makeup",
       "icon": "💄",
       "tag": "Signature",
-      "starting_price": 15000,
-      "price_display": "Starting from ₹15,000",
+      "starting_price": 0,
+      "price_display": "Customized Bridal Package",
       "desc": "Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.",
       "inclusions": [
         "HD / Airbrush Makeup",
@@ -33,8 +33,8 @@
       "name": "Reception Glam Makeup",
       "icon": "✨",
       "tag": "Trending",
-      "starting_price": 8000,
-      "price_display": "Starting from ₹8,000",
+      "starting_price": 0,
+      "price_display": "Customized Reception Glam",
       "desc": "Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.",
       "inclusions": [
         "Reception Glow Makeup",
@@ -49,8 +49,8 @@
       "name": "Royal Muhurtham & Reception Combo",
       "icon": "👑",
       "tag": "Best Value",
-      "starting_price": 22000,
-      "price_display": "Starting from ₹22,000",
+      "starting_price": 0,
+      "price_display": "Full Event Bridal Combo",
       "desc": "Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.",
       "inclusions": [
         "2 Event Makeovers",
@@ -65,8 +65,8 @@
       "name": "Bridal Organic Mehndi",
       "icon": "🌿",
       "tag": "Natural",
-      "starting_price": 3500,
-      "price_display": "Starting from ₹3,500",
+      "starting_price": 0,
+      "price_display": "Customized Mehndi Pattern",
       "desc": "Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.",
       "inclusions": [
         "Full Hands (Front & Back)",
@@ -81,8 +81,8 @@
       "name": "Handcrafted Aari Silk Blouse",
       "icon": "🪡",
       "tag": "Custom",
-      "starting_price": 2500,
-      "price_display": "Starting from ₹2,500",
+      "starting_price": 0,
+      "price_display": "Boutique Custom Stitching",
       "desc": "Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.",
       "inclusions": [
         "Custom Neck & Sleeves Design",
@@ -97,8 +97,8 @@
       "name": "Hair Styling & Saree Draping",
       "icon": "💇‍♀️",
       "tag": "Essential",
-      "starting_price": 3000,
-      "price_display": "Starting from ₹3,000",
+      "starting_price": 0,
+      "price_display": "Professional Styling",
       "desc": "Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.",
       "inclusions": [
         "Poola Jada Setting",
@@ -110,17 +110,17 @@
     {
       "id": "srv-7",
       "key": "academy-makeup",
-      "name": "Professional Bridal Makeup Masterclass",
+      "name": "Professional Bridal Academy Course",
       "icon": "🎓",
       "tag": "Academy",
-      "starting_price": 25000,
-      "price_display": "Starting from ₹25,000",
-      "desc": "Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
+      "starting_price": 0,
+      "price_display": "Certified Masterclass",
+      "desc": "Comprehensive hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.",
       "inclusions": [
-        "15 Days Intensive Training",
+        "Intensive Training Batch",
         "Hands-on Live Models",
         "Certificate of Completion",
-        "Starter Makeup Product Kit"
+        "Starter Kit Guidance"
       ]
     }
   ],

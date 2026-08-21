@@ -48,8 +48,8 @@ const defaultStore = {
       name: 'Muhurtham Bridal Makeup',
       icon: '💄',
       tag: 'Signature',
-      starting_price: 15000,
-      price_display: 'Starting from ₹15,000',
+      starting_price: 0,
+      price_display: 'Customized Bridal Package',
       desc: 'Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.',
       inclusions: ['HD / Airbrush Makeup', 'Skin Prep & Primer', 'Lashes & Lenses', 'Touch-up Kit']
     },
@@ -59,8 +59,8 @@ const defaultStore = {
       name: 'Reception Glam Makeup',
       icon: '✨',
       tag: 'Trending',
-      starting_price: 8000,
-      price_display: 'Starting from ₹8,000',
+      starting_price: 0,
+      price_display: 'Customized Reception Glam',
       desc: 'Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.',
       inclusions: ['Reception Glow Makeup', 'Hairstyling / Bun', 'Accessory Setting', 'Waterproof Formulation']
     },
@@ -70,8 +70,8 @@ const defaultStore = {
       name: 'Royal Muhurtham & Reception Combo',
       icon: '👑',
       tag: 'Best Value',
-      starting_price: 22000,
-      price_display: 'Starting from ₹22,000',
+      starting_price: 0,
+      price_display: 'Full Event Bridal Combo',
       desc: 'Complete bridal look package covering Muhurtham ceremony and Reception transformation with saree draping and hair jadai.',
       inclusions: ['2 Event Makeovers', 'Complete Hair Styling', 'Saree Pleating & Draping', 'Jewelry Styling Assistance']
     },
@@ -81,8 +81,8 @@ const defaultStore = {
       name: 'Bridal Organic Mehndi',
       icon: '🌿',
       tag: 'Natural',
-      starting_price: 3500,
-      price_display: 'Starting from ₹3,500',
+      starting_price: 0,
+      price_display: 'Customized Mehndi Pattern',
       desc: 'Intricate traditional and modern bridal henna using 100% pure organic herbal cones for deep maroon and long-lasting stain.',
       inclusions: ['Full Hands (Front & Back)', 'Feet Bridal Pattern', 'After-care Essential Oil', 'Bridal Figures & Motifs']
     },
@@ -92,8 +92,8 @@ const defaultStore = {
       name: 'Handcrafted Aari Silk Blouse',
       icon: '🪡',
       tag: 'Custom',
-      starting_price: 2500,
-      price_display: 'Starting from ₹2,500',
+      starting_price: 0,
+      price_display: 'Boutique Custom Stitching',
       desc: 'Custom bridal blouse designing with gold zari, cutdana, pearls, and 3D zardozi embroidery handcrafted to match your wedding saree.',
       inclusions: ['Custom Neck & Sleeves Design', 'Zardozi & Gold Zari', 'Custom Color Matching', 'Precision Tailoring Fitting']
     },
@@ -103,21 +103,21 @@ const defaultStore = {
       name: 'Hair Styling & Saree Draping',
       icon: '💇‍♀️',
       tag: 'Essential',
-      starting_price: 3000,
-      price_display: 'Starting from ₹3,000',
+      starting_price: 0,
+      price_display: 'Professional Styling',
       desc: 'Traditional poola jada, flower veni setting, modern reception messy buns, and box-pleated Kanchipuram silk saree draping.',
       inclusions: ['Poola Jada Setting', 'Ironing & Pre-pleating', 'Jewelry Fixation', 'Long-hold Hair Setting']
     },
     {
       id: 'srv-7',
       key: 'academy-makeup',
-      name: 'Professional Bridal Makeup Masterclass',
+      name: 'Professional Bridal Academy Course',
       icon: '🎓',
       tag: 'Academy',
-      starting_price: 25000,
-      price_display: 'Starting from ₹25,000',
-      desc: 'Comprehensive 15-day hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.',
-      inclusions: ['15 Days Intensive Training', 'Hands-on Live Models', 'Certificate of Completion', 'Starter Makeup Product Kit']
+      starting_price: 0,
+      price_display: 'Certified Masterclass',
+      desc: 'Comprehensive hands-on bridal certification masterclass covering skin anatomy, color correction, HD airbrush, and live model practice.',
+      inclusions: ['Intensive Training Batch', 'Hands-on Live Models', 'Certificate of Completion', 'Starter Kit Guidance']
     }
   ],
   gallery: [],
@@ -626,10 +626,12 @@ app.get('/api/services', (req, res) => {
 // 5b. Admin: Add Service (POST /api/services)
 app.post('/api/services', authAdmin, (req, res) => {
   const { name, key, icon, tag, starting_price, desc, inclusions } = req.body;
-  if (!name || !starting_price) {
-    return res.status(400).json({ success: false, message: 'Service name and starting price are required.' });
+
+  if (!name) {
+    return res.status(400).json({ success: false, message: 'Service name is required.' });
   }
 
+  const sPrice = Number(starting_price) || 0;
   const nextId = `srv-${Date.now()}`;
   const newService = {
     id: nextId,
@@ -637,8 +639,8 @@ app.post('/api/services', authAdmin, (req, res) => {
     name: name.trim(),
     icon: icon || '💄',
     tag: tag || 'Popular',
-    starting_price: Number(starting_price),
-    price_display: `Starting from ₹${Number(starting_price).toLocaleString('en-IN')}`,
+    starting_price: sPrice,
+    price_display: sPrice > 0 ? `Starting from ₹${sPrice.toLocaleString('en-IN')}` : 'Custom Package',
     desc: (desc || '').trim(),
     inclusions: Array.isArray(inclusions) ? inclusions : (inclusions ? inclusions.split(',').map(s => s.trim()) : [])
   };
@@ -664,8 +666,9 @@ app.put('/api/services/:id', authAdmin, (req, res) => {
   if (icon) service.icon = icon.trim();
   if (tag) service.tag = tag.trim();
   if (starting_price !== undefined) {
-    service.starting_price = Number(starting_price);
-    service.price_display = `Starting from ₹${Number(starting_price).toLocaleString('en-IN')}`;
+    const sPrice = Number(starting_price) || 0;
+    service.starting_price = sPrice;
+    service.price_display = sPrice > 0 ? `Starting from ₹${sPrice.toLocaleString('en-IN')}` : 'Custom Package';
   }
   if (desc) service.desc = desc.trim();
   if (inclusions) {
@@ -747,13 +750,17 @@ app.put('/api/settings', authAdmin, (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`\n=================================================`);
-  console.log(`👑 AK Bridals Web Application is Live!`);
-  console.log(`🌐 Website:      http://localhost:${PORT}`);
-  console.log(`📊 Admin Portal: http://localhost:${PORT}/admin.html`);
-  console.log(`📝 Bookings API: http://localhost:${PORT}/api/bookings`);
-  console.log(`⭐ Reviews API:  http://localhost:${PORT}/api/reviews`);
-  console.log(`🔑 Admin Token:  ${ADMIN_TOKEN}`);
-  console.log(`=================================================\n`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n=================================================`);
+    console.log(`👑 AK Bridals Web Application is Live!`);
+    console.log(`🌐 Website:      http://localhost:${PORT}`);
+    console.log(`📊 Admin Portal: http://localhost:${PORT}/admin.html`);
+    console.log(`📝 Bookings API: http://localhost:${PORT}/api/bookings`);
+    console.log(`⭐ Reviews API:  http://localhost:${PORT}/api/reviews`);
+    console.log(`🔑 Admin Token:  ${ADMIN_TOKEN}`);
+    console.log(`=================================================\n`);
+  });
+}
+
+module.exports = app;
