@@ -151,3 +151,22 @@ Before merging or deploying any future update, always execute this 6-point verif
 4. **Input Sanitization & Injection Defense:** Are all user-supplied parameters sanitized (XSS protection) and parameterized in SQL (`?` placeholders)?
 5. **Admin Route Protection:** Are all new admin endpoints protected by the `authAdmin` session middleware?
 6. **Automated Test Gate:** Does `npm test` execute with **0 failures** *(Current Baseline: 27/27 PASS)*?
+
+---
+
+## 🔒 9. GitHub Branch Protection Setup (True Automated Enforcement)
+
+To convert CI test checks into a mandatory blocking gate on GitHub:
+
+1. Open your repository on GitHub: `https://github.com/Piramanayagam15/my-own-creation`
+2. Navigate to **Settings ➔ Branches** (or **Rules ➔ Rulesets**).
+3. Under *Branch protection rules*, click **Add rule** for branch pattern: `main`.
+4. Check the following recommended security rules:
+   * ✅ **Require a pull request before merging**
+   * ✅ **Require status checks to pass before merging**
+   * ✅ Search and select: `Automated Integration & Security Tests` (from `.github/workflows/test.yml`)
+   * ✅ **Require branches to be up to date before merging**
+   * ✅ **Do not allow bypassing the above settings**
+5. Click **Save Changes**.
+
+*Result:* Direct pushes to `main` and merging failing PRs are permanently blocked. Production code is 100% safeguarded.
