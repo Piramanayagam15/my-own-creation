@@ -2,40 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-    <meta name="theme-color" content="#047857" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>AK Bridals | Gallery &amp; Video Showcase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bridal Gallery &amp; Videos | AK Bridals</title>
+    <meta
+      name="description"
+      content="Explore genuine bridal makeovers, reception looks, intricate organic mehndi, handcrafted aari embroidery, and client video highlights by AK Bridals."
+    />
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
-    <!-- Background Animated Ambient Light Orbs -->
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-    <div class="ambient-orb orb-3"></div>
-
     <header class="site-header">
       <div class="container header-inner">
-        <a href="index.html" class="logo">AK Bridals</a>
-        <nav class="nav" id="mainNav">
-          <a href="index.html" class="nav-link">Home</a>
-          <a href="services.html" class="nav-link">Services</a>
-          <a href="gallery.html" class="nav-link active">Gallery</a>
-          <a href="about.html" class="nav-link">About</a>
-          <a href="contact.html" class="nav-link">Contact</a>
-          <a href="contact.html" class="btn btn-primary nav-cta">Book Now</a>
-        </nav>
+        <a href="index.html" class="logo">
+          <span class="logo-mark">AK</span>
+          <span class="logo-text">AK Bridals</span>
+        </a>
         <button
           class="nav-toggle"
           id="navToggle"
-          aria-label="Toggle navigation"
-          aria-expanded="false"
+          aria-label="Toggle navigation menu"
         >
           <span></span>
           <span></span>
           <span></span>
         </button>
+        <nav class="site-nav" id="siteNav">
+          <a href="index.html">Home</a>
+          <a href="services.html">Services</a>
+          <a href="gallery.html" class="active">Gallery</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+          <a href="contact.html" class="btn btn-primary nav-cta">Book Now</a>
+        </nav>
       </div>
     </header>
 
@@ -45,7 +43,7 @@
           <div class="section-tag">Portfolio &amp; Media Showcase</div>
           <h1>Bridal Gallery &amp; Videos</h1>
           <p>
-            Explore real bridal looks, mehndi artistry, and client video reels. Add your own photos &amp; videos directly from your mobile!
+            Explore our verified bridal transformations, organic mehndi artistry, handcrafted aari blouses, and client video highlights.
           </p>
         </div>
       </section>
@@ -54,7 +52,7 @@
         <div class="container">
           <!-- Clean Unified Gallery Controls & Category Tabs -->
           <div class="gallery-controls reveal-on-scroll">
-            <!-- Filter Tabs (Touch scrollable on Android) -->
+            <!-- Filter Tabs (Touch scrollable on Mobile) -->
             <div class="filter-tabs" id="galleryFilterTabs">
               <button class="filter-btn active" data-filter="all">All Media</button>
               <button class="filter-btn" data-filter="bridal-makeup">💄 Makeup</button>
@@ -64,148 +62,22 @@
               <button class="filter-btn" data-filter="before-after">✨ Before/After</button>
               <button class="filter-btn" data-filter="video">🎥 Videos</button>
             </div>
-
-            <!-- Single Clean Add Photo / Video Button -->
-            <button class="btn btn-primary btn-glow add-media-trigger" id="openUploadModalBtn">
-              <span>+</span> <span id="uploadBtnText">Upload Photo / Video</span>
-            </button>
           </div>
 
-          <!-- Gallery Media Grid (Dynamic user uploads) -->
+          <!-- Gallery Media Grid (Admin Curated Media) -->
           <div class="gallery-grid" id="galleryGrid"></div>
 
-          <!-- Empty State (Hidden by default) -->
+          <!-- Empty State (Shown when no media exists in category) -->
           <div class="gallery-empty-state" id="galleryEmptyState" style="display: none;">
             <div class="empty-icon">📷</div>
-            <h3>No media found in this category</h3>
-            <p>Be the first to upload a photo or video to this category!</p>
-            <button class="btn btn-primary" id="emptyStateUploadBtn">+ Upload Now</button>
+            <h3>No media in this category yet</h3>
+            <p>New bridal looks and event highlights will be uploaded here soon!</p>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Upload Photo / Video Modal (Optimized as Mobile Bottom-Sheet on Android) -->
-    <div class="upload-modal" id="uploadModal" aria-hidden="true">
-      <div class="modal-backdrop" id="uploadModalBackdrop"></div>
-      <div class="upload-modal-card">
-        <!-- Mobile drag handle indicator -->
-        <div class="mobile-sheet-handle"></div>
-        <button class="modal-close-btn" id="closeUploadModalBtn" aria-label="Close upload modal">×</button>
-        
-        <div class="upload-header">
-          <div class="upload-icon-bubble" id="modalServiceIcon">✨</div>
-          <h3 id="modalServiceTitle">Add to Bridal Gallery</h3>
-          <p id="modalServiceSubtitle">Add photos or videos directly to your selected bridal service.</p>
-        </div>
-
-        <form id="galleryUploadForm" class="upload-form">
-          <!-- Select Target Service Pills -->
-          <div class="form-row">
-            <label>Select Target Bridal Service *</label>
-            <div class="category-pill-grid" id="modalCategoryPillGrid">
-              <button type="button" class="category-pill-btn active" data-cat="bridal-makeup">💄 Bridal Makeup</button>
-              <button type="button" class="category-pill-btn" data-cat="mehndi">🌿 Mehndi (Henna)</button>
-              <button type="button" class="category-pill-btn" data-cat="aari">🪡 Aari Embroidery</button>
-              <button type="button" class="category-pill-btn" data-cat="hair">💇‍♀️ Hair &amp; Draping</button>
-              <button type="button" class="category-pill-btn" data-cat="before-after">✨ Before &amp; After</button>
-              <button type="button" class="category-pill-btn" data-cat="video">🎥 Video Highlight</button>
-            </div>
-            <!-- Hidden underlying select to maintain compatibility -->
-            <select id="mediaCategorySelect" class="sr-only" required>
-              <option value="bridal-makeup" selected>💄 Bridal Makeup</option>
-              <option value="mehndi">🌿 Mehndi (Henna)</option>
-              <option value="aari">🪡 Aari Embroidery</option>
-              <option value="hair">💇‍♀️ Hair Styling &amp; Draping</option>
-              <option value="before-after">✨ Before &amp; After</option>
-              <option value="video">🎥 Video Highlight</option>
-            </select>
-          </div>
-
-          <!-- Media Type Toggle -->
-          <div class="form-row">
-            <label>Select Media Type *</label>
-            <div class="media-type-toggle">
-              <label class="toggle-option active" id="typeImageOption">
-                <input type="radio" name="mediaType" value="image" checked> 📸 Photo
-              </label>
-              <label class="toggle-option" id="typeVideoOption">
-                <input type="radio" name="mediaType" value="video"> 🎥 Video
-              </label>
-            </div>
-          </div>
-
-          <!-- Android Mobile Quick Action Buttons -->
-          <div class="mobile-quick-actions">
-            <button type="button" class="btn-mobile-action" id="btnCapturePhoto">
-              <span class="action-emoji">📷</span>
-              <span>Camera / Pick Photos</span>
-            </button>
-            <button type="button" class="btn-mobile-action" id="btnCaptureVideo">
-              <span class="action-emoji">🎥</span>
-              <span>Record / Pick Video</span>
-            </button>
-          </div>
-
-          <!-- Hidden Native Inputs for Android Camera / Gallery (Supports multiple selection) -->
-          <input type="file" id="cameraPhotoInput" accept="image/*" multiple class="file-input-hidden">
-          <input type="file" id="cameraVideoInput" accept="video/*" class="file-input-hidden">
-
-          <!-- File Drop Zone & Preview -->
-          <div class="form-row">
-            <label id="chooseFileLabel">Choose Photos from Device * (Multiple Allowed)</label>
-            <div class="file-drop-zone" id="fileDropZone">
-              <input type="file" id="mediaFileInput" accept="image/*,video/*" multiple class="file-input-hidden">
-              <div class="drop-zone-content" id="dropZoneContent">
-                <span class="drop-icon">📁</span>
-                <p><strong>Tap to browse files</strong> or select multiple photos</p>
-                <span class="drop-hint">Supports JPG, PNG, WEBP, MP4 (Instant compression)</span>
-              </div>
-              <div class="media-preview-box" id="mediaPreviewBox" style="display: none;">
-                <div id="multiPreviewContainer" class="multi-preview-container"></div>
-                <img id="imagePreviewEl" src="" alt="Preview" style="display: none;">
-                <video id="videoPreviewEl" controls playsinline webkit-playsinline style="display: none;"></video>
-                <div class="preview-actions">
-                  <span id="previewCountBadge" class="preview-count-badge"></span>
-                  <button type="button" class="remove-preview-btn" id="removePreviewBtn" title="Remove selected files">✕ Clear</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Or Video / Image URL input -->
-          <div class="form-row">
-            <label for="mediaUrlInput">Or Enter Image / Video URL (Optional)</label>
-            <input type="url" id="mediaUrlInput" placeholder="https://example.com/bridal-photo.jpg">
-          </div>
-
-          <!-- Caption / Title -->
-          <div class="form-row">
-            <label for="mediaTitleInput">Title / Look Name *</label>
-            <input type="text" id="mediaTitleInput" placeholder="e.g. Royal Muhurtham Look" required>
-          </div>
-
-          <!-- Event Details / 2 Lines Description -->
-          <div class="form-row">
-            <label for="mediaDescInput">Event Details (2 Lines) *</label>
-            <textarea id="mediaDescInput" rows="2" placeholder="e.g. Customized bridal styling with long-wear finish crafted by AK Bridals." required></textarea>
-          </div>
-
-          <!-- Action Buttons: Cancel and Submit -->
-          <div class="modal-btn-row">
-            <button type="button" class="btn btn-secondary modal-cancel-btn" id="modalCancelBtn">
-              ✕ Cancel
-            </button>
-            <button type="submit" class="btn btn-primary btn-glow upload-submit-btn" id="uploadSubmitBtn">
-              ✨ Add Photos to Service
-            </button>
-          </div>
-          <p class="upload-status-msg" id="uploadStatusMsg"></p>
-        </form>
-      </div>
-    </div>
-
-    <!-- Enhanced Lightbox (Supports both Photos and Interactive Video Playback on Mobile) -->
+    <!-- Enhanced Lightbox (Photos and Video Playback) -->
     <div class="lightbox" id="lightbox" aria-hidden="true">
       <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
       <div class="lightbox-content">
@@ -217,21 +89,12 @@
         <div class="lightbox-info">
           <div class="lightbox-header-row">
             <h3 class="lightbox-caption" id="lightboxCaption"></h3>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <span class="lightbox-category-tag" id="lightboxCategoryTag"></span>
-              <button type="button" id="lightboxDeleteBtn" class="btn-lightbox-delete" title="Delete this photo">🗑️ Delete</button>
-            </div>
+            <span class="lightbox-category-tag" id="lightboxCategoryTag"></span>
           </div>
           <p class="lightbox-desc" id="lightboxDesc"></p>
         </div>
       </div>
     </div>
-
-    <!-- Mobile Sticky Floating Upload Button (Visible on Mobile Screens) -->
-    <button class="mobile-upload-fab" id="mobileUploadFab" title="Upload Photo / Video" aria-label="Upload Photo or Video">
-      <span class="mobile-fab-icon">📷+</span>
-      <span class="mobile-fab-text">Upload</span>
-    </button>
 
     <!-- Floating Live Quick Contact Bubble -->
     <aside class="floating-quick-action" id="floatingQuickAction">

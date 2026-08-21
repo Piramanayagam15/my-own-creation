@@ -486,11 +486,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="gallery-thumb ${!hasSrc && !isVideo ? "placeholder-img" : ""}" style="${bgStyle}">
             <span class="media-type-badge">${isVideo ? "🎥 Video" : "📸 Photo"}</span>
             ${isVideo ? `<div class="video-play-overlay"><span class="play-circle">▶</span></div>` : ""}
-            ${!item.isPortfolio ? `
-              <button type="button" class="delete-media-btn" title="Delete this media" data-delete-id="${item.id}">
-                🗑️ Delete
-              </button>
-            ` : ""}
           </div>
           <figcaption>
             <h4>${item.title}</h4>
@@ -888,10 +883,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         lightboxDesc.style.display = desc ? "block" : "none";
       }
 
-      if (lightboxDeleteBtn) {
-        lightboxDeleteBtn.style.display = currentLightboxItemId ? "inline-flex" : "none";
-      }
-
       if (type === "video") {
         if (lightboxImg) lightboxImg.style.display = "none";
         if (lightboxVideo) {
@@ -937,18 +928,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (lightboxBackdrop) lightboxBackdrop.addEventListener("click", closeLightbox);
   if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
-
-  if (lightboxDeleteBtn) {
-    lightboxDeleteBtn.addEventListener("click", async () => {
-      if (currentLightboxItemId) {
-        if (confirm("Are you sure you want to delete this media from your gallery?")) {
-          await GalleryDB.delete(currentLightboxItemId);
-          closeLightbox();
-          renderGallery();
-        }
-      }
-    });
-  }
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
