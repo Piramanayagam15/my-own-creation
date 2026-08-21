@@ -5,8 +5,8 @@
 // ========================================================
 const GalleryDB = {
   dbName: "AKBridalsGalleryDB",
-  storeName: "galleryItems",
-  dbVersion: 1,
+  storeName: "ak_media_store",
+  dbVersion: 3,
 
   open() {
     return new Promise((resolve, reject) => {
@@ -25,12 +25,12 @@ const GalleryDB = {
   async getAll() {
     try {
       const db = await this.open();
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const tx = db.transaction(this.storeName, "readonly");
         const store = tx.objectStore(this.storeName);
         const req = store.getAll();
         req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
+        req.onerror = () => resolve([]);
       });
     } catch (e) {
       console.warn("IndexedDB unavailable, fallback to memory", e);
@@ -38,7 +38,7 @@ const GalleryDB = {
     }
   },
 
-  async add(item) {
+  async save(item) {
     try {
       const db = await this.open();
       return new Promise((resolve, reject) => {
@@ -53,18 +53,23 @@ const GalleryDB = {
     }
   },
 
+  async add(item) {
+    return this.save(item);
+  },
+
   async delete(id) {
     try {
       const db = await this.open();
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const tx = db.transaction(this.storeName, "readwrite");
         const store = tx.objectStore(this.storeName);
         const req = store.delete(id);
         req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
+        req.onerror = () => resolve(false);
       });
     } catch (e) {
       console.error("Failed to delete from IndexedDB", e);
+      return false;
     }
   },
 };
