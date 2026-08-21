@@ -5,71 +5,74 @@
     "phone": "+91 8190913110",
     "whatsapp": "918190913110",
     "email": "1508apiramanayagam@gmail.com",
-    "location": "Tamil Nadu & Destination Weddings",
+    "location": "Tamil Nadu & Destination Weddings (Chennai, Madurai, Coimbatore, Tirunelveli, Bengaluru)",
     "instagram": "https://instagram.com/",
-    "about_bio": "At AK Bridals, we specialize in bridal makeovers, organic mehndi, handcrafted aari embroidery, and saree pleating.",
+    "about_bio": "At AK Bridals, we specialize in high-definition bridal transformations, authentic organic mehndi, handcrafted aari silk embroidery, and traditional muhurtham saree pleating.",
     "pin": "akbridals2026"
   },
   "services": [
     {
-      "id": "srv_bridal_makeup",
-      "name": "Bridal Makeup",
+      "id": "srv-1",
+      "key": "bridal-makeup",
+      "name": "Bridal Makeover & Muhurtham Styling",
       "icon": "💄",
+      "tag": "Most Popular",
       "starting_price": 15000,
       "price_display": "Starting from ₹15,000",
-      "tag": "Signature Package",
-      "desc": "Complete bridal makeup with HD finish, hairstyle and elegant saree draping for your special day.",
+      "desc": "High-definition bridal makeover with premium skin preparation, authentic muhurtham saree draping, and customized floral hair styling.",
       "inclusions": [
-        "HD Bridal Makeup",
-        "Hairstyling",
-        "Saree Draping",
-        "Eyelashes",
-        "Basic Touch-up Kit"
+        "HD / Waterproof Makeup",
+        "Custom Hair Artistry",
+        "Traditional Saree Draping",
+        "Trial Consultation"
       ]
     },
     {
-      "id": "srv_reception_glam",
-      "name": "Reception Glam Makeup",
+      "id": "srv-2",
+      "key": "reception-glam",
+      "name": "Reception Glam & Evening Makeover",
       "icon": "✨",
+      "tag": "Trending",
       "starting_price": 10000,
       "price_display": "Starting from ₹10,000",
-      "tag": "Popular",
-      "desc": "Glamorous evening reception makeover with contemporary hair styling and flawless finish.",
+      "desc": "Modern glam aesthetics with luminous skin finish, contemporary hair styling, and long-lasting waterproof setting.",
       "inclusions": [
-        "Glam Party / Reception Makeup",
-        "Hairstyling",
-        "Saree / Lehenga Draping",
-        "False Eyelashes"
+        "Luminous HD Base",
+        "Modern Updo / Waves",
+        "Dupatta / Gown Styling",
+        "Lash Extensions"
       ]
     },
     {
-      "id": "srv_organic_mehndi",
-      "name": "Organic Mehndi Artistry",
+      "id": "srv-3",
+      "key": "organic-mehndi",
+      "name": "Custom Organic Bridal Mehndi",
       "icon": "🌿",
+      "tag": "Natural",
       "starting_price": 3500,
       "price_display": "Starting from ₹3,500",
-      "tag": "100% Organic",
-      "desc": "Intricate bridal & guest mehndi designs crafted with 100% chemical-free organic henna.",
+      "desc": "100% triple-sifted chemical-free organic herbal henna cones providing deep, dark stains with intricate bridal patterns.",
       "inclusions": [
-        "Bridal Hands & Feet Design",
-        "Custom Motifs & Portraits",
-        "100% Organic Henna Cones",
-        "Dark Stain Guarantee Aftercare"
+        "100% Organic Henna",
+        "Bridal Story Motifs",
+        "Hands & Feet Coverage",
+        "Clove Stain Booster"
       ]
     },
     {
-      "id": "srv_aari_embroidery",
-      "name": "Handcrafted Aari Work Blouses",
+      "id": "srv-4",
+      "key": "aari-embroidery",
+      "name": "Handcrafted Bridal Aari & Zardosi Work",
       "icon": "🪡",
+      "tag": "Custom",
       "starting_price": 2500,
       "price_display": "Starting from ₹2,500",
-      "tag": "Custom Design",
-      "desc": "Exquisite handcrafted Aari and Maggam embroidery work for bridal wedding blouses.",
+      "desc": "Intricate artisan needlework featuring pure silk threads, cutdana, antique zardosi, and bead ornamentation on pure silk blouses.",
       "inclusions": [
-        "Zardosi & Thread Embroidery",
-        "Kundan & Stone Work Detailing",
-        "Custom Neckline Patterns",
-        "Sleeve & Back Design"
+        "Custom Neckline Art",
+        "Sleeve Zardosi Work",
+        "Pure Silk Threads",
+        "Custom Motif Design"
       ]
     }
   ],

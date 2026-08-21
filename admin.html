@@ -1302,21 +1302,26 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pin })
           });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success) {
-              adminToken = data.token || masterPin;
-              localStorage.setItem('ak_admin_token', adminToken);
-              showToast('✅ Welcome, Studio Admin!');
-              initAuth();
-              return;
-            }
+          const data = await res.json().catch(() => null);
+
+          if (res.ok && data && data.success) {
+            adminToken = data.token || masterPin;
+            localStorage.setItem('ak_admin_token', adminToken);
+            showToast('✅ Welcome, Studio Admin!');
+            initAuth();
+            return;
+          } else if (res.status === 429 && data && data.message) {
+            err.textContent = data.message;
+            return;
+          } else if (data && data.message && res.status === 401) {
+            err.textContent = data.message;
+            return;
           }
         } catch (e) {
           console.warn('API endpoint unreachable, using client authentication fallback.');
         }
 
-        // Direct PIN check (ensures 100% login success on Vercel & offline)
+        // Direct PIN check fallback (ensures 100% login success offline)
         if (pin === masterPin || pin === savedPin || pin === 'akbridals') {
           adminToken = masterPin;
           localStorage.setItem('ak_admin_token', adminToken);

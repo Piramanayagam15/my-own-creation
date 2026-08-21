@@ -4,6 +4,7 @@ const mysql = require('mysql2/promise');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -71,7 +72,7 @@ const saveStore = () => {
 };
 
 // ========================================================
-// MySQL Database Pool (Optional zero-downtime integration)
+// MySQL Database Pool (Full Unified CRUD Integration)
 // ========================================================
 let pool = null;
 let isDbConnected = false;
@@ -101,32 +102,122 @@ try {
   console.warn('MySQL initialization skipped, using persistent JSON store.');
 }
 
-// Admin Token Authentication Middleware
-const authAdmin = (req, res, next) => {
-  const providedToken = req.headers['x-admin-token'] || req.query.token;
-  const currentPin = store.settings?.pin || ADMIN_TOKEN;
-  if (!providedToken || (providedToken !== ADMIN_TOKEN && providedToken !== currentPin)) {
-    return res.status(401).json({
-      success: false,
-      message: 'Unauthorized: Invalid admin credentials.'
-    });
+// Safe MySQL query executor with graceful error handling
+const executeDbQuery = async (sql, params = []) => {
+  if (!pool || !isDbConnected) return null;
+  try {
+    const [result] = await pool.execute(sql, params);
+    return result;
+  } catch (e) {
+    console.warn('MySQL execution notice:', e.message);
+    return null;
   }
-  next();
 };
 
 // ========================================================
-// 1. ADMIN AUTHENTICATION API
+// 🔐 ADMIN SECURITY, SESSION MANAGEMENT & RATE LIMITING
+// ========================================================
+
+// Timing-safe string comparison to prevent timing attacks
+const safeCompare = (a, b) => {
+  try {
+    const bufA = Buffer.from(String(a));
+    const bufB = Buffer.from(String(b));
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch (e) {
+    return a === b;
+  }
+};
+
+// Rate limiter state: IP -> { attempts: number, firstAttempt: number, lockedUntil: number }
+const loginRateLimiter = new Map();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+// In-Memory Active Admin Sessions: token -> { createdAt, expiresAt, ip }
+const activeSessions = new Map();
+
+// Helper to generate a cryptographic admin session token
+const createAdminSession = (ip) => {
+  const token = crypto.randomBytes(32).toString('hex');
+  const now = Date.now();
+  const expiresAt = now + (24 * 60 * 60 * 1000); // 24 Hours validity
+  activeSessions.set(token, { createdAt: now, expiresAt, ip });
+  return token;
+};
+
+// Admin Authentication Middleware (Supports Master PIN & Secure Session Tokens)
+const authAdmin = (req, res, next) => {
+  const providedToken = req.headers['x-admin-token'] || req.query.token;
+  const currentPin = store.settings?.pin || ADMIN_TOKEN;
+
+  if (!providedToken) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Admin authentication token or PIN required.'
+    });
+  }
+
+  // 1. Check Master Token or Studio PIN
+  if (safeCompare(providedToken, ADMIN_TOKEN) || safeCompare(providedToken, currentPin)) {
+    return next();
+  }
+
+  // 2. Check Cryptographic Session Token
+  if (activeSessions.has(providedToken)) {
+    const session = activeSessions.get(providedToken);
+    if (session.expiresAt > Date.now()) {
+      return next();
+    } else {
+      activeSessions.delete(providedToken);
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: Admin session expired. Please log in again.'
+      });
+    }
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: 'Unauthorized: Invalid admin credentials.'
+  });
+};
+
+// ========================================================
+// 1. ADMIN AUTHENTICATION API (with Brute-Force Protection)
 // ========================================================
 app.post('/api/admin/login', (req, res) => {
+  const clientIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+  const now = Date.now();
+
+  // Check Rate Limiting
+  const rateRecord = loginRateLimiter.get(clientIp);
+  if (rateRecord && rateRecord.lockedUntil > now) {
+    const remainingSec = Math.ceil((rateRecord.lockedUntil - now) / 1000);
+    return res.status(429).json({
+      success: false,
+      message: `🚫 Too many failed login attempts. Security lockout active for ${remainingSec} seconds.`
+    });
+  }
+
   const { pin, token } = req.body;
   const input = (pin || token || '').trim();
   const currentPin = (store.settings?.pin || ADMIN_TOKEN).trim();
 
-  if (input === ADMIN_TOKEN || input === currentPin) {
+  // Validate PIN / Token
+  if (safeCompare(input, ADMIN_TOKEN) || safeCompare(input, currentPin)) {
+    // Reset rate limiter on successful login
+    loginRateLimiter.delete(clientIp);
+
+    // Issue Secure Session Token
+    const sessionToken = createAdminSession(clientIp);
+
     return res.json({
       success: true,
-      token: ADMIN_TOKEN,
-      message: 'Admin authenticated successfully.',
+      token: sessionToken,
+      masterToken: ADMIN_TOKEN,
+      message: '👑 Admin authenticated successfully with secure cryptographic session.',
       admin: {
         name: store.settings.owner_name || 'Studio Admin',
         role: 'Owner'
@@ -134,18 +225,30 @@ app.post('/api/admin/login', (req, res) => {
     });
   }
 
+  // Handle Failed Attempt
+  const currentAttempts = rateRecord ? rateRecord.attempts + 1 : 1;
+  const isLockout = currentAttempts >= MAX_ATTEMPTS;
+  loginRateLimiter.set(clientIp, {
+    attempts: isLockout ? 0 : currentAttempts,
+    firstAttempt: rateRecord ? rateRecord.firstAttempt : now,
+    lockedUntil: isLockout ? now + LOCKOUT_WINDOW_MS : 0
+  });
+
+  const remainingAttempts = MAX_ATTEMPTS - currentAttempts;
   res.status(401).json({
     success: false,
-    message: 'Invalid Admin PIN or Token.'
+    message: isLockout 
+      ? '🚫 Account locked for 15 minutes due to 5 consecutive failed login attempts.'
+      : `Invalid Admin PIN. ${remainingAttempts > 0 ? `${remainingAttempts} attempt(s) remaining.` : ''}`
   });
 });
 
 // ========================================================
-// 2. BOOKINGS API
+// 2. BOOKINGS API (Dual-Engine MySQL + JSON Store)
 // ========================================================
 
 // 2a. Public: Submit Booking Request (POST /api/bookings or /api/contact)
-const handleNewBooking = (req, res) => {
+const handleNewBooking = async (req, res) => {
   try {
     const { name, phone, email, date, preferred_date, eventType, event_type, service, location, message } = req.body;
 
@@ -186,14 +289,12 @@ const handleNewBooking = (req, res) => {
     store.bookings.unshift(newBooking);
     saveStore();
 
-    // Background MySQL insert if available
-    if (pool && isDbConnected) {
-      pool.execute(
-        `INSERT INTO bookings (name, phone, email, preferred_date, service, message, status, created_at) 
-         VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())`,
-        [bookingName, bookingPhone, bookingEmail, bookingDate, bookingService, `${bookingEventType} | ${bookingLocation} | ${bookingMessage}`]
-      ).catch(() => {});
-    }
+    // MySQL Database Insert
+    await executeDbQuery(
+      `INSERT INTO bookings (id, booking_ref, name, phone, email, preferred_date, event_type, service, location, message, status, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+      [String(nextId), bookingRef, bookingName, bookingPhone, bookingEmail, bookingDate, bookingEventType, bookingService, bookingLocation, bookingMessage]
+    );
 
     res.status(201).json({
       success: true,
@@ -210,7 +311,7 @@ app.post('/api/bookings', handleNewBooking);
 app.post('/api/contact', handleNewBooking);
 
 // 2b. Admin: Get all bookings (GET /api/bookings and GET /api/admin/bookings)
-const handleGetBookings = (req, res) => {
+const handleGetBookings = async (req, res) => {
   const { status, search } = req.query;
   let list = [...store.bookings];
 
@@ -221,9 +322,9 @@ const handleGetBookings = (req, res) => {
   if (search) {
     const q = search.toLowerCase();
     list = list.filter(b => 
-      b.name.toLowerCase().includes(q) ||
-      b.phone.toLowerCase().includes(q) ||
-      (b.location && b.location.toLowerCase().includes(q)) ||
+      (b.name && b.name.toLowerCase().includes(q)) ||
+      (b.phone && b.phone.includes(q)) ||
+      (b.email && b.email.toLowerCase().includes(q)) ||
       (b.service && b.service.toLowerCase().includes(q))
     );
   }
@@ -231,21 +332,22 @@ const handleGetBookings = (req, res) => {
   res.json({
     success: true,
     count: list.length,
+    total: store.bookings.length,
     data: list
   });
 };
 
-app.get('/api/bookings', authAdmin, handleGetBookings);
 app.get('/api/admin/bookings', authAdmin, handleGetBookings);
+app.get('/api/bookings', authAdmin, handleGetBookings);
 
-// 2c. Admin: Update booking status (PATCH /api/bookings/:id/status & PUT /api/admin/bookings/:id)
-const handleUpdateBookingStatus = (req, res) => {
+// 2c. Admin: Update Booking Status (PATCH & PUT /api/bookings/:id/status)
+const handleUpdateBookingStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
   const validStatuses = ['pending', 'contacted', 'confirmed', 'cancelled'];
-  if (status && !validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, message: 'Invalid booking status.' });
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status. Must be pending, contacted, confirmed, or cancelled.' });
   }
 
   const booking = store.bookings.find(b => String(b.id) === String(id) || b.booking_ref === String(id));
@@ -253,56 +355,59 @@ const handleUpdateBookingStatus = (req, res) => {
     return res.status(404).json({ success: false, message: 'Booking not found.' });
   }
 
-  if (!store.blocked_dates) store.blocked_dates = [];
-  const oldStatus = booking.status;
-  if (status) booking.status = status;
+  booking.status = status;
   booking.updated_at = new Date().toISOString();
 
-  // 🔒 Auto-Block Wedding Date when Booking is Confirmed
-  if (booking.status === 'confirmed' && booking.preferred_date) {
+  // If confirmed, automatically block the date in calendar
+  if (status === 'confirmed' && booking.preferred_date) {
+    if (!store.blocked_dates) store.blocked_dates = [];
     if (!store.blocked_dates.includes(booking.preferred_date)) {
       store.blocked_dates.push(booking.preferred_date);
-    }
-  } else if (oldStatus === 'confirmed' && booking.status !== 'confirmed' && booking.preferred_date) {
-    // If unconfirmed, unblock date only if no other confirmed booking uses this date
-    const hasOtherConfirmed = store.bookings.some(b => b.id !== booking.id && b.status === 'confirmed' && b.preferred_date === booking.preferred_date);
-    if (!hasOtherConfirmed) {
-      store.blocked_dates = store.blocked_dates.filter(d => d !== booking.preferred_date);
     }
   }
 
   saveStore();
 
+  // MySQL Status Update
+  await executeDbQuery('UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ? OR booking_ref = ?', [status, String(id), String(id)]);
+
   res.json({
     success: true,
-    message: `Booking #${id} status updated to ${status || booking.status}.${booking.status === 'confirmed' ? ' Wedding date automatically blocked.' : ''}`,
+    message: `Booking status updated to ${status}.`,
     booking,
     blocked_dates: store.blocked_dates
   });
 };
 
 app.patch('/api/bookings/:id/status', authAdmin, handleUpdateBookingStatus);
-app.put('/api/bookings/:id', authAdmin, handleUpdateBookingStatus);
+app.put('/api/bookings/:id/status', authAdmin, handleUpdateBookingStatus);
+app.patch('/api/admin/bookings/:id/status', authAdmin, handleUpdateBookingStatus);
+app.put('/api/admin/bookings/:id/status', authAdmin, handleUpdateBookingStatus);
 app.put('/api/admin/bookings/:id', authAdmin, handleUpdateBookingStatus);
+app.patch('/api/admin/bookings/:id', authAdmin, handleUpdateBookingStatus);
 
-// 2d. Admin: Delete booking (DELETE /api/bookings/:id)
-const handleDeleteBooking = (req, res) => {
+// 2d. Admin: Delete Booking (DELETE /api/bookings/:id)
+const handleDeleteBooking = async (req, res) => {
   const { id } = req.params;
   const targetBooking = store.bookings.find(b => String(b.id) === String(id) || b.booking_ref === String(id));
 
-  if (!targetBooking) {
-    return res.status(404).json({ success: false, message: 'Booking not found.' });
-  }
-
-  if (targetBooking.status === 'confirmed' && targetBooking.preferred_date) {
-    const hasOther = store.bookings.some(b => String(b.id) !== String(id) && b.booking_ref !== String(id) && b.status === 'confirmed' && b.preferred_date === targetBooking.preferred_date);
-    if (!hasOther && store.blocked_dates) {
+  if (targetBooking && targetBooking.status === 'confirmed' && targetBooking.preferred_date) {
+    const hasOther = store.bookings.some(b => 
+      String(b.id) !== String(id) && 
+      b.status === 'confirmed' && 
+      b.preferred_date === targetBooking.preferred_date
+    );
+    if (!hasOther) {
       store.blocked_dates = store.blocked_dates.filter(d => d !== targetBooking.preferred_date);
     }
   }
 
   store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
   saveStore();
+
+  // MySQL Delete
+  await executeDbQuery('DELETE FROM bookings WHERE id = ? OR booking_ref = ?', [String(id), String(id)]);
+
   res.json({ success: true, message: `Booking #${id} deleted successfully.`, blocked_dates: store.blocked_dates });
 };
 
@@ -355,7 +460,7 @@ app.get('/api/admin/reviews', authAdmin, (req, res) => {
 });
 
 // 3c. Public: Submit Review -> Goes to Pending status (POST /api/reviews)
-app.post('/api/reviews', (req, res) => {
+app.post('/api/reviews', async (req, res) => {
   try {
     const { name, city, rating, service, comment } = req.body;
 
@@ -385,6 +490,13 @@ app.post('/api/reviews', (req, res) => {
     store.reviews.unshift(newReview);
     saveStore();
 
+    // MySQL Insert
+    await executeDbQuery(
+      `INSERT INTO reviews (id, name, city, rating, service, comment, author_token, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+      [String(nextId), newReview.name, newReview.city, newReview.rating, newReview.service, newReview.comment, authorToken]
+    );
+
     res.status(201).json({
       success: true,
       message: '✨ Thank you! Your review has been submitted and will appear on the site once approved by AK Bridals.',
@@ -398,7 +510,7 @@ app.post('/api/reviews', (req, res) => {
 });
 
 // 3d. Admin: Moderate Review - Approve or Reject (PATCH & PUT /api/admin/reviews/:id/status or /moderate)
-const handleModerateReview = (req, res) => {
+const handleModerateReview = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -418,6 +530,9 @@ const handleModerateReview = (req, res) => {
   review.moderated_at = new Date().toISOString();
   saveStore();
 
+  // MySQL Status Update
+  await executeDbQuery('UPDATE reviews SET status = ?, updated_at = NOW() WHERE id = ?', [targetStatus, String(id)]);
+
   res.json({
     success: true,
     message: `Review #${id} is now ${targetStatus}.`,
@@ -430,12 +545,12 @@ app.put('/api/admin/reviews/:id/status', authAdmin, handleModerateReview);
 app.put('/api/admin/reviews/:id/moderate', authAdmin, handleModerateReview);
 
 // 3e. Admin or Author: Delete Review (DELETE /api/reviews/:id)
-app.delete('/api/reviews/:id', (req, res) => {
+app.delete('/api/reviews/:id', async (req, res) => {
   const { id } = req.params;
   const adminToken = req.headers['x-admin-token'] || req.query.token;
   const authorToken = req.headers['x-author-token'];
 
-  const isAdmin = adminToken && (adminToken === ADMIN_TOKEN || adminToken === store.settings?.pin);
+  const isAdmin = adminToken && (adminToken === ADMIN_TOKEN || adminToken === store.settings?.pin || activeSessions.has(adminToken));
 
   const review = (store.reviews || []).find(r => String(r.id) === String(id));
   if (!review) {
@@ -450,6 +565,9 @@ app.delete('/api/reviews/:id', (req, res) => {
 
   store.reviews = store.reviews.filter(r => String(r.id) !== String(id));
   saveStore();
+
+  // MySQL Delete
+  await executeDbQuery('DELETE FROM reviews WHERE id = ?', [String(id)]);
 
   res.json({ success: true, message: `Review #${id} deleted successfully.` });
 });
@@ -479,7 +597,7 @@ app.get('/api/gallery', (req, res) => {
 });
 
 // 4b. Admin: Upload Media (POST /api/gallery)
-app.post('/api/gallery', authAdmin, (req, res) => {
+app.post('/api/gallery', authAdmin, async (req, res) => {
   try {
     const { title, category, type, src, desc } = req.body;
 
@@ -503,6 +621,13 @@ app.post('/api/gallery', authAdmin, (req, res) => {
     store.gallery.unshift(newItem);
     saveStore();
 
+    // MySQL Insert
+    await executeDbQuery(
+      `INSERT INTO gallery (id, title, category, type, src, description, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+      [uniqueId, newItem.title, newItem.category, newItem.type, newItem.src, newItem.desc]
+    );
+
     res.status(201).json({
       success: true,
       message: '📸 Media added to bridal gallery successfully.',
@@ -516,7 +641,7 @@ app.post('/api/gallery', authAdmin, (req, res) => {
 });
 
 // 4c. Admin: Delete Media (DELETE /api/gallery/:id)
-app.delete('/api/gallery/:id', authAdmin, (req, res) => {
+app.delete('/api/gallery/:id', authAdmin, async (req, res) => {
   const { id } = req.params;
   const before = (store.gallery || []).length;
   store.gallery = (store.gallery || []).filter(g => String(g.id) !== String(id));
@@ -526,6 +651,10 @@ app.delete('/api/gallery/:id', authAdmin, (req, res) => {
   }
 
   saveStore();
+
+  // MySQL Delete
+  await executeDbQuery('DELETE FROM gallery WHERE id = ?', [String(id)]);
+
   res.json({ success: true, message: `Media item #${id} deleted successfully.` });
 });
 
@@ -543,7 +672,7 @@ app.get('/api/services', (req, res) => {
 });
 
 // 5b. Admin: Add Service (POST /api/services)
-app.post('/api/services', authAdmin, (req, res) => {
+app.post('/api/services', authAdmin, async (req, res) => {
   const { name, key, icon, tag, starting_price, desc, inclusions } = req.body;
 
   if (!name) {
@@ -568,11 +697,18 @@ app.post('/api/services', authAdmin, (req, res) => {
   store.services.push(newService);
   saveStore();
 
+  // MySQL Insert
+  await executeDbQuery(
+    `INSERT INTO services (id, service_key, name, icon, starting_price, price_display, tag, description, inclusions, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+    [nextId, newService.key, newService.name, newService.icon, sPrice, newService.price_display, newService.tag, newService.desc, JSON.stringify(newService.inclusions)]
+  );
+
   res.status(201).json({ success: true, message: 'Service added successfully.', service: newService });
 });
 
 // 5c. Admin: Update Service (PUT /api/services/:id)
-app.put('/api/services/:id', authAdmin, (req, res) => {
+app.put('/api/services/:id', authAdmin, async (req, res) => {
   const { id } = req.params;
   const { name, icon, tag, starting_price, desc, inclusions } = req.body;
 
@@ -595,14 +731,26 @@ app.put('/api/services/:id', authAdmin, (req, res) => {
   }
 
   saveStore();
+
+  // MySQL Update
+  await executeDbQuery(
+    `UPDATE services SET name = ?, icon = ?, tag = ?, starting_price = ?, price_display = ?, description = ?, inclusions = ?, updated_at = NOW()
+     WHERE id = ? OR service_key = ?`,
+    [service.name, service.icon, service.tag, service.starting_price, service.price_display, service.desc, JSON.stringify(service.inclusions), String(id), String(id)]
+  );
+
   res.json({ success: true, message: 'Service updated successfully.', service });
 });
 
 // 5d. Admin: Delete Service (DELETE /api/services/:id)
-app.delete('/api/services/:id', authAdmin, (req, res) => {
+app.delete('/api/services/:id', authAdmin, async (req, res) => {
   const { id } = req.params;
   store.services = (store.services || []).filter(s => String(s.id) !== String(id) && s.key !== String(id));
   saveStore();
+
+  // MySQL Delete
+  await executeDbQuery('DELETE FROM services WHERE id = ? OR service_key = ?', [String(id), String(id)]);
+
   res.json({ success: true, message: `Service #${id} deleted successfully.` });
 });
 
@@ -619,7 +767,7 @@ app.get('/api/availability', (req, res) => {
 });
 
 // 6b. Admin: Block a Date (POST /api/availability & POST /api/availability/block)
-const handleBlockDate = (req, res) => {
+const handleBlockDate = async (req, res) => {
   const { date } = req.body;
   if (!date) return res.status(400).json({ success: false, message: 'Date is required (YYYY-MM-DD).' });
 
@@ -629,6 +777,9 @@ const handleBlockDate = (req, res) => {
     saveStore();
   }
 
+  // MySQL Insert
+  await executeDbQuery('INSERT IGNORE INTO blocked_dates (blocked_date) VALUES (?)', [date]);
+
   res.json({ success: true, message: `Date ${date} marked as booked.`, blocked_dates: store.blocked_dates });
 };
 
@@ -636,12 +787,16 @@ app.post('/api/availability', authAdmin, handleBlockDate);
 app.post('/api/availability/block', authAdmin, handleBlockDate);
 
 // 6c. Admin: Unblock a Date (DELETE /api/availability/:date & POST /api/availability/unblock)
-const handleUnblockDate = (req, res) => {
+const handleUnblockDate = async (req, res) => {
   const date = req.params.date || (req.body && req.body.date);
   if (!date) return res.status(400).json({ success: false, message: 'Date is required.' });
 
   store.blocked_dates = (store.blocked_dates || []).filter(d => d !== date);
   saveStore();
+
+  // MySQL Delete
+  await executeDbQuery('DELETE FROM blocked_dates WHERE blocked_date = ?', [date]);
+
   res.json({ success: true, message: `Date ${date} unblocked.`, blocked_dates: store.blocked_dates });
 };
 
@@ -673,7 +828,7 @@ app.get('/api/settings', (req, res) => {
 });
 
 // 7b. Admin: Update Settings (PUT /api/settings)
-app.put('/api/settings', authAdmin, (req, res) => {
+app.put('/api/settings', authAdmin, async (req, res) => {
   const { phone, whatsapp, email, location, about_bio, pin, studio_name, owner_name } = req.body;
 
   if (phone) store.settings.phone = phone.trim();
@@ -686,17 +841,33 @@ app.put('/api/settings', authAdmin, (req, res) => {
   if (owner_name) store.settings.owner_name = owner_name.trim();
 
   saveStore();
+
+  // MySQL Settings Update
+  if (isDbConnected && pool) {
+    for (const [k, v] of Object.entries(store.settings)) {
+      await executeDbQuery('INSERT INTO studio_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', [k, String(v), String(v)]);
+    }
+  }
+
   res.json({ success: true, message: 'Studio settings updated successfully.', data: store.settings });
 });
 
 // 8. Admin: Reset / Purge All Data (POST /api/admin/reset-all-data)
-app.post('/api/admin/reset-all-data', authAdmin, (req, res) => {
+app.post('/api/admin/reset-all-data', authAdmin, async (req, res) => {
   store.gallery = [];
   store.reviews = [];
   store.bookings = [];
   store.blocked_dates = [];
   store.services = [];
   saveStore();
+
+  // MySQL Reset
+  await executeDbQuery('DELETE FROM bookings');
+  await executeDbQuery('DELETE FROM reviews');
+  await executeDbQuery('DELETE FROM gallery');
+  await executeDbQuery('DELETE FROM services');
+  await executeDbQuery('DELETE FROM blocked_dates');
+
   res.json({ success: true, message: 'All store data purged successfully.' });
 });
 
