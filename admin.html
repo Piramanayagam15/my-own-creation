@@ -1332,28 +1332,62 @@
         }).join('');
       };
 
-      // Booking Actions (Offline & Online Resilient)
+      // Booking Actions (Offline & Online Resilient + Auto Date Blocking)
       window.updateBookingStatus = async (id, status) => {
+        const bIdx = bookingsData.findIndex(b => String(b.id) === String(id));
+        const booking = bIdx !== -1 ? bookingsData[bIdx] : null;
+        const oldStatus = booking ? booking.status : 'pending';
+
         try {
-          const res = await fetch(`/api/bookings/${id}/status`, {
+          await fetch(`/api/bookings/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
             body: JSON.stringify({ status })
           });
         } catch (e) {}
 
-        const bIdx = bookingsData.findIndex(b => String(b.id) === String(id));
-        if (bIdx !== -1) {
-          bookingsData[bIdx].status = status;
+        if (booking) {
+          booking.status = status;
           localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+
+          // 🔒 AUTO-DATE BLOCKING:
+          if (status === 'confirmed' && booking.preferred_date) {
+            if (!blockedDatesData.includes(booking.preferred_date)) {
+              blockedDatesData.push(booking.preferred_date);
+              localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+              try {
+                await fetch('/api/availability', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+                  body: JSON.stringify({ date: booking.preferred_date })
+                });
+              } catch (e) {}
+            }
+          } else if (oldStatus === 'confirmed' && status !== 'confirmed' && booking.preferred_date) {
+            const hasOther = bookingsData.some(b => String(b.id) !== String(id) && b.status === 'confirmed' && b.preferred_date === booking.preferred_date);
+            if (!hasOther) {
+              blockedDatesData = blockedDatesData.filter(d => d !== booking.preferred_date);
+              localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+              try {
+                await fetch(`/api/availability/${booking.preferred_date}`, {
+                  method: 'DELETE',
+                  headers: { 'x-admin-token': adminToken }
+                });
+              } catch (e) {}
+            }
+          }
         }
-        showToast(`✅ Booking status set to ${status}`);
+
+        showToast(`✅ Booking set to ${status}${status === 'confirmed' ? ' & date auto-blocked! 🔒' : ''}`);
         renderStats();
         renderBookings();
+        renderBlockedDates();
       };
 
       window.deleteBooking = async (id) => {
         if (!confirm('Are you sure you want to delete this booking request?')) return;
+        const targetBooking = bookingsData.find(b => String(b.id) === String(id));
+
         try {
           await fetch(`/api/bookings/${id}`, {
             method: 'DELETE',
@@ -1363,9 +1397,19 @@
 
         bookingsData = bookingsData.filter(b => String(b.id) !== String(id));
         localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+
+        if (targetBooking && targetBooking.status === 'confirmed' && targetBooking.preferred_date) {
+          const hasOther = bookingsData.some(b => b.status === 'confirmed' && b.preferred_date === targetBooking.preferred_date);
+          if (!hasOther) {
+            blockedDatesData = blockedDatesData.filter(d => d !== targetBooking.preferred_date);
+            localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+          }
+        }
+
         showToast('🗑️ Booking deleted.');
         renderStats();
         renderBookings();
+        renderBlockedDates();
       };
 
       document.querySelectorAll('[data-booking-filter]').forEach(chip => {
@@ -1949,17 +1993,22 @@
       // 5. Render Blocked Dates
       const renderBlockedDates = () => {
         const container = document.getElementById('blockedDatesList');
-        if (blockedDatesData.length === 0) {
+        if (!blockedDatesData || blockedDatesData.length === 0) {
           container.innerHTML = `<span style="color: var(--admin-muted); font-size: 0.85rem;">No dates currently blocked. All dates are available!</span>`;
           return;
         }
 
-        container.innerHTML = blockedDatesData.map(d => `
-          <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px;">
-            <span style="color: #fca5a5; font-weight: 700; font-size: 0.88rem;">📅 ${d}</span>
-            <button type="button" onclick="unblockDate('${d}')" style="background:none; border:none; color:#ffffff; cursor:pointer; font-weight:bold;">&times;</button>
-          </div>
-        `).join('');
+        container.innerHTML = blockedDatesData.map(d => {
+          const matchedBooking = bookingsData.find(b => b.status === 'confirmed' && b.preferred_date === d);
+          const bookingInfo = matchedBooking ? `👑 Confirmed: ${matchedBooking.name} (${matchedBooking.booking_ref || '#' + matchedBooking.id})` : '🔒 Studio Blocked';
+          return `
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; margin: 4px;">
+              <span style="color: #fca5a5; font-weight: 700; font-size: 0.88rem;">📅 ${d}</span>
+              <span style="font-size: 0.75rem; background: rgba(0, 0, 0, 0.4); color: #fde047; padding: 2px 8px; border-radius: 6px;">${bookingInfo}</span>
+              <button type="button" onclick="unblockDate('${d}')" title="Unblock Date" style="background:none; border:none; color:#ffffff; cursor:pointer; font-weight:bold; font-size: 1.1rem; line-height: 1; margin-left: 2px;">&times;</button>
+            </div>
+          `;
+        }).join('');
       };
 
       document.getElementById('btnBlockDate').addEventListener('click', async () => {

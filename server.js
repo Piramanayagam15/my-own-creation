@@ -253,14 +253,31 @@ const handleUpdateBookingStatus = (req, res) => {
     return res.status(404).json({ success: false, message: 'Booking not found.' });
   }
 
+  if (!store.blocked_dates) store.blocked_dates = [];
+  const oldStatus = booking.status;
   if (status) booking.status = status;
   booking.updated_at = new Date().toISOString();
+
+  // 🔒 Auto-Block Wedding Date when Booking is Confirmed
+  if (booking.status === 'confirmed' && booking.preferred_date) {
+    if (!store.blocked_dates.includes(booking.preferred_date)) {
+      store.blocked_dates.push(booking.preferred_date);
+    }
+  } else if (oldStatus === 'confirmed' && booking.status !== 'confirmed' && booking.preferred_date) {
+    // If unconfirmed, unblock date only if no other confirmed booking uses this date
+    const hasOtherConfirmed = store.bookings.some(b => b.id !== booking.id && b.status === 'confirmed' && b.preferred_date === booking.preferred_date);
+    if (!hasOtherConfirmed) {
+      store.blocked_dates = store.blocked_dates.filter(d => d !== booking.preferred_date);
+    }
+  }
+
   saveStore();
 
   res.json({
     success: true,
-    message: `Booking #${id} status updated to ${status || booking.status}.`,
-    booking
+    message: `Booking #${id} status updated to ${status || booking.status}.${booking.status === 'confirmed' ? ' Wedding date automatically blocked.' : ''}`,
+    booking,
+    blocked_dates: store.blocked_dates
   });
 };
 
@@ -269,30 +286,28 @@ app.put('/api/bookings/:id', authAdmin, handleUpdateBookingStatus);
 app.put('/api/admin/bookings/:id', authAdmin, handleUpdateBookingStatus);
 
 // 2d. Admin: Delete booking (DELETE /api/bookings/:id)
-app.delete('/api/bookings/:id', authAdmin, (req, res) => {
+const handleDeleteBooking = (req, res) => {
   const { id } = req.params;
-  const beforeCount = store.bookings.length;
-  store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
+  const targetBooking = store.bookings.find(b => String(b.id) === String(id) || b.booking_ref === String(id));
 
-  if (store.bookings.length === beforeCount) {
+  if (!targetBooking) {
     return res.status(404).json({ success: false, message: 'Booking not found.' });
   }
 
-  saveStore();
-  res.json({ success: true, message: `Booking #${id} deleted successfully.` });
-});
-app.delete('/api/admin/bookings/:id', authAdmin, (req, res) => {
-  const { id } = req.params;
-  const beforeCount = store.bookings.length;
-  store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
-
-  if (store.bookings.length === beforeCount) {
-    return res.status(404).json({ success: false, message: 'Booking not found.' });
+  if (targetBooking.status === 'confirmed' && targetBooking.preferred_date) {
+    const hasOther = store.bookings.some(b => String(b.id) !== String(id) && b.booking_ref !== String(id) && b.status === 'confirmed' && b.preferred_date === targetBooking.preferred_date);
+    if (!hasOther && store.blocked_dates) {
+      store.blocked_dates = store.blocked_dates.filter(d => d !== targetBooking.preferred_date);
+    }
   }
 
+  store.bookings = store.bookings.filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
   saveStore();
-  res.json({ success: true, message: `Booking #${id} deleted successfully.` });
-});
+  res.json({ success: true, message: `Booking #${id} deleted successfully.`, blocked_dates: store.blocked_dates });
+};
+
+app.delete('/api/bookings/:id', authAdmin, handleDeleteBooking);
+app.delete('/api/admin/bookings/:id', authAdmin, handleDeleteBooking);
 
 // ========================================================
 // 3. REVIEWS & RATINGS API (Strict Moderation Flow)
