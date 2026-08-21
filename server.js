@@ -573,26 +573,12 @@ app.post('/api/admin/login', async (req, res) => {
   const clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '127.0.0.1';
   const now = Date.now();
 
-  // Check Rate Limiter Lockout
-  const rateRecord = loginRateLimiter.get(clientIp);
-  if (rateRecord && rateRecord.lockedUntil > now) {
-    const remainingSec = Math.ceil((rateRecord.lockedUntil - now) / 1000);
-    return res.status(429).json({
-      success: false,
-      error: 'LOCKED',
-      message: `🚫 Security Lockout: Too many failed login attempts. Please wait ${remainingSec} second(s).`,
-      remainingSeconds: remainingSec,
-      lockedUntil: rateRecord.lockedUntil
-    });
-  }
-
   const { pin, token } = req.body;
   const input = (pin || token || '').trim();
   const currentPin = (store.settings?.pin || ADMIN_TOKEN).trim();
 
-  // Successful Login
+  // 1. Master PIN / Valid Credentials Check (Always clears rate limit on success)
   if (safeCompare(input, ADMIN_TOKEN) || safeCompare(input, currentPin)) {
-    // Reset rate limiter on successful login
     loginRateLimiter.delete(clientIp);
 
     // Generate 32-byte secure session token
@@ -609,6 +595,19 @@ app.post('/api/admin/login', async (req, res) => {
         name: store.settings.owner_name || 'Studio Admin',
         role: 'Owner'
       }
+    });
+  }
+
+  // 2. Check Rate Limiter Lockout for Failed Attempts
+  const rateRecord = loginRateLimiter.get(clientIp);
+  if (rateRecord && rateRecord.lockedUntil > now) {
+    const remainingSec = Math.ceil((rateRecord.lockedUntil - now) / 1000);
+    return res.status(429).json({
+      success: false,
+      error: 'LOCKED',
+      message: `🚫 Security Lockout: Too many failed login attempts. Please wait ${remainingSec} second(s).`,
+      remainingSeconds: remainingSec,
+      lockedUntil: rateRecord.lockedUntil
     });
   }
 
