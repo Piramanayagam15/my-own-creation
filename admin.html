@@ -1347,128 +1347,196 @@
       });
 
       // Fetch All Dashboard Data (Synchronized Master State across All Devices)
+      // Fetch All Dashboard Data with Resilient Smart Merge (Zero Data Loss on Refresh)
       const fetchAllData = async () => {
         const headers = { 'x-admin-token': adminToken };
 
+        let serverData = null;
         try {
-          // 1. Try unified atomic sync endpoint first
           const syncRes = await fetch('/api/sync');
           if (syncRes.ok) {
-            const syncData = await syncRes.json();
-            if (syncData.success && syncData.data) {
-              const d = syncData.data;
-              bookingsData = Array.isArray(d.bookings) ? d.bookings : [];
-              reviewsData = Array.isArray(d.reviews) ? d.reviews : [];
-              galleryData = Array.isArray(d.gallery) ? d.gallery : [];
-              servicesData = Array.isArray(d.services) ? d.services : [];
-              blockedDatesData = Array.isArray(d.blocked_dates) ? d.blocked_dates : [];
-              if (d.settings) populateSettings(d.settings);
-
-              // Update local offline mirror
-              localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
-              localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
-              localStorage.setItem('ak_offline_gallery', JSON.stringify(galleryData));
-              localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
-              localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
-              if (d.settings) localStorage.setItem('ak_offline_settings', JSON.stringify(d.settings));
-
-              renderStats();
-              renderBookings();
-              renderReviews();
-              renderGallery();
-              renderServices();
-              renderBlockedDates();
-              return;
-            }
+            const syncJson = await syncRes.json();
+            if (syncJson.success && syncJson.data) serverData = syncJson.data;
           }
+        } catch (e) {}
+
+        // 1. Bookings (Server + LocalStorage minus explicitly deleted)
+        try {
+          let serverBookings = (serverData && Array.isArray(serverData.bookings)) ? serverData.bookings : [];
+          if (serverBookings.length === 0) {
+            try {
+              const bRes = await fetch('/api/admin/bookings', { headers });
+              if (bRes.ok) {
+                const bData = await bRes.json();
+                if (bData.success && Array.isArray(bData.data)) serverBookings = bData.data;
+              }
+            } catch (e) {}
+          }
+
+          const stored = localStorage.getItem('ak_offline_bookings') || localStorage.getItem('ak_bridals_offline_bookings');
+          const localBookings = stored ? JSON.parse(stored) : [];
+          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_booking_ids') || '[]');
+
+          const bMap = new Map();
+          serverBookings.forEach(b => {
+            if (!deletedIds.includes(String(b.id))) bMap.set(String(b.id), b);
+          });
+          localBookings.forEach(b => {
+            if (!deletedIds.includes(String(b.id))) {
+              const existing = bMap.get(String(b.id));
+              bMap.set(String(b.id), existing ? { ...existing, ...b } : b);
+            }
+          });
+
+          bookingsData = Array.from(bMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
         } catch (e) {
-          console.warn('Sync endpoint offline fallback, checking individual endpoints/cache:', e.message);
+          console.warn('Error loading bookings:', e);
         }
 
-        // Fallback: Individual Endpoints with Offline Storage
+        // 2. Reviews (Server + LocalStorage minus explicitly deleted)
         try {
-          const bRes = await fetch('/api/admin/bookings', { headers });
-          if (bRes.ok) {
-            const bData = await bRes.json();
-            if (bData.success && Array.isArray(bData.data)) {
-              bookingsData = bData.data;
-              localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
-            }
+          let serverReviews = (serverData && Array.isArray(serverData.reviews)) ? serverData.reviews : [];
+          if (serverReviews.length === 0) {
+            try {
+              const rRes = await fetch('/api/admin/reviews', { headers });
+              if (rRes.ok) {
+                const rData = await rRes.json();
+                if (rData.success && Array.isArray(rData.data)) serverReviews = rData.data;
+              }
+            } catch (e) {}
           }
+
+          const stored = localStorage.getItem('ak_admin_all_reviews') || localStorage.getItem('ak_bridals_reviews_list');
+          const localReviews = stored ? JSON.parse(stored) : [];
+          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_review_ids') || '[]');
+
+          const rMap = new Map();
+          serverReviews.forEach(r => {
+            if (!deletedIds.includes(String(r.id))) rMap.set(String(r.id), r);
+          });
+          localReviews.forEach(r => {
+            if (!deletedIds.includes(String(r.id))) {
+              const existing = rMap.get(String(r.id));
+              rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
+            }
+          });
+
+          reviewsData = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
         } catch (e) {
-          const stored = localStorage.getItem('ak_offline_bookings');
-          bookingsData = stored ? JSON.parse(stored) : [];
+          console.warn('Error loading reviews:', e);
         }
 
+        // 3. Gallery (Server + LocalStorage + IndexedDB minus explicitly deleted)
         try {
-          const rRes = await fetch('/api/admin/reviews', { headers });
-          if (rRes.ok) {
-            const rData = await rRes.json();
-            if (rData.success && Array.isArray(rData.data)) {
-              reviewsData = rData.data;
-              localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
-            }
+          let serverGallery = (serverData && Array.isArray(serverData.gallery)) ? serverData.gallery : [];
+          if (serverGallery.length === 0) {
+            try {
+              const gRes = await fetch('/api/gallery');
+              if (gRes.ok) {
+                const gData = await gRes.json();
+                if (gData.success && Array.isArray(gData.data)) serverGallery = gData.data;
+              }
+            } catch (e) {}
           }
-        } catch (e) {
-          const stored = localStorage.getItem('ak_admin_all_reviews');
-          reviewsData = stored ? JSON.parse(stored) : [];
-        }
 
-        try {
-          const gRes = await fetch('/api/gallery');
-          if (gRes.ok) {
-            const gData = await gRes.json();
-            if (gData.success && Array.isArray(gData.data)) {
-              galleryData = gData.data;
-              localStorage.setItem('ak_offline_gallery', JSON.stringify(galleryData));
-            }
-          }
-        } catch (e) {
           const stored = localStorage.getItem('ak_offline_gallery');
-          galleryData = stored ? JSON.parse(stored) : [];
+          const localGallery = stored ? JSON.parse(stored) : [];
+          const idbGallery = await GalleryDB.getAll();
+          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_gallery_ids') || '[]');
+
+          const gMap = new Map();
+          serverGallery.forEach(g => {
+            if (!deletedIds.includes(String(g.id))) gMap.set(String(g.id), g);
+          });
+          localGallery.forEach(g => {
+            if (!deletedIds.includes(String(g.id))) {
+              const existing = gMap.get(String(g.id));
+              gMap.set(String(g.id), existing ? { ...existing, ...g } : g);
+            }
+          });
+          idbGallery.forEach(g => {
+            if (!deletedIds.includes(String(g.id))) {
+              const existing = gMap.get(String(g.id));
+              gMap.set(String(g.id), existing ? { ...existing, ...g } : g);
+            }
+          });
+
+          galleryData = Array.from(gMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+          safeSaveGallery(galleryData);
+        } catch (e) {
+          console.warn('Error loading gallery:', e);
         }
 
+        // 4. Services (Server + LocalStorage minus explicitly deleted)
         try {
-          const sRes = await fetch('/api/services');
-          if (sRes.ok) {
-            const sData = await sRes.json();
-            if (sData.success && Array.isArray(sData.data)) {
-              servicesData = sData.data;
-              localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
-            }
+          let serverServices = (serverData && Array.isArray(serverData.services)) ? serverData.services : [];
+          if (serverServices.length === 0) {
+            try {
+              const sRes = await fetch('/api/services');
+              if (sRes.ok) {
+                const sData = await sRes.json();
+                if (sData.success && Array.isArray(sData.data)) serverServices = sData.data;
+              }
+            } catch (e) {}
           }
-        } catch (e) {
+
           const stored = localStorage.getItem('ak_offline_services');
-          servicesData = stored ? JSON.parse(stored) : [];
+          const localServices = stored ? JSON.parse(stored) : [];
+          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_service_ids') || '[]');
+
+          const sMap = new Map();
+          serverServices.forEach(s => {
+            if (!deletedIds.includes(String(s.id))) sMap.set(String(s.id), s);
+          });
+          localServices.forEach(s => {
+            if (!deletedIds.includes(String(s.id))) {
+              const existing = sMap.get(String(s.id));
+              sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
+            }
+          });
+
+          servicesData = Array.from(sMap.values());
+          localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
+        } catch (e) {
+          console.warn('Error loading services:', e);
         }
 
+        // 5. Blocked Dates (Server + LocalStorage + Confirmed Bookings minus unblocked)
         try {
-          const dRes = await fetch('/api/availability');
-          if (dRes.ok) {
-            const dData = await dRes.json();
-            if (dData.success && Array.isArray(dData.blocked_dates)) {
-              blockedDatesData = dData.blocked_dates;
-              localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
-            }
-          }
-        } catch (e) {
+          const serverBlocked = (serverData && Array.isArray(serverData.blocked_dates)) ? serverData.blocked_dates : [];
           const stored = localStorage.getItem('ak_offline_blocked_dates');
-          blockedDatesData = stored ? JSON.parse(stored) : [];
+          const localBlocked = stored ? JSON.parse(stored) : [];
+          const unblockedDates = JSON.parse(localStorage.getItem('ak_unblocked_dates') || '[]');
+
+          const dateSet = new Set();
+          serverBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
+          localBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
+
+          bookingsData.forEach(b => {
+            if (b.status === 'confirmed' && b.preferred_date && !unblockedDates.includes(b.preferred_date)) {
+              dateSet.add(b.preferred_date);
+            }
+          });
+
+          blockedDatesData = Array.from(dateSet);
+          localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+        } catch (e) {
+          console.warn('Error loading blocked dates:', e);
         }
 
+        // 6. Settings
         try {
-          const stRes = await fetch('/api/settings');
-          if (stRes.ok) {
-            const stData = await stRes.json();
-            if (stData.success && stData.data) {
-              populateSettings(stData.data);
-              localStorage.setItem('ak_offline_settings', JSON.stringify(stData.data));
-            }
-          }
-        } catch (e) {
+          const serverSettings = (serverData && serverData.settings) ? serverData.settings : null;
           const stored = localStorage.getItem('ak_offline_settings');
-          if (stored) populateSettings(JSON.parse(stored));
-        }
+          const localSettings = stored ? JSON.parse(stored) : null;
+          const mergedSettings = { ...serverSettings, ...localSettings };
+          if (mergedSettings && (mergedSettings.studio_name || mergedSettings.phone)) {
+            populateSettings(mergedSettings);
+            localStorage.setItem('ak_offline_settings', JSON.stringify(mergedSettings));
+          }
+        } catch (e) {}
 
         renderStats();
         renderBookings();

@@ -440,38 +440,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {}
 
     let apiItems = [];
-    let apiSuccess = false;
     try {
       const res = await fetch("/api/gallery");
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           apiItems = data.data;
-          apiSuccess = true;
         }
       }
     } catch (e) {}
 
-    let mediaList = [];
-    if (apiSuccess) {
-      mediaList = apiItems.filter(item => !deletedIds.includes(String(item.id)));
-      try {
-        localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
-        localStorage.removeItem("ak_bridals_gallery_items_v2");
-      } catch (e) {}
-    } else {
-      let localItems = [];
-      try {
-        const stored = localStorage.getItem("ak_offline_gallery");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) localItems = parsed;
-        }
-      } catch (e) {}
-      mediaList = localItems.filter(item => !deletedIds.includes(String(item.id)));
-    }
+    let localItems = [];
+    try {
+      const stored = localStorage.getItem("ak_offline_gallery");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) localItems = parsed;
+      }
+    } catch (e) {}
 
-    mediaList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    let idbMedia = [];
+    try {
+      idbMedia = await GalleryDB.getAll();
+    } catch (e) {}
+
+    const gMap = new Map();
+    apiItems.forEach(item => {
+      if (!deletedIds.includes(String(item.id))) gMap.set(String(item.id), item);
+    });
+    localItems.forEach(item => {
+      if (!deletedIds.includes(String(item.id))) {
+        const existing = gMap.get(String(item.id));
+        gMap.set(String(item.id), existing ? { ...existing, ...item } : item);
+      }
+    });
+    idbMedia.forEach(item => {
+      if (!deletedIds.includes(String(item.id))) {
+        const existing = gMap.get(String(item.id));
+        gMap.set(String(item.id), existing ? { ...existing, ...item } : item);
+      }
+    });
+
+    const mediaList = Array.from(gMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    try {
+      localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
+    } catch (e) {}
 
     // Filter items based on activeFilter
     const filteredItems = mediaList.filter((item) => {
@@ -1402,25 +1415,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeReviewsList = [];
   let editingReviewId = null;
 
-  // Fetch and render reviews (Synchronized from Server API)
+  // Fetch and render reviews (Smart Merge Persistence)
   const fetchAndRenderReviews = async () => {
     if (!reviewsGrid) return;
 
+    let serverReviews = [];
     try {
       const res = await fetch("/api/reviews");
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
-          activeReviewsList = data.data.filter(r => r.status === "approved");
-          LocalReviewsStorage.saveAll(activeReviewsList);
-          renderReviewsUI(activeReviewsList);
-          return;
-        }
+        if (data.success && Array.isArray(data.data)) serverReviews = data.data;
       }
     } catch (e) {}
 
-    // Offline Fallback
-    activeReviewsList = LocalReviewsStorage.getAll().filter(r => r.status === "approved");
+    const localReviews = LocalReviewsStorage.getAll();
+    const deletedIds = JSON.parse(localStorage.getItem("ak_deleted_review_ids") || "[]");
+
+    const rMap = new Map();
+    serverReviews.forEach(r => {
+      if (r.status === "approved" && !deletedIds.includes(String(r.id))) rMap.set(String(r.id), r);
+    });
+    localReviews.forEach(r => {
+      if (r.status === "approved" && !deletedIds.includes(String(r.id))) {
+        const existing = rMap.get(String(r.id));
+        rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
+      }
+    });
+
+    activeReviewsList = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    LocalReviewsStorage.saveAll(activeReviewsList);
     renderReviewsUI(activeReviewsList);
   };
 
@@ -1808,16 +1831,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (e) {}
 
-    let servicesList = [];
-    if (serverServices.length > 0) {
-      servicesList = serverServices;
-    } else {
-      try {
-        const stored = localStorage.getItem("ak_offline_services");
-        if (stored) servicesList = JSON.parse(stored);
-      } catch (e) {}
-    }
+    const deletedServiceIds = JSON.parse(localStorage.getItem("ak_deleted_service_ids") || "[]");
+    let localServices = [];
+    try {
+      const stored = localStorage.getItem("ak_offline_services");
+      if (stored) localServices = JSON.parse(stored);
+    } catch (e) {}
 
+    const sMap = new Map();
+    serverServices.forEach(s => {
+      if (!deletedServiceIds.includes(String(s.id))) sMap.set(String(s.id), s);
+    });
+    localServices.forEach(s => {
+      if (!deletedServiceIds.includes(String(s.id))) {
+        const existing = sMap.get(String(s.id));
+        sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
+      }
+    });
+
+    const servicesList = Array.from(sMap.values());
     try {
       localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
     } catch (e) {}
