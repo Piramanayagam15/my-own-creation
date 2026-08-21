@@ -114,19 +114,19 @@ npm test
 
 ---
 
-## 🔄 6. Zero-Downtime Rollback Procedure
+## 🔄 6. Near-Instant Rollback Procedure
 
-In the unlikely event of an issue after a deployment, use either of the following rollback paths:
+In the unlikely event of an unexpected issue following a production deployment, use either of the following rollback paths:
 
-### Path A: Vercel Instant Rollback (0-Second Downtime)
+### Path A: Vercel Production Rollback (Fast Traffic Re-routing)
 1. Go to **Vercel Dashboard ➔ Project (`my-own-creation`) ➔ Deployments**.
 2. Locate the previous healthy deployment (marked with ✅ *Production*).
-3. Click the three dots `...` ➔ Select **"Instant Rollback"** (or **"Promote to Production"**).
-4. Live traffic routes to the previous stable release instantly with zero downtime.
+3. Click the three dots `...` ➔ Select **"Promote to Production"** (or **"Instant Rollback"**).
+4. Edge routing points live traffic to the previous stable build within seconds.
 
 ### Path B: Git Repository Rollback
 ```bash
-# Revert to previous stable commit:
+# Create a safe revert commit and push:
 git revert HEAD --no-edit
 git push origin main
 ```
@@ -135,6 +135,19 @@ git push origin main
 
 ## 🔑 7. Security & Credential Rotation Protocol
 
-* **Admin Password Rotation:** Update `ADMIN_PASSWORD` in your Vercel Environment Variables or `.env` file, then restart the service. All active sessions are immediately invalidated.
+* **Admin Password Rotation:** Update `ADMIN_PASSWORD` in your Vercel Environment Variables or `.env` file, then redeploy/restart. All active sessions are automatically invalidated.
 * **Session Secret Rotation:** Update `ADMIN_SESSION_SECRET` with a newly generated 32-byte hex string.
-* **Emergency IP Unlock:** If the studio admin accidentally gets locked out from 5 wrong attempts, submitting the valid `ADMIN_PASSWORD` automatically clears the rate limiter lockout immediately.
+* **Rate-Limiter Reset on Successful Authentication:** If a client IP enters lockout from 5 consecutive failed attempts, authenticating successfully with the valid `ADMIN_PASSWORD` immediately clears the rate-limiter record and grants access.
+
+---
+
+## 🛡️ 8. Future Changes & Maintenance Security Checklist
+
+Before merging or deploying any future update, always execute this 6-point verification gatekeeper:
+
+1. **Targeted Scope:** Is the change strictly confined to a specific bug fix or confirmed requirement? (No random architectural rewrites).
+2. **Zero Secrets in Code:** Are all API keys, database credentials, and passwords kept exclusively in `.env` / environment variables and absent from Git history?
+3. **Dual-Engine Compatibility:** Does the data change work identically across MySQL Database and `store.json` fallback?
+4. **Input Sanitization & Injection Defense:** Are all user-supplied parameters sanitized (XSS protection) and parameterized in SQL (`?` placeholders)?
+5. **Admin Route Protection:** Are all new admin endpoints protected by the `authAdmin` session middleware?
+6. **Automated Test Gate:** Does `npm test` execute with **27/27 PASSED (0 FAILED)**?
