@@ -1701,32 +1701,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const homepageServicesGrid = document.getElementById("homepageServicesGrid");
     if (!servicesContainer && !homepageServicesGrid) return;
 
-    const defaultServices = [
-      {
-        id: "srv-1",
-        key: "bridal-makeup",
-        name: "Muhurtham Bridal Makeup",
-        icon: "💄",
-        tag: "Signature",
-        starting_price: 15000,
-        price_display: "Starting from ₹15,000",
-        desc: "Flawless HD airbrush and traditional bridal makeover with 24hr waterproof finish, customized for your skin tone and event lighting.",
-        inclusions: ["HD / Airbrush Makeup", "Skin Prep & Primer", "Lashes & Lenses", "Touch-up Kit"]
-      },
-      {
-        id: "srv-2",
-        key: "reception-glam",
-        name: "Reception Glam Makeup",
-        icon: "✨",
-        tag: "Trending",
-        starting_price: 8000,
-        price_display: "Starting from ₹8,000",
-        desc: "Modern, glowing evening transformation with shimmering eye accents and contemporary styling for reception & sangeet.",
-        inclusions: ["Reception Glow Makeup", "Hairstyling / Bun", "Accessory Setting", "Waterproof Formulation"]
-      },
-      {
-        id: "srv-3",
-        key: "combo-package",
+    const defaultServices = [];
     let servicesList = [];
     try {
       const res = await fetch("/api/services");

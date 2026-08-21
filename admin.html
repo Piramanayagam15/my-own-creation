@@ -1096,7 +1096,13 @@
           const target = btn.getAttribute('data-tab');
           document.getElementById(target).classList.add('active');
         });
-      }        // 1. Bookings
+      });
+
+      // Fetch All Dashboard Data (with Automatic LocalStorage Sync)
+      const fetchAllData = async () => {
+        const headers = { 'x-admin-token': adminToken };
+
+        // 1. Bookings
         try {
           const bRes = await fetch('/api/admin/bookings', { headers });
           if (bRes.ok) {
@@ -1165,11 +1171,6 @@
               blockedDatesData = dData.blocked_dates || [];
               localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
             }
-          } else throw new Error('API not ok');
-        } catch (e) {
-          const stored = localStorage.getItem('ak_offline_blocked_dates');
-          blockedDatesData = stored ? JSON.parse(stored) : [];
-        }
           } else throw new Error('API not ok');
         } catch (e) {
           const stored = localStorage.getItem('ak_offline_blocked_dates');
