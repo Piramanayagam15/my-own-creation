@@ -1136,6 +1136,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
     dateInput.addEventListener("change", (e) => checkAvailability(e.target.value));
     dateInput.addEventListener("input", (e) => checkAvailability(e.target.value));
   }
@@ -1202,9 +1205,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       ["name", "phone", "email", "date", "eventType", "service", "location", "message"].forEach((id) => setError(id, ""));
 
+      const phoneDigits = phone.replace(/[^0-9]/g, "");
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
       if (!name) { setError("name", "Please enter your full name."); hasError = true; }
-      if (!phone || phone.length < 8) { setError("phone", "Please enter a valid phone number."); hasError = true; }
-      if (!email) { setError("email", "Please enter your email address."); hasError = true; }
+      if (!phone || phoneDigits.length < 10) { setError("phone", "Please enter a valid 10-digit phone number."); hasError = true; }
+      if (!email || !emailRegex.test(email)) { setError("email", "Please enter a valid email address."); hasError = true; }
       if (!date) { setError("date", "Please choose your preferred event date."); hasError = true; }
       if (!service) { setError("service", "Please select a service."); hasError = true; }
       if (!location) { setError("location", "Please enter your event city/location."); hasError = true; }

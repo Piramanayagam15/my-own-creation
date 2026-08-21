@@ -11,10 +11,32 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'akbridals2026';
 
+// Production Security Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Safe JSON parse error handler
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ success: false, message: 'Bad request: Malformed JSON body.' });
+  }
+  next(err);
+});
+
+// Input sanitization helper to strip script tags and prevent XSS
+const sanitizeText = (val) => {
+  if (typeof val !== 'string') return val;
+  return val.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').trim();
+};
 
 // Serve static files (HTML, CSS, JS, Images)
 app.use(express.static('.'));
@@ -644,14 +666,14 @@ const handleNewBooking = async (req, res) => {
   try {
     const { name, phone, email, date, preferred_date, eventType, event_type, service, location, message } = req.body;
 
-    const bookingName = (name || '').trim();
-    const bookingPhone = (phone || '').trim();
-    const bookingEmail = (email || '').trim();
-    const bookingDate = (date || preferred_date || '').trim();
-    const bookingEventType = (eventType || event_type || 'Wedding / Muhurtham').trim();
-    const bookingService = (service || '💄 Muhurtham Bridal Makeup').trim();
-    const bookingLocation = (location || 'Tamil Nadu').trim();
-    const bookingMessage = (message || 'Please contact me regarding bridal availability.').trim();
+    const bookingName = sanitizeText(name || '');
+    const bookingPhone = sanitizeText(phone || '');
+    const bookingEmail = sanitizeText(email || '');
+    const bookingDate = sanitizeText(date || preferred_date || '');
+    const bookingEventType = sanitizeText(eventType || event_type || 'Wedding / Muhurtham');
+    const bookingService = sanitizeText(service || '💄 Muhurtham Bridal Makeup');
+    const bookingLocation = sanitizeText(location || 'Tamil Nadu');
+    const bookingMessage = sanitizeText(message || 'Please contact me regarding bridal availability.');
 
     if (!bookingName || !bookingPhone || !bookingDate) {
       return res.status(400).json({
@@ -812,11 +834,11 @@ app.post('/api/reviews', async (req, res) => {
 
     const newReview = {
       id: nextId,
-      name: name.trim(),
-      city: (city || 'Tamil Nadu').trim(),
+      name: sanitizeText(name),
+      city: sanitizeText(city || 'Tamil Nadu'),
       rating: Math.min(5, Math.max(1, Number(rating))),
-      service: (service || 'Bridal Makeover').trim(),
-      comment: comment.trim(),
+      service: sanitizeText(service || 'Bridal Makeover'),
+      comment: sanitizeText(comment),
       author_token: authorToken,
       status: 'pending',
       created_at: new Date().toISOString()
