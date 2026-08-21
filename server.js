@@ -612,7 +612,6 @@ app.post('/api/admin/login', async (req, res) => {
     return res.json({
       success: true,
       token: sessionToken,
-      masterToken: ADMIN_TOKEN,
       message: '👑 Admin authenticated successfully.',
       admin: {
         name: store.settings.owner_name || 'Studio Admin',
@@ -655,6 +654,18 @@ app.post('/api/admin/login', async (req, res) => {
     remainingAttempts: isLockout ? 0 : remainingAttempts,
     remainingSeconds: isLockout ? Math.ceil(LOCKOUT_WINDOW_MS / 1000) : undefined,
     lockedUntil: isLockout ? lockedUntil : undefined
+  });
+});
+
+// 1b. Admin: Verify Session Token
+app.get('/api/admin/verify-session', authAdmin, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Session is valid.',
+    admin: {
+      name: store.settings.owner_name || 'Studio Admin',
+      role: 'Owner'
+    }
   });
 });
 

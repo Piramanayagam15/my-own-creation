@@ -910,7 +910,7 @@
         <h2>Admin Portal Login</h2>
         <p>Enter your Studio Master PIN to manage bookings, reviews, gallery media, and services.</p>
         <form id="adminLoginForm">
-          <input type="password" id="adminPinInput" class="admin-input" placeholder="Enter Admin PIN (e.g. akbridals2026)" required autofocus />
+          <input type="password" id="adminPinInput" class="admin-input" placeholder="Enter Admin Password / Master PIN" required autofocus />
           <button type="submit" class="admin-btn">🔑 Unlock Dashboard</button>
         </form>
         <div id="loginErrorMsg" style="color: #f87171; font-size: 0.85rem; margin-top: 14px;"></div>
@@ -2482,7 +2482,6 @@
         } catch (e) {}
 
         localStorage.setItem('ak_offline_settings', JSON.stringify(payload));
-        if (payload.pin) localStorage.setItem('ak_studio_pin', payload.pin);
         showToast('📝 Studio settings saved successfully!');
       });
 

@@ -3,6 +3,8 @@
 // Run via: npm test
 // ========================================================
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const BASE_URL = `http://localhost:${PORT}`;
@@ -63,10 +65,16 @@ async function runTests() {
   console.log('====================================================');
 
   try {
-    // 1. Backend Authorization & Rate Limiting Tests
-    console.log('\n--- [1/7] BACKEND AUTHORIZATION & RATE LIMITING TESTS ---');
+    // 1. Backend Authorization, Session Validation & Rate Limiting Tests
+    console.log('\n--- [1/7] BACKEND AUTHORIZATION & SESSION SECURITY TESTS ---');
     const unauthorizedRes = await request('GET', '/api/admin/bookings');
     assert(unauthorizedRes.status === 401, 'Public access to /api/admin/bookings is blocked (401)');
+
+    const unauthorizedVerify = await request('GET', '/api/admin/verify-session');
+    assert(unauthorizedVerify.status === 401, 'Unauthenticated /api/admin/verify-session blocked (401)');
+
+    const forgedVerify = await request('GET', '/api/admin/verify-session', null, { 'x-admin-token': 'forged_fake_token_12345' });
+    assert(forgedVerify.status === 401, 'Forged/invalid session token rejected with 401');
 
     // Test 1-4 failed attempts
     for (let i = 1; i <= 4; i++) {
@@ -82,11 +90,16 @@ async function runTests() {
     // Immediate correct login using token or unblocked IP flow
     const loginRes = await request('POST', '/api/admin/login', { pin: 'akbridals2026', token: 'akbridals2026' });
     assert(loginRes.status === 200 || loginRes.status === 429, 'Master PIN authentication handled');
+    assert(loginRes.body.masterToken === undefined, 'No masterToken leaked in login response (Zero Token Leakage)');
+    
     const adminToken = loginRes.body.token || 'akbridals2026';
     const authHeaders = { 'x-admin-token': adminToken };
 
+    const validSessionRes = await request('GET', '/api/admin/verify-session', null, authHeaders);
+    assert(validSessionRes.status === 200 && validSessionRes.body.success, 'Valid session token verified successfully (200)');
+
     // 2. Booking Flow & Admin Dashboard Sync
-    console.log('\n--- [2/6] BOOKING FLOW & ADMIN DASHBOARD SYNC ---');
+    console.log('\n--- [2/7] BOOKING FLOW & ADMIN DASHBOARD SYNC ---');
     const testBookingPayload = {
       name: 'Sneha Varadarajan',
       phone: '+91 98410 55555',
@@ -179,7 +192,7 @@ async function runTests() {
     assert(checkUnblockedRes.body.isBooked === false, 'Public booking form detects date as 🟢 Slot Available');
 
     // 6. Gallery Media CRUD Tests
-    console.log('\n--- [6/6] GALLERY MEDIA CRUD TESTS ---');
+    console.log('\n--- [6/7] GALLERY MEDIA CRUD TESTS ---');
     const mediaPayload = {
       title: 'HD Bridal Makeover in Tirunelveli',
       category: 'bridal-makeup',
@@ -194,6 +207,18 @@ async function runTests() {
 
     const deleteMediaRes = await request('DELETE', `/api/gallery/${newMediaId}`, null, authHeaders);
     assert(deleteMediaRes.status === 200, 'Admin deleted gallery media');
+
+    // 7. Public Website Isolation & Zero Admin Leak Tests
+    console.log('\n--- [7/7] PUBLIC WEBSITE ISOLATION & ZERO ADMIN LEAK TESTS ---');
+    const publicFiles = ['index.html', 'about.html', 'contact.html', 'services.html', 'gallery.html'];
+    publicFiles.forEach(fileName => {
+      const filePath = path.join(__dirname, '..', fileName);
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const hasAdminLink = content.includes('href="admin.html') || content.includes("href='admin.html");
+        assert(!hasAdminLink, `Public file ${fileName} contains ZERO admin.html links`);
+      }
+    });
 
     // Cleanup: Reset test bookings and reviews so store stays clean
     await request('DELETE', `/api/bookings/${bookingId}`, null, authHeaders);
