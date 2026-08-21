@@ -1138,11 +1138,6 @@
               <textarea id="settingAboutBio" class="admin-textarea"></textarea>
             </div>
 
-            <div class="form-group" style="max-width: 320px;">
-              <label>Update Admin Password / PIN</label>
-              <input type="password" id="settingPin" class="admin-input" placeholder="Enter new password (optional)" autocomplete="new-password" />
-            </div>
-
             <button type="submit" class="admin-btn" style="max-width: 250px;">💾 Save Studio Settings</button>
           </form>
 
@@ -2470,8 +2465,7 @@
           whatsapp: document.getElementById('settingWhatsapp').value.trim(),
           email: document.getElementById('settingEmail').value.trim(),
           location: document.getElementById('settingLocation').value.trim(),
-          about_bio: document.getElementById('settingAboutBio').value.trim(),
-          pin: document.getElementById('settingPin').value.trim() || undefined
+          about_bio: document.getElementById('settingAboutBio').value.trim()
         };
 
         try {

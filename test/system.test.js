@@ -228,6 +228,8 @@ async function runTests() {
       assert(!adminHtmlContent.includes('savedPin'), 'admin.html contains ZERO savedPin client fallback definitions');
       assert(!adminHtmlContent.includes("pin === 'akbridals'"), 'admin.html contains ZERO client-side PIN hardcoded bypass');
       assert(!adminHtmlContent.includes('Default: akbridals2026'), 'admin.html contains ZERO default password messages');
+      assert(!adminHtmlContent.includes('settingPin'), 'admin.html contains ZERO settingPin input fields or password handlers in settings');
+      assert(!adminHtmlContent.includes('ak_studio_pin'), 'admin.html contains ZERO ak_studio_pin storage calls');
       assert(adminHtmlContent.includes('/api/admin/verify-session'), 'admin.html enforces /api/admin/verify-session on load');
     }
 
