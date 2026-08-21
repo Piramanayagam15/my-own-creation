@@ -632,9 +632,237 @@
       }
 
       @media (max-width: 768px) {
-        .form-grid-2 { grid-template-columns: 1fr; }
-        .admin-header-inner { flex-direction: column; gap: 12px; }
-        .admin-panel { padding: 18px; }
+        .admin-header {
+          padding: 10px 0;
+        }
+
+        .admin-header-inner {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          padding: 0 14px;
+        }
+
+        .admin-brand {
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .admin-brand h1 {
+          font-size: 1.2rem;
+        }
+
+        .admin-nav-actions {
+          display: flex;
+          width: 100%;
+          gap: 6px;
+        }
+
+        .btn-admin-sm {
+          flex: 1;
+          justify-content: center;
+          padding: 8px 6px;
+          font-size: 0.78rem;
+        }
+
+        .admin-container {
+          margin: 14px auto;
+          padding: 0 12px;
+        }
+
+        /* 2-Column Mobile Stats Grid */
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+          margin-bottom: 18px;
+        }
+
+        .stats-grid .stat-card:nth-child(5) {
+          grid-column: 1 / -1;
+        }
+
+        .stat-card {
+          padding: 14px 12px;
+          border-radius: 12px;
+        }
+
+        .stat-card .stat-number {
+          font-size: 1.65rem;
+          margin: 2px 0;
+        }
+
+        .stat-card .stat-icon {
+          font-size: 1.3rem;
+          margin-bottom: 2px;
+        }
+
+        .stat-card .stat-label {
+          font-size: 0.72rem;
+        }
+
+        /* Horizontal Touch Scrollable Tabs */
+        .admin-tabs {
+          gap: 6px;
+          margin-bottom: 16px;
+          padding-bottom: 8px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+
+        .tab-btn {
+          padding: 8px 14px;
+          font-size: 0.82rem;
+          flex-shrink: 0;
+        }
+
+        .admin-panel {
+          padding: 16px 12px;
+          border-radius: 14px;
+        }
+
+        .panel-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .panel-header h3 {
+          font-size: 1.2rem;
+          text-align: center;
+        }
+
+        .panel-header .btn-admin-gold {
+          width: 100%;
+          justify-content: center;
+          padding: 10px;
+        }
+
+        .filter-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .filter-toolbar > div {
+          display: flex;
+          overflow-x: auto;
+          gap: 6px;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-chip {
+          padding: 5px 12px;
+          font-size: 0.78rem;
+          flex-shrink: 0;
+        }
+
+        #bookingSearchInput {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin-left: 0 !important;
+          font-size: 0.88rem;
+          padding: 10px 14px;
+        }
+
+        .form-grid-2 {
+          grid-template-columns: 1fr;
+        }
+
+        /* 📱 TRANSFORMS FLAT HTML TABLES INTO NATIVE MOBILE CARDS */
+        .table-responsive {
+          overflow-x: visible;
+        }
+
+        .admin-table,
+        .admin-table tbody,
+        .admin-table tr,
+        .admin-table td {
+          display: block;
+          width: 100%;
+        }
+
+        .admin-table thead {
+          display: none;
+        }
+
+        .admin-table tr {
+          background: rgba(2, 44, 34, 0.75);
+          border: 1.5px solid rgba(16, 185, 129, 0.35);
+          border-radius: 14px;
+          margin-bottom: 16px;
+          padding: 14px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-table td {
+          padding: 8px 0;
+          border-bottom: 1px dashed rgba(16, 185, 129, 0.2);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
+          text-align: right;
+        }
+
+        .admin-table td:last-child {
+          border-bottom: none;
+          padding-top: 12px;
+          margin-top: 6px;
+          text-align: left;
+        }
+
+        .admin-table td::before {
+          content: attr(data-label);
+          font-weight: 700;
+          color: var(--admin-gold);
+          font-size: 0.78rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-align: left;
+          flex-shrink: 0;
+        }
+
+        .admin-table td p {
+          max-width: 100% !important;
+          text-align: left;
+        }
+
+        .action-btns {
+          width: 100%;
+          display: flex;
+          gap: 8px;
+        }
+
+        .action-btns .btn-wa {
+          flex: 2;
+          justify-content: center;
+          padding: 9px;
+          font-size: 0.82rem;
+        }
+
+        .action-btns select {
+          flex: 2;
+          max-width: none !important;
+          padding: 8px 10px;
+          font-size: 0.82rem;
+        }
+
+        .action-btns .btn-del {
+          flex: 1;
+          justify-content: center;
+          padding: 8px 12px;
+          font-size: 0.95rem;
+        }
+
+        .admin-modal-box {
+          padding: 20px 16px;
+          width: 95%;
+          max-height: 88vh;
+        }
       }
     </style>
   </head>
@@ -1299,32 +1527,32 @@
 
           return `
             <tr>
-              <td><strong style="color: var(--admin-gold);">${b.booking_ref || '#' + b.id}</strong></td>
-              <td>
-                <div style="font-weight: 700; color: #ffffff;">${b.name}</div>
-                <div style="font-size: 0.8rem; color: var(--admin-muted);">📞 ${b.phone}</div>
-                ${b.email ? `<div style="font-size: 0.75rem; color: #9ca3af;">✉️ ${b.email}</div>` : ''}
+              <td data-label="Ref #"><strong style="color: var(--admin-gold); font-size: 0.95rem;">${b.booking_ref || '#' + b.id}</strong></td>
+              <td data-label="Bride Details">
+                <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">${b.name}</div>
+                <div style="font-size: 0.82rem; color: var(--admin-muted); margin-top: 2px;">📞 ${b.phone}</div>
+                ${b.email ? `<div style="font-size: 0.76rem; color: #9ca3af;">✉️ ${b.email}</div>` : ''}
               </td>
-              <td>
-                <div style="font-weight: 600; color: #86efac;">📅 ${b.preferred_date}</div>
-                <div style="font-size: 0.8rem; color: #fde047;">💍 ${b.event_type || 'Wedding'}</div>
+              <td data-label="Event Date">
+                <div style="font-weight: 700; color: #86efac; font-size: 0.95rem;">📅 ${b.preferred_date}</div>
+                <div style="font-size: 0.82rem; color: #fde047; margin-top: 2px;">💍 ${b.event_type || 'Wedding'}</div>
               </td>
-              <td>
-                <div style="font-weight: 600;">${b.service}</div>
-                <div style="font-size: 0.78rem; color: #d1d5db;">📍 ${b.location || 'Tamil Nadu'}</div>
+              <td data-label="Service & City">
+                <div style="font-weight: 600; color: #ffffff;">${b.service}</div>
+                <div style="font-size: 0.8rem; color: #d1d5db; margin-top: 2px;">📍 ${b.location || 'Tamil Nadu'}</div>
               </td>
-              <td><p style="font-size: 0.82rem; margin: 0; color: #e5e7eb; max-width: 200px;">${b.message || 'No notes'}</p></td>
-              <td><span class="status-pill status-${b.status}">${b.status}</span></td>
-              <td>
+              <td data-label="Notes"><p style="font-size: 0.84rem; margin: 0; color: #e5e7eb;">${b.message || 'No notes'}</p></td>
+              <td data-label="Status"><span class="status-pill status-${b.status}">${b.status}</span></td>
+              <td data-label="Actions">
                 <div class="action-btns">
                   <a href="${waLink}" target="_blank" class="action-btn btn-wa" title="Reply on WhatsApp">💬 WhatsApp</a>
-                  <select class="admin-select" style="padding: 4px 8px; font-size: 0.78rem; max-width: 110px;" onchange="updateBookingStatus('${b.id}', this.value)">
+                  <select class="admin-select" style="padding: 6px 10px; font-size: 0.82rem; max-width: 120px;" onchange="updateBookingStatus('${b.id}', this.value)">
                     <option value="pending" ${b.status==='pending'?'selected':''}>Pending</option>
                     <option value="contacted" ${b.status==='contacted'?'selected':''}>Contacted</option>
                     <option value="confirmed" ${b.status==='confirmed'?'selected':''}>Confirmed</option>
                     <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
                   </select>
-                  <button type="button" class="action-btn btn-del" onclick="deleteBooking('${b.id}')">🗑️</button>
+                  <button type="button" class="action-btn btn-del" onclick="deleteBooking('${b.id}')" title="Delete Booking">🗑️</button>
                 </div>
               </td>
             </tr>
@@ -1440,18 +1668,18 @@
           const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
           return `
             <tr>
-              <td><span style="color: var(--admin-gold); font-size: 1.1rem; letter-spacing: 2px;">${stars}</span></td>
-              <td>
+              <td data-label="Rating"><span style="color: var(--admin-gold); font-size: 1.1rem; letter-spacing: 2px;">${stars}</span></td>
+              <td data-label="Reviewer">
                 <div style="font-weight: 700; color: #ffffff;">${r.name}</div>
-                <div style="font-size: 0.78rem; color: var(--admin-muted);">📍 ${r.city || 'Tamil Nadu'}</div>
+                <div style="font-size: 0.8rem; color: var(--admin-muted);">📍 ${r.city || 'Tamil Nadu'}</div>
               </td>
-              <td><span style="font-size: 0.84rem; font-weight: 600;">${r.service || 'Bridal Makeover'}</span></td>
-              <td><p style="font-size: 0.84rem; margin: 0; color: #e5e7eb; max-width: 260px;">"${r.comment}"</p></td>
-              <td><span style="font-size: 0.75rem; color: #9ca3af;">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span></td>
-              <td><span class="status-pill status-${r.status}">${r.status}</span></td>
-              <td>
+              <td data-label="Service"><span style="font-size: 0.85rem; font-weight: 600;">${r.service || 'Bridal Makeover'}</span></td>
+              <td data-label="Review"><p style="font-size: 0.84rem; margin: 0; color: #e5e7eb;">"${r.comment}"</p></td>
+              <td data-label="Date"><span style="font-size: 0.78rem; color: #9ca3af;">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span></td>
+              <td data-label="Status"><span class="status-pill status-${r.status}">${r.status}</span></td>
+              <td data-label="Moderate">
                 <div class="action-btns">
-                  ${r.status !== 'approved' ? `<button type="button" class="action-btn btn-approve" onclick="moderateReview('${r.id}', 'approved')">✅ Approve (Live)</button>` : ''}
+                  ${r.status !== 'approved' ? `<button type="button" class="action-btn btn-approve" onclick="moderateReview('${r.id}', 'approved')">✅ Approve</button>` : ''}
                   ${r.status !== 'rejected' ? `<button type="button" class="action-btn btn-reject" onclick="moderateReview('${r.id}', 'rejected')">❌ Reject</button>` : ''}
                   <button type="button" class="action-btn btn-del" onclick="deleteReview('${r.id}')">🗑️</button>
                 </div>
