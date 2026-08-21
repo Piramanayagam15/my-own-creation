@@ -517,19 +517,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       filteredItems.forEach((item) => {
         const figure = document.createElement("figure");
         figure.className = "gallery-item reveal-on-scroll revealed";
+        const isVideo = item.type === "video";
+        const thumbSrc = item.thumbnail || (item.src && !isVideo ? item.src : "");
+        const hasThumb = Boolean(thumbSrc && thumbSrc.trim().length > 0);
+        const bgStyle = hasThumb ? `background-image: url('${thumbSrc}');` : "";
+
         figure.setAttribute("data-category", item.category);
         figure.setAttribute("data-type", item.type);
         figure.setAttribute("data-src", item.src);
+        figure.setAttribute("data-embed", item.embedUrl || "");
         figure.setAttribute("data-title", item.title);
         figure.setAttribute("data-desc", item.desc || "");
         figure.setAttribute("data-id", item.id);
 
-        const isVideo = item.type === "video";
-        const hasSrc = item.src && item.src.trim().length > 0;
-        const bgStyle = hasSrc && !isVideo ? `background-image: url('${item.src}');` : "";
-
         figure.innerHTML = `
-          <div class="gallery-thumb ${!hasSrc && !isVideo ? "placeholder-img" : ""}" style="${bgStyle}">
+          <div class="gallery-thumb ${!hasThumb ? "placeholder-img" : ""}" style="${bgStyle}">
             <span class="media-type-badge">${isVideo ? "🎥 Video" : "📸 Photo"}</span>
             ${isVideo ? `<div class="video-play-overlay"><span class="play-circle">▶</span></div>` : ""}
           </div>
@@ -929,14 +931,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         lightboxDesc.style.display = desc ? "block" : "none";
       }
 
+      const lightboxIframe = document.getElementById("lightboxIframe");
+      const embedUrl = figure.getAttribute("data-embed") || "";
+
       if (type === "video") {
         if (lightboxImg) lightboxImg.style.display = "none";
-        if (lightboxVideo) {
-          lightboxVideo.style.display = "block";
-          lightboxVideo.src = src;
-          lightboxVideo.play().catch(() => {});
+        
+        const isEmbedLink = Boolean(embedUrl || (src && (src.includes("youtube.com") || src.includes("youtu.be") || src.includes("vimeo.com"))));
+        
+        if (isEmbedLink) {
+          const finalEmbed = embedUrl || src;
+          if (lightboxVideo) {
+            lightboxVideo.pause();
+            lightboxVideo.style.display = "none";
+            lightboxVideo.src = "";
+          }
+          if (lightboxIframe) {
+            lightboxIframe.style.display = "block";
+            lightboxIframe.src = finalEmbed;
+          }
+        } else {
+          if (lightboxIframe) {
+            lightboxIframe.style.display = "none";
+            lightboxIframe.src = "";
+          }
+          if (lightboxVideo) {
+            lightboxVideo.style.display = "block";
+            lightboxVideo.src = src;
+            lightboxVideo.play().catch(() => {});
+          }
         }
       } else {
+        if (lightboxIframe) {
+          lightboxIframe.style.display = "none";
+          lightboxIframe.src = "";
+        }
         if (lightboxVideo) {
           lightboxVideo.pause();
           lightboxVideo.src = "";
@@ -968,6 +997,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (lightboxVideo) {
         lightboxVideo.pause();
         lightboxVideo.src = "";
+      }
+      const lightboxIframe = document.getElementById("lightboxIframe");
+      if (lightboxIframe) {
+        lightboxIframe.src = "";
+        lightboxIframe.style.display = "none";
       }
     }
   };

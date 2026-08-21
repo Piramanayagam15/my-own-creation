@@ -1453,21 +1453,73 @@
           return;
         }
 
-        grid.innerHTML = filtered.map(g => `
-          <div class="admin-media-card">
-            <div class="admin-media-thumb" style="background-image: url('${g.src || 'assets/images/bridal_transformation.jpg'}');">
-              <span class="admin-badge" style="position: absolute; top: 8px; left: 8px;">${g.type === 'video' ? '🎥 Video' : '📸 Photo'}</span>
-            </div>
-            <div class="admin-media-info">
-              <h4>${g.title}</h4>
-              <span>🏷️ ${g.category}</span>
-              ${g.desc ? `<p style="font-size: 0.78rem; color: #9ca3af; margin: 4px 0 8px;">${g.desc}</p>` : ''}
-              <div style="margin-top: 8px;">
-                <button type="button" class="action-btn btn-del" style="width:100%; justify-content:center;" onclick="deleteGalleryMedia('${g.id}')">🗑️ Delete Media</button>
+        grid.innerHTML = filtered.map(g => {
+          const isVideo = g.type === 'video' || g.category === 'video';
+          const thumb = g.thumbnail || (isVideo ? '' : g.src) || 'assets/images/bridal_transformation.jpg';
+          return `
+            <div class="admin-media-card">
+              <div class="admin-media-thumb" style="background-image: url('${thumb}'); position: relative;">
+                <span class="admin-badge" style="position: absolute; top: 8px; left: 8px;">${isVideo ? '🎥 Video Reel' : '📸 Photo'}</span>
+                ${isVideo ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35); font-size:1.6rem; color:#fff;">▶</div>` : ''}
+              </div>
+              <div class="admin-media-info">
+                <h4>${g.title}</h4>
+                <span>🏷️ ${g.category}</span>
+                ${g.desc ? `<p style="font-size: 0.78rem; color: #9ca3af; margin: 4px 0 8px;">${g.desc}</p>` : ''}
+                <div style="margin-top: 8px;">
+                  <button type="button" class="action-btn btn-del" style="width:100%; justify-content:center;" onclick="deleteGalleryMedia('${g.id}')">🗑️ Delete Media</button>
+                </div>
               </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+      };
+
+      // IndexedDB for Unlimited Large Media & Video Storage
+      const GalleryDB = {
+        dbName: 'AKBridalsGalleryDB',
+        storeName: 'mediaStore',
+        async open() {
+          return new Promise((resolve, reject) => {
+            const req = indexedDB.open(this.dbName, 2);
+            req.onupgradeneeded = (e) => {
+              const db = e.target.result;
+              if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName, { keyPath: 'id' });
+              }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+        },
+        async save(item) {
+          try {
+            const db = await this.open();
+            return new Promise((resolve, reject) => {
+              const tx = db.transaction(this.storeName, 'readwrite');
+              const store = tx.objectStore(this.storeName);
+              const req = store.put(item);
+              req.onsuccess = () => resolve(true);
+              req.onerror = () => reject(req.error);
+            });
+          } catch (e) {
+            console.warn('IndexedDB save fallback:', e);
+          }
+        },
+        async delete(id) {
+          try {
+            const db = await this.open();
+            return new Promise((resolve) => {
+              const tx = db.transaction(this.storeName, 'readwrite');
+              const store = tx.objectStore(this.storeName);
+              const req = store.delete(id);
+              req.onsuccess = () => resolve(true);
+              req.onerror = () => resolve(false);
+            });
+          } catch (e) {
+            return false;
+          }
+        }
       };
 
       window.deleteGalleryMedia = async (id) => {
@@ -1479,9 +1531,10 @@
           });
         } catch (e) {}
 
+        await GalleryDB.delete(id);
+
         galleryData = galleryData.filter(g => String(g.id) !== String(id));
-        localStorage.setItem('ak_offline_gallery', JSON.stringify(galleryData));
-        localStorage.setItem('ak_bridals_gallery_items_v2', JSON.stringify(galleryData));
+        safeSaveGallery(galleryData);
         try {
           let deleted = JSON.parse(localStorage.getItem('ak_deleted_gallery_ids') || '[]');
           if (!deleted.includes(String(id))) deleted.push(String(id));
@@ -1502,6 +1555,82 @@
       });
 
       document.getElementById('btnOpenUploadModal').addEventListener('click', () => openModal('uploadMediaModal'));
+
+      // Automatic Video URL & Embed Parser
+      const processVideoSource = (url) => {
+        if (!url) return { src: '', embedUrl: '', thumbnail: '', isEmbed: false };
+        url = url.trim();
+
+        // YouTube / YouTube Shorts / youtu.be
+        const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+        if (ytMatch && ytMatch[1]) {
+          const videoId = ytMatch[1];
+          return {
+            src: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`,
+            embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`,
+            thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+            isEmbed: true
+          };
+        }
+
+        // Vimeo
+        const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)/i);
+        if (vimeoMatch && vimeoMatch[3]) {
+          const videoId = vimeoMatch[3];
+          return {
+            src: `https://player.vimeo.com/video/${videoId}?autoplay=1`,
+            embedUrl: `https://player.vimeo.com/video/${videoId}?autoplay=1`,
+            thumbnail: '',
+            isEmbed: true
+          };
+        }
+
+        // Direct MP4 / WebM video link
+        return {
+          src: url,
+          embedUrl: url,
+          thumbnail: '',
+          isEmbed: false
+        };
+      };
+
+      // Video First-Frame Thumbnail Generator
+      const generateVideoThumbnail = (file) => {
+        return new Promise((resolve) => {
+          try {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.muted = true;
+            video.playsInline = true;
+            const blobUrl = URL.createObjectURL(file);
+            video.src = blobUrl;
+            video.currentTime = 0.5;
+
+            video.onloadeddata = () => {
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.min(video.videoWidth || 640, 800);
+                canvas.height = Math.round(canvas.width * ((video.videoHeight || 360) / (video.videoWidth || 640)));
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const thumb = canvas.toDataURL('image/jpeg', 0.8);
+                URL.revokeObjectURL(blobUrl);
+                resolve(thumb);
+              } catch (e) {
+                URL.revokeObjectURL(blobUrl);
+                resolve('');
+              }
+            };
+
+            video.onerror = () => {
+              URL.revokeObjectURL(blobUrl);
+              resolve('');
+            };
+          } catch (e) {
+            resolve('');
+          }
+        });
+      };
 
       // Automatic Image Compressor (Prevents browser localStorage quota limits)
       const compressImage = (file, maxWidth = 1400, maxHeight = 1400, quality = 0.82) => {
@@ -1552,10 +1681,13 @@
           localStorage.setItem('ak_offline_gallery', JSON.stringify(data));
           localStorage.setItem('ak_bridals_gallery_items_v2', JSON.stringify(data));
         } catch (err) {
-          console.warn('LocalStorage quota limit reached, saving latest items:', err);
+          console.warn('LocalStorage quota limit reached, saving lightweight items:', err);
           try {
-            const trimmed = data.slice(0, 20);
-            localStorage.setItem('ak_offline_gallery', JSON.stringify(trimmed));
+            const lightweight = data.map(item => ({
+              ...item,
+              src: (item.src && item.src.length > 300000) ? '' : item.src
+            })).slice(0, 30);
+            localStorage.setItem('ak_offline_gallery', JSON.stringify(lightweight));
           } catch (e) {}
         }
       };
@@ -1566,31 +1698,63 @@
         const originalBtnText = submitBtn ? submitBtn.textContent : '✨ Add to Gallery';
 
         const title = document.getElementById('mediaTitleInput').value.trim();
-        const category = document.getElementById('mediaCategorySelect').value;
-        const type = document.getElementById('mediaTypeSelect').value;
+        let category = document.getElementById('mediaCategorySelect').value;
+        let type = document.getElementById('mediaTypeSelect').value;
         const url = document.getElementById('mediaUrlInput').value.trim();
         const desc = document.getElementById('mediaDescInput').value.trim();
         const fileInput = document.getElementById('mediaFileInput');
 
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.textContent = '⏳ Optimizing & Uploading...';
+          submitBtn.textContent = '⏳ Processing Media...';
         }
 
         try {
           let src = url;
+          let thumbnail = '';
+          let embedUrl = '';
+          let isVideoFile = false;
 
           if (fileInput.files && fileInput.files[0]) {
-            src = await compressImage(fileInput.files[0]);
+            const file = fileInput.files[0];
+            if (file.type.startsWith('video/') || type === 'video') {
+              type = 'video';
+              isVideoFile = true;
+              thumbnail = await generateVideoThumbnail(file);
+              src = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target.result);
+                reader.readAsDataURL(file);
+              });
+            } else {
+              type = 'image';
+              src = await compressImage(file);
+              thumbnail = src;
+            }
+          } else if (url) {
+            const isVideoLink = type === 'video' || category === 'video' || url.includes('youtube') || url.includes('youtu.be') || url.includes('vimeo') || url.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+            if (isVideoLink) {
+              type = 'video';
+              const parsed = processVideoSource(url);
+              src = parsed.src;
+              embedUrl = parsed.embedUrl;
+              thumbnail = parsed.thumbnail;
+            } else {
+              thumbnail = url;
+            }
           }
 
           if (!src) {
-            alert('Please select a file or enter an image URL.');
+            alert('Please select a file or enter an image/video URL.');
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.textContent = originalBtnText;
             }
             return;
+          }
+
+          if (type === 'video' && category === 'bridal-makeup') {
+            category = 'video';
           }
 
           const newItem = {
@@ -1599,21 +1763,32 @@
             category,
             type,
             src,
+            embedUrl,
+            thumbnail,
             desc,
             created_at: new Date().toISOString()
+          };
+
+          // Save complete item with media to IndexedDB
+          await GalleryDB.save(newItem);
+
+          // Lightweight item for server API & localStorage (safe from quota limits)
+          const lightItem = {
+            ...newItem,
+            src: (isVideoFile && src.length > 500000) ? (thumbnail || '') : src
           };
 
           try {
             await fetch('/api/gallery', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
-              body: JSON.stringify(newItem)
+              body: JSON.stringify(lightItem)
             });
           } catch (e) {}
 
           galleryData.unshift(newItem);
           safeSaveGallery(galleryData);
-          showToast('📸 Photo added to bridal gallery!');
+          showToast(type === 'video' ? '🎥 Video added to gallery!' : '📸 Photo added to bridal gallery!');
           closeModal('uploadMediaModal');
           document.getElementById('adminUploadMediaForm').reset();
           renderStats();
