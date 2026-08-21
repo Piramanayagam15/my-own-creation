@@ -414,8 +414,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Check URL parameters on first load (e.g. gallery.html?category=mehndi)
     const urlParams = new URLSearchParams(window.location.search);
-    const urlCat = urlParams.get("category") || urlParams.get("filter");
-    if (urlCat && activeFilter === "all") {
+    let urlCat = urlParams.get("category") || urlParams.get("filter");
+    if (urlCat) {
+      urlCat = urlCat.toLowerCase().trim();
+      if (urlCat === "aari-work" || urlCat === "aariwork") urlCat = "aari";
+      if (urlCat === "hair-styling" || urlCat === "hairstyling" || urlCat === "hair-draping") urlCat = "hair";
+      if (urlCat === "videos" || urlCat === "reels" || urlCat === "reel") urlCat = "video";
+      if (urlCat === "before-after" || urlCat === "beforeafter") urlCat = "before-after";
+
       activeFilter = urlCat;
       if (galleryFilterTabs) {
         galleryFilterTabs.querySelectorAll(".filter-btn").forEach((b) => {

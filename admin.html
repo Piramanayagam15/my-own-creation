@@ -1642,6 +1642,24 @@
 
       document.getElementById('btnOpenUploadModal').addEventListener('click', () => openModal('uploadMediaModal'));
 
+      // Dynamic File Accept Switching for Mobile & Desktop
+      document.getElementById('mediaTypeSelect').addEventListener('change', (e) => {
+        const type = e.target.value;
+        const fileInput = document.getElementById('mediaFileInput');
+        const urlInput = document.getElementById('mediaUrlInput');
+        const catSelect = document.getElementById('mediaCategorySelect');
+
+        if (type === 'video') {
+          fileInput.accept = 'video/*,video/mp4,video/quicktime,video/webm';
+          urlInput.placeholder = 'Or enter YouTube, Shorts, Reels, or MP4 URL';
+          if (catSelect.value === 'bridal-makeup') catSelect.value = 'video';
+        } else {
+          fileInput.accept = 'image/*,image/jpeg,image/png,image/webp';
+          urlInput.placeholder = 'Or enter image URL (e.g. assets/images/...)';
+          if (catSelect.value === 'video') catSelect.value = 'bridal-makeup';
+        }
+      });
+
       // Automatic Video URL & Embed Parser
       const processVideoSource = (url) => {
         if (!url) return { src: '', embedUrl: '', thumbnail: '', isEmbed: false };
