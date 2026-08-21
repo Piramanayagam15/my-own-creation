@@ -1371,17 +1371,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const total = reviews.length;
-    const avgScore = total > 0 ? (sum / total).toFixed(1) : "5.0";
-    const roundedStar = total > 0 ? Math.min(5, Math.max(1, Math.round(Number(avgScore)))) : 5;
-    const starsIconText = "★".repeat(roundedStar) + "☆".repeat(5 - roundedStar);
+    const avgScore = total > 0 ? (sum / total).toFixed(1) : "—";
+    const roundedStar = total > 0 ? Math.min(5, Math.max(1, Math.round(Number(avgScore)))) : 0;
+    const starsIconText = total > 0 ? ("★".repeat(roundedStar) + "☆".repeat(5 - roundedStar)) : "☆☆☆☆☆";
 
     // Update numerical score, star icons, and total count in real time
-    if (ratingAvgScore) ratingAvgScore.textContent = total > 0 ? avgScore : "5.0";
+    if (ratingAvgScore) ratingAvgScore.textContent = avgScore;
     if (ratingAvgStars) ratingAvgStars.textContent = starsIconText;
-    if (totalReviewsCount) totalReviewsCount.textContent = total > 0 ? `${total}` : "0";
+    if (totalReviewsCount) totalReviewsCount.textContent = `${total}`;
 
     const heroRatingScore = document.getElementById("heroRatingScore");
-    if (heroRatingScore) heroRatingScore.textContent = total > 0 ? `${avgScore} ★` : "5.0 ★";
+    if (heroRatingScore) heroRatingScore.textContent = total > 0 ? `${avgScore} ★` : "⭐ Verified";
 
     // Dynamically update each of the 5 rating breakdown bars and percentage texts
     for (let star = 1; star <= 5; star++) {
