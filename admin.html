@@ -1273,7 +1273,7 @@
       const openModal = (id) => document.getElementById(id).classList.add('show');
       const closeModal = (id) => document.getElementById(id).classList.remove('show');
 
-      // Check authentication on load (Strict Server Verification)
+      // Check authentication on load (Strict Zero-Trust Server Verification)
       const initAuth = async () => {
         if (!adminToken) {
           document.getElementById('authSection').style.display = 'block';
@@ -1282,9 +1282,9 @@
           return;
         }
 
-        // Verify token with backend
+        // Verify session token directly with backend gatekeeper
         try {
-          const verifyRes = await fetch('/api/admin/bookings', {
+          const verifyRes = await fetch('/api/admin/verify-session', {
             headers: { 'x-admin-token': adminToken }
           });
           if (verifyRes.ok) {
@@ -1293,7 +1293,7 @@
             document.getElementById('adminHeaderActions').style.display = 'flex';
             fetchAllData();
           } else {
-            // Token expired or invalid
+            // Token expired or invalid -> Lockdown
             sessionStorage.removeItem('ak_admin_session_token');
             adminToken = '';
             document.getElementById('authSection').style.display = 'block';
@@ -1301,15 +1301,16 @@
             document.getElementById('adminHeaderActions').style.display = 'none';
           }
         } catch (e) {
-          // If offline, check token exists before showing
-          document.getElementById('authSection').style.display = 'none';
-          document.getElementById('dashboardSection').style.display = 'block';
-          document.getElementById('adminHeaderActions').style.display = 'flex';
-          fetchAllData();
+          // If network / server error -> Lockdown (Zero unauthenticated exposure)
+          sessionStorage.removeItem('ak_admin_session_token');
+          adminToken = '';
+          document.getElementById('authSection').style.display = 'block';
+          document.getElementById('dashboardSection').style.display = 'none';
+          document.getElementById('adminHeaderActions').style.display = 'none';
         }
       };
 
-      // Login handler (Strict Server-Verified Authentication with Rate Limiting)
+      // Login handler (Strict Backend API Verification with Rate Limiting)
       document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const pin = document.getElementById('adminPinInput').value.trim();
@@ -1336,10 +1337,10 @@
             err.textContent = data.message || '🚫 Account locked for 15 minutes due to repeated failed attempts.';
             return;
           } else if (res.status === 401 && data) {
-            err.textContent = data.message || 'Invalid Admin PIN.';
+            err.textContent = data.message || 'Invalid Admin Password / PIN.';
             return;
           } else {
-            err.textContent = data?.message || 'Authentication failed. Please check your PIN.';
+            err.textContent = data?.message || 'Authentication failed. Please check your credentials.';
           }
         } catch (e) {
           err.textContent = 'Server connection error. Please try again.';

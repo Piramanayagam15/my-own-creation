@@ -224,6 +224,11 @@ async function runTests() {
     if (fs.existsSync(adminHtmlPath)) {
       const adminHtmlContent = fs.readFileSync(adminHtmlPath, 'utf8');
       assert(!adminHtmlContent.includes('akbridals2026'), 'admin.html contains ZERO hardcoded PINs or example password leaks');
+      assert(!adminHtmlContent.includes('const masterPin'), 'admin.html contains ZERO masterPin client variable definitions');
+      assert(!adminHtmlContent.includes('savedPin'), 'admin.html contains ZERO savedPin client fallback definitions');
+      assert(!adminHtmlContent.includes("pin === 'akbridals'"), 'admin.html contains ZERO client-side PIN hardcoded bypass');
+      assert(!adminHtmlContent.includes('Default: akbridals2026'), 'admin.html contains ZERO default password messages');
+      assert(adminHtmlContent.includes('/api/admin/verify-session'), 'admin.html enforces /api/admin/verify-session on load');
     }
 
     const unauthSyncRes = await request('GET', '/api/sync');
