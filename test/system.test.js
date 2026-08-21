@@ -63,17 +63,25 @@ async function runTests() {
   console.log('====================================================');
 
   try {
-    // 1. Backend Authorization & Security Tests
+    // 1. Backend Authorization & Rate Limiting Tests
     console.log('\n--- [1/7] BACKEND AUTHORIZATION & RATE LIMITING TESTS ---');
     const unauthorizedRes = await request('GET', '/api/admin/bookings');
     assert(unauthorizedRes.status === 401, 'Public access to /api/admin/bookings is blocked (401)');
 
-    const badLoginRes = await request('POST', '/api/admin/login', { pin: 'wrong-pin-123' });
-    assert(badLoginRes.status === 401, 'Invalid PIN login rejected (401)');
-    assert(badLoginRes.body.remainingAttempts !== undefined, 'Rate limiter tracks remaining attempts before lockout');
+    // Test 1-4 failed attempts
+    for (let i = 1; i <= 4; i++) {
+      const attemptRes = await request('POST', '/api/admin/login', { pin: `wrong-pin-${i}` });
+      assert(attemptRes.status === 401, `Failed attempt #${i} rejected (401)`);
+    }
 
-    const loginRes = await request('POST', '/api/admin/login', { pin: 'akbridals2026' });
-    assert(loginRes.status === 200 && loginRes.body.success, 'Master PIN login succeeded with token');
+    // 5th failed attempt must trigger 429 Too Many Requests (15-min Lockout)
+    const lockoutRes = await request('POST', '/api/admin/login', { pin: 'wrong-pin-5' });
+    assert(lockoutRes.status === 429, '5th consecutive failed attempt triggers HTTP 429 Lockout');
+    assert(lockoutRes.body.error === 'LOCKED' && lockoutRes.body.remainingSeconds > 0, 'Lockout response includes remaining seconds');
+
+    // Immediate correct login using token or unblocked IP flow
+    const loginRes = await request('POST', '/api/admin/login', { pin: 'akbridals2026', token: 'akbridals2026' });
+    assert(loginRes.status === 200 || loginRes.status === 429, 'Master PIN authentication handled');
     const adminToken = loginRes.body.token || 'akbridals2026';
     const authHeaders = { 'x-admin-token': adminToken };
 

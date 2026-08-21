@@ -1,4 +1,4 @@
-// Express server for AK Bridals - Production Dual-Engine Architecture (MySQL + Persistent Store Fallback)
+// Express server for AK Bridals - Production Dual-Engine Architecture (MySQL Primary + Persistent Store Fallback)
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -117,7 +117,7 @@ const saveStore = () => {
 };
 
 // ========================================================
-// MySQL Database Connection Pool
+// MySQL Database Connection Pool (PRIMARY SOURCE OF TRUTH)
 // ========================================================
 let pool = null;
 let isDbConnected = false;
@@ -136,7 +136,7 @@ try {
   pool.getConnection()
     .then(connection => {
       isDbConnected = true;
-      console.log('✅ MySQL Database connected successfully (ak_bridals)');
+      console.log('✅ MySQL Database connected successfully (ak_bridals) — Operating as PRIMARY Source of Truth');
       connection.release();
     })
     .catch(err => {
@@ -154,16 +154,16 @@ const executeDbQuery = async (sql, params = []) => {
     const [result] = await pool.execute(sql, params);
     return result;
   } catch (e) {
-    console.warn('MySQL execution notice:', e.message);
+    console.warn('MySQL query notice:', e.message);
     return null;
   }
 };
 
 // ========================================================
-// 🗄️ UNIFIED DATA ACCESS LAYER (DB-First + JSON Fallback)
+// 🗄️ UNIFIED DATABASE ACCESS LAYER (MySQL-First with JSON Fallback)
 // ========================================================
 const DB = {
-  // 1. Bookings
+  // 1. Bookings Module
   bookings: {
     getAll: async (status, search) => {
       if (isDbConnected) {
@@ -200,10 +200,6 @@ const DB = {
       return list;
     },
     create: async (booking) => {
-      if (!store.bookings) store.bookings = [];
-      store.bookings.unshift(booking);
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery(
           `INSERT INTO bookings (id, booking_ref, name, phone, email, preferred_date, event_type, service, location, message, status, created_at)
@@ -211,9 +207,17 @@ const DB = {
           [String(booking.id), booking.booking_ref, booking.name, booking.phone, booking.email, booking.preferred_date, booking.event_type || 'Wedding', booking.service, booking.location || '', booking.message || '', booking.status || 'pending']
         );
       }
+
+      if (!store.bookings) store.bookings = [];
+      store.bookings.unshift(booking);
+      saveStore();
       return booking;
     },
     updateStatus: async (id, status) => {
+      if (isDbConnected) {
+        await executeDbQuery('UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ? OR booking_ref = ?', [status, String(id), String(id)]);
+      }
+
       const b = (store.bookings || []).find(x => String(x.id) === String(id) || x.booking_ref === String(id));
       if (b) {
         b.status = status;
@@ -223,13 +227,13 @@ const DB = {
         }
         saveStore();
       }
-
-      if (isDbConnected) {
-        await executeDbQuery('UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ? OR booking_ref = ?', [status, String(id), String(id)]);
-      }
       return b;
     },
     delete: async (id) => {
+      if (isDbConnected) {
+        await executeDbQuery('DELETE FROM bookings WHERE id = ? OR booking_ref = ?', [String(id), String(id)]);
+      }
+
       const target = (store.bookings || []).find(b => String(b.id) === String(id) || b.booking_ref === String(id));
       if (target && target.status === 'confirmed' && target.preferred_date) {
         const hasOther = (store.bookings || []).some(b => String(b.id) !== String(id) && b.status === 'confirmed' && b.preferred_date === target.preferred_date);
@@ -240,15 +244,11 @@ const DB = {
 
       store.bookings = (store.bookings || []).filter(b => String(b.id) !== String(id) && b.booking_ref !== String(id));
       saveStore();
-
-      if (isDbConnected) {
-        await executeDbQuery('DELETE FROM bookings WHERE id = ? OR booking_ref = ?', [String(id), String(id)]);
-      }
       return true;
     }
   },
 
-  // 2. Reviews
+  // 2. Reviews Module (Public = approved only; Admin = all)
   reviews: {
     getApproved: async () => {
       if (isDbConnected) {
@@ -265,10 +265,6 @@ const DB = {
       return store.reviews || [];
     },
     create: async (review) => {
-      if (!store.reviews) store.reviews = [];
-      store.reviews.unshift(review);
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery(
           `INSERT INTO reviews (id, name, city, rating, service, comment, author_token, status, created_at)
@@ -276,33 +272,37 @@ const DB = {
           [String(review.id), review.name, review.city, review.rating, review.service, review.comment, review.author_token, review.status || 'pending']
         );
       }
+
+      if (!store.reviews) store.reviews = [];
+      store.reviews.unshift(review);
+      saveStore();
       return review;
     },
     updateStatus: async (id, status) => {
+      if (isDbConnected) {
+        await executeDbQuery('UPDATE reviews SET status = ?, updated_at = NOW() WHERE id = ?', [status, String(id)]);
+      }
+
       const r = (store.reviews || []).find(x => String(x.id) === String(id));
       if (r) {
         r.status = status;
         r.moderated_at = new Date().toISOString();
         saveStore();
       }
-
-      if (isDbConnected) {
-        await executeDbQuery('UPDATE reviews SET status = ?, updated_at = NOW() WHERE id = ?', [status, String(id)]);
-      }
       return r;
     },
     delete: async (id) => {
-      store.reviews = (store.reviews || []).filter(r => String(r.id) !== String(id));
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery('DELETE FROM reviews WHERE id = ?', [String(id)]);
       }
+
+      store.reviews = (store.reviews || []).filter(r => String(r.id) !== String(id));
+      saveStore();
       return true;
     }
   },
 
-  // 3. Gallery
+  // 3. Gallery Media Module
   gallery: {
     getAll: async (category, type) => {
       if (isDbConnected) {
@@ -327,10 +327,6 @@ const DB = {
       return items;
     },
     create: async (item) => {
-      if (!store.gallery) store.gallery = [];
-      store.gallery.unshift(item);
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery(
           `INSERT INTO gallery (id, title, category, type, src, description, created_at)
@@ -338,20 +334,24 @@ const DB = {
           [String(item.id), item.title, item.category, item.type, item.src, item.desc || '']
         );
       }
+
+      if (!store.gallery) store.gallery = [];
+      store.gallery.unshift(item);
+      saveStore();
       return item;
     },
     delete: async (id) => {
-      store.gallery = (store.gallery || []).filter(g => String(g.id) !== String(id));
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery('DELETE FROM gallery WHERE id = ?', [String(id)]);
       }
+
+      store.gallery = (store.gallery || []).filter(g => String(g.id) !== String(id));
+      saveStore();
       return true;
     }
   },
 
-  // 4. Services
+  // 4. Services Module
   services: {
     getAll: async () => {
       if (isDbConnected) {
@@ -366,10 +366,6 @@ const DB = {
       return store.services || [];
     },
     create: async (service) => {
-      if (!store.services) store.services = [];
-      store.services.push(service);
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery(
           `INSERT INTO services (id, service_key, name, icon, starting_price, price_display, tag, description, inclusions, created_at)
@@ -377,6 +373,10 @@ const DB = {
           [String(service.id), service.key, service.name, service.icon, service.starting_price, service.price_display, service.tag, service.desc, JSON.stringify(service.inclusions)]
         );
       }
+
+      if (!store.services) store.services = [];
+      store.services.push(service);
+      saveStore();
       return service;
     },
     update: async (id, data) => {
@@ -404,17 +404,17 @@ const DB = {
       return s;
     },
     delete: async (id) => {
-      store.services = (store.services || []).filter(s => String(s.id) !== String(id) && s.key !== String(id));
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery('DELETE FROM services WHERE id = ? OR service_key = ?', [String(id), String(id)]);
       }
+
+      store.services = (store.services || []).filter(s => String(s.id) !== String(id) && s.key !== String(id));
+      saveStore();
       return true;
     }
   },
 
-  // 5. Blocked Dates
+  // 5. Blocked Dates Module
   blockedDates: {
     getAll: async () => {
       if (isDbConnected) {
@@ -424,29 +424,29 @@ const DB = {
       return store.blocked_dates || [];
     },
     block: async (date) => {
+      if (isDbConnected) {
+        await executeDbQuery('INSERT IGNORE INTO blocked_dates (blocked_date) VALUES (?)', [date]);
+      }
+
       if (!store.blocked_dates) store.blocked_dates = [];
       if (!store.blocked_dates.includes(date)) {
         store.blocked_dates.push(date);
         saveStore();
       }
-
-      if (isDbConnected) {
-        await executeDbQuery('INSERT IGNORE INTO blocked_dates (blocked_date) VALUES (?)', [date]);
-      }
       return store.blocked_dates;
     },
     unblock: async (date) => {
-      store.blocked_dates = (store.blocked_dates || []).filter(d => d !== date);
-      saveStore();
-
       if (isDbConnected) {
         await executeDbQuery('DELETE FROM blocked_dates WHERE blocked_date = ?', [date]);
       }
+
+      store.blocked_dates = (store.blocked_dates || []).filter(d => d !== date);
+      saveStore();
       return store.blocked_dates;
     }
   },
 
-  // 6. Settings
+  // 6. Settings Module
   settings: {
     get: async () => {
       if (isDbConnected) {
@@ -460,9 +460,6 @@ const DB = {
       return store.settings || defaultStore.settings;
     },
     update: async (newSettings) => {
-      store.settings = { ...store.settings, ...newSettings };
-      saveStore();
-
       if (isDbConnected) {
         for (const [k, v] of Object.entries(newSettings)) {
           if (v !== undefined) {
@@ -473,11 +470,14 @@ const DB = {
           }
         }
       }
+
+      store.settings = { ...store.settings, ...newSettings };
+      saveStore();
       return store.settings;
     }
   },
 
-  // 7. Admin Sessions
+  // 7. Admin Sessions Module
   adminSessions: {
     create: async (token, ip, expiresAt) => {
       activeSessions.set(token, { ip, expiresAt });
@@ -515,9 +515,10 @@ const DB = {
 };
 
 // ========================================================
-// 🔐 ADMIN SECURITY: TIMING-SAFE VERIFY & RATE LIMITING
+// 🔐 BRUTE-FORCE RATE LIMITING & SECURITY DEFENSE
 // ========================================================
 
+// Timing-safe string comparison to prevent timing attacks
 const safeCompare = (a, b) => {
   try {
     const bufA = Buffer.from(String(a));
@@ -529,7 +530,7 @@ const safeCompare = (a, b) => {
   }
 };
 
-// Rate limiter: IP -> { attempts: number, firstAttempt: number, lockedUntil: number }
+// Rate Limiter: IP -> { attempts: number, firstAttempt: number, lockedUntil: number }
 const loginRateLimiter = new Map();
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
@@ -566,19 +567,21 @@ const authAdmin = async (req, res, next) => {
 };
 
 // ========================================================
-// 1. ADMIN AUTHENTICATION API (with 5/15 IP Rate Limiting)
+// 1. ADMIN AUTHENTICATION API (with 5 Attempts / 15-Min Lockout)
 // ========================================================
 app.post('/api/admin/login', async (req, res) => {
-  const clientIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+  const clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '127.0.0.1';
   const now = Date.now();
 
-  // Check Rate Limiting Lockout
+  // Check Rate Limiter Lockout
   const rateRecord = loginRateLimiter.get(clientIp);
   if (rateRecord && rateRecord.lockedUntil > now) {
     const remainingSec = Math.ceil((rateRecord.lockedUntil - now) / 1000);
     return res.status(429).json({
       success: false,
+      error: 'LOCKED',
       message: `🚫 Security Lockout: Too many failed login attempts. Please wait ${remainingSec} second(s).`,
+      remainingSeconds: remainingSec,
       lockedUntil: rateRecord.lockedUntil
     });
   }
@@ -589,6 +592,7 @@ app.post('/api/admin/login', async (req, res) => {
 
   // Successful Login
   if (safeCompare(input, ADMIN_TOKEN) || safeCompare(input, currentPin)) {
+    // Reset rate limiter on successful login
     loginRateLimiter.delete(clientIp);
 
     // Generate 32-byte secure session token
@@ -608,7 +612,7 @@ app.post('/api/admin/login', async (req, res) => {
     });
   }
 
-  // Failed Login Attempt
+  // Failed Login Attempt Tracking
   const currentAttempts = rateRecord ? rateRecord.attempts + 1 : 1;
   const isLockout = currentAttempts >= MAX_ATTEMPTS;
   const lockedUntil = isLockout ? now + LOCKOUT_WINDOW_MS : 0;
@@ -619,13 +623,16 @@ app.post('/api/admin/login', async (req, res) => {
     lockedUntil
   });
 
-  const remainingAttempts = MAX_ATTEMPTS - currentAttempts;
+  const remainingAttempts = Math.max(0, MAX_ATTEMPTS - currentAttempts);
   res.status(isLockout ? 429 : 401).json({
     success: false,
+    error: isLockout ? 'LOCKED' : 'INVALID_PIN',
     message: isLockout 
       ? '🚫 Account locked for 15 minutes due to 5 consecutive failed login attempts.'
       : `Invalid Admin PIN. ${remainingAttempts > 0 ? `${remainingAttempts} attempt(s) remaining before lockout.` : ''}`,
-    remainingAttempts: isLockout ? 0 : remainingAttempts
+    remainingAttempts: isLockout ? 0 : remainingAttempts,
+    remainingSeconds: isLockout ? Math.ceil(LOCKOUT_WINDOW_MS / 1000) : undefined,
+    lockedUntil: isLockout ? lockedUntil : undefined
   });
 });
 
