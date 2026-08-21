@@ -1293,17 +1293,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   ];
 
   // Local Storage for Reviews Persistence (Strictly User-Added & Verified Reviews Only)
+  const REVIEWS_STORAGE_KEY = "ak_bridals_verified_reviews_v4";
   const LocalReviewsStorage = {
     getAll: () => {
       try {
-        const stored = localStorage.getItem("ak_bridals_reviews_list");
+        const stored = localStorage.getItem(REVIEWS_STORAGE_KEY);
         if (!stored) {
-          localStorage.setItem("ak_bridals_reviews_list", JSON.stringify(initialVerifiedReviews));
+          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(initialVerifiedReviews));
           return [...initialVerifiedReviews];
         }
         const parsed = JSON.parse(stored);
         if (!Array.isArray(parsed) || parsed.length === 0) {
-          localStorage.setItem("ak_bridals_reviews_list", JSON.stringify(initialVerifiedReviews));
+          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(initialVerifiedReviews));
           return [...initialVerifiedReviews];
         }
         return parsed;
@@ -1313,7 +1314,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
     saveAll: (reviews) => {
       try {
-        localStorage.setItem("ak_bridals_reviews_list", JSON.stringify(reviews));
+        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
       } catch (e) {}
     },
     add: (newReview) => {
