@@ -700,6 +700,26 @@ app.post('/api/admin/reset-all-data', authAdmin, (req, res) => {
   res.json({ success: true, message: 'All store data purged successfully.' });
 });
 
+// 9. Unified Multi-Device Real-Time Sync Endpoint (GET /api/sync & POST /api/sync)
+app.get('/api/sync', (req, res) => {
+  res.json({
+    success: true,
+    data: store
+  });
+});
+
+app.post('/api/sync', authAdmin, (req, res) => {
+  const { bookings, reviews, gallery, services, blocked_dates, settings } = req.body;
+  if (Array.isArray(bookings)) store.bookings = bookings;
+  if (Array.isArray(reviews)) store.reviews = reviews;
+  if (Array.isArray(gallery)) store.gallery = gallery;
+  if (Array.isArray(services)) store.services = services;
+  if (Array.isArray(blocked_dates)) store.blocked_dates = blocked_dates;
+  if (settings && typeof settings === 'object') store.settings = { ...store.settings, ...settings };
+  saveStore();
+  res.json({ success: true, message: 'Unified store synchronized successfully.', data: store });
+});
+
 // Start Server
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {

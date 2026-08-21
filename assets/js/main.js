@@ -459,40 +459,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (e) {}
 
-    // Combine strictly active user/admin uploads
-    const mediaMap = new Map();
+    let mediaList = [];
+    if (apiItems.length > 0) {
+      mediaList = apiItems.filter(item => !deletedIds.includes(String(item.id)));
+    } else {
+      const mediaMap = new Map();
+      localItems.forEach((item) => {
+        if (!deletedIds.includes(String(item.id))) mediaMap.set(String(item.id), item);
+      });
+      try {
+        const idbMedia = await GalleryDB.getAll();
+        if (Array.isArray(idbMedia)) {
+          idbMedia.forEach((item) => {
+            if (!deletedIds.includes(String(item.id))) mediaMap.set(String(item.id), item);
+          });
+        }
+      } catch (e) {}
+      mediaList = Array.from(mediaMap.values());
+    }
 
-    // 1. Add API items from server
-    apiItems.forEach((item) => {
-      if (!deletedIds.includes(String(item.id))) {
-        mediaMap.set(String(item.id), item);
-      }
-    });
+    mediaList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-    // 2. Add Local Storage items (Admin uploads take highest priority)
-    localItems.forEach((item) => {
-      if (!deletedIds.includes(String(item.id))) {
-        mediaMap.set(String(item.id), item);
-      }
-    });
-
-    // 4. Also check IndexedDB if any
-    try {
-      const idbMedia = await GalleryDB.getAll();
-      if (Array.isArray(idbMedia)) {
-        idbMedia.forEach((item) => {
-          if (!deletedIds.includes(String(item.id))) {
-            mediaMap.set(String(item.id), item);
-          }
-        });
-      }
-    } catch (e) {}
-
-    const mediaList = Array.from(mediaMap.values()).sort((a, b) => {
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-    });
-
-    // Cache the combined list
+    // Cache the active list
     try {
       localStorage.setItem("ak_offline_gallery", JSON.stringify(mediaList));
       localStorage.setItem("ak_bridals_gallery_items_v2", JSON.stringify(mediaList));
@@ -1427,50 +1415,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeReviewsList = [];
   let editingReviewId = null;
 
-  // Fetch and render reviews (Strictly Approved Reviews Persistent Across Sessions)
+  // Fetch and render reviews (Synchronized from Server API)
   const fetchAndRenderReviews = async () => {
     if (!reviewsGrid) return;
 
-    let serverReviews = [];
     try {
       const res = await fetch("/api/reviews");
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
-          serverReviews = data.data;
+          activeReviewsList = data.data.filter(r => r.status === "approved");
+          LocalReviewsStorage.saveAll(activeReviewsList);
+          renderReviewsUI(activeReviewsList);
+          return;
         }
       }
     } catch (e) {}
 
-    let localReviews = [];
-    try {
-      const stored = localStorage.getItem("ak_admin_all_reviews") || localStorage.getItem("ak_bridals_reviews_list") || localStorage.getItem(REVIEWS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) localReviews = parsed;
-      }
-    } catch (e) {}
-
-    const deletedReviewIds = JSON.parse(localStorage.getItem("ak_deleted_review_ids") || "[]");
-
-    const rMap = new Map();
-    // 1. Add server approved reviews
-    serverReviews.forEach((r) => {
-      if (r.status === "approved" && !deletedReviewIds.includes(String(r.id))) {
-        rMap.set(String(r.id), r);
-      }
-    });
-    // 2. Add locally approved reviews
-    localReviews.forEach((r) => {
-      if (r.status === "approved" && !deletedReviewIds.includes(String(r.id))) {
-        const existing = rMap.get(String(r.id));
-        rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
-      }
-    });
-
-    activeReviewsList = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    LocalReviewsStorage.saveAll(activeReviewsList);
-
+    // Offline Fallback
+    activeReviewsList = LocalReviewsStorage.getAll().filter(r => r.status === "approved");
     renderReviewsUI(activeReviewsList);
   };
 
@@ -1858,29 +1821,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (e) {}
 
-    let localServices = [];
-    try {
-      const stored = localStorage.getItem("ak_offline_services");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) localServices = parsed;
-      }
-    } catch (e) {}
+    let servicesList = [];
+    if (serverServices.length > 0) {
+      servicesList = serverServices;
+    } else {
+      try {
+        const stored = localStorage.getItem("ak_offline_services");
+        if (stored) servicesList = JSON.parse(stored);
+      } catch (e) {}
+    }
 
-    const deletedServiceIds = JSON.parse(localStorage.getItem("ak_deleted_service_ids") || "[]");
-
-    const sMap = new Map();
-    serverServices.forEach((s) => {
-      if (!deletedServiceIds.includes(String(s.id))) sMap.set(String(s.id), s);
-    });
-    localServices.forEach((s) => {
-      if (!deletedServiceIds.includes(String(s.id))) {
-        const existing = sMap.get(String(s.id));
-        sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
-      }
-    });
-
-    const servicesList = Array.from(sMap.values());
     try {
       localStorage.setItem("ak_offline_services", JSON.stringify(servicesList));
     } catch (e) {}
