@@ -45,11 +45,17 @@ app.use(express.static('.'));
 // ========================================================
 // Persistent Data Store Engine (data/store.json Fallback)
 // ========================================================
-const DATA_DIR = path.join(__dirname, 'data');
+const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
+const DATA_DIR = isServerless ? '/tmp' : path.join(__dirname, 'data');
 const STORE_FILE = path.join(DATA_DIR, 'store.json');
+const SEED_FILE = path.join(__dirname, 'data', 'store.json');
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn('Data dir creation notice:', e.message);
 }
 
 // Initial Default Dataset
@@ -123,18 +129,26 @@ try {
     const raw = fs.readFileSync(STORE_FILE, 'utf8');
     store = JSON.parse(raw);
     console.log('📦 Persistent store loaded from store.json');
+  } else if (fs.existsSync(SEED_FILE)) {
+    const raw = fs.readFileSync(SEED_FILE, 'utf8');
+    store = JSON.parse(raw);
+    console.log('📦 Persistent store initialized from seed data');
+    try { fs.writeFileSync(STORE_FILE, JSON.stringify(store, null, 2), 'utf8'); } catch (w) {}
   } else {
-    fs.writeFileSync(STORE_FILE, JSON.stringify(defaultStore, null, 2), 'utf8');
+    try { fs.writeFileSync(STORE_FILE, JSON.stringify(defaultStore, null, 2), 'utf8'); } catch (w) {}
   }
 } catch (e) {
-  console.warn('Store file initialization error, using defaults in memory', e.message);
+  console.warn('Store file initialization error, using defaults in memory:', e.message);
 }
 
 const saveStore = () => {
   try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
     fs.writeFileSync(STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
   } catch (e) {
-    console.error('Failed to write store.json:', e.message);
+    console.warn('Store persistence note (continuing safely):', e.message);
   }
 };
 
