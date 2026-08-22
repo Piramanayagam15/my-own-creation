@@ -1327,61 +1327,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const initialVerifiedReviews = [];
 
-  // Local Storage for Reviews Persistence (Strictly User-Added & Verified Reviews Only)
-  const REVIEWS_STORAGE_KEY = "ak_bridals_verified_reviews_v5";
-  const LocalReviewsStorage = {
-    getAll: () => {
-      const keys = ["ak_bridals_reviews_list", "ak_admin_all_reviews", "ak_bridals_verified_reviews_v5", "ak_offline_reviews"];
-      const rMap = new Map();
-      keys.forEach(k => {
-        try {
-          const stored = localStorage.getItem(k);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) {
-              parsed.forEach(r => {
-                if (r && r.id && !rMap.has(String(r.id))) {
-                  rMap.set(String(r.id), r);
-                }
-              });
-            }
-          }
-        } catch (e) {}
-      });
-      return Array.from(rMap.values());
-    },
-    saveAll: (reviews) => {
-      try {
-        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
-        localStorage.setItem("ak_bridals_reviews_list", JSON.stringify(reviews));
-      } catch (e) {}
-    },
-    add: (newReview) => {
-      const list = LocalReviewsStorage.getAll();
-      list.unshift(newReview);
-      LocalReviewsStorage.saveAll(list);
-    },
-    update: (id, rating, service, comment) => {
-      const list = LocalReviewsStorage.getAll();
-      const idx = list.findIndex((r) => String(r.id) === String(id));
-      if (idx !== -1) {
-        list[idx] = {
-          ...list[idx],
-          rating: Number(rating),
-          service,
-          comment,
-          updated_at: new Date().toISOString()
-        };
-        LocalReviewsStorage.saveAll(list);
-      }
-    },
-    delete: (id) => {
-      const list = LocalReviewsStorage.getAll().filter((r) => String(r.id) !== String(id));
-      LocalReviewsStorage.saveAll(list);
-    }
-  };
-
-  // Author Token Storage: Saves author keys on this device
+  // Author Token Storage: Saves author keys on this device for author moderation
   const AuthorTokenStorage = {
     getAll: () => {
       try {
@@ -1414,7 +1360,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeReviewsList = [];
   let editingReviewId = null;
 
-  // Fetch and render reviews (Smart Merge Persistence)
+  // Fetch and render reviews (Strict Single Source of Truth from DB)
   const fetchAndRenderReviews = async () => {
     if (!reviewsGrid) return;
 
@@ -1423,26 +1369,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch("/api/reviews");
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.data)) serverReviews = data.data;
+        if (data.success && Array.isArray(data.data)) {
+          serverReviews = data.data;
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Unable to fetch live reviews:", e);
+    }
 
-    const localReviews = LocalReviewsStorage.getAll();
-    const deletedIds = JSON.parse(localStorage.getItem("ak_deleted_review_ids") || "[]");
+    activeReviewsList = serverReviews
+      .filter((r) => r.status === "approved")
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-    const rMap = new Map();
-    serverReviews.forEach(r => {
-      if (r.status === "approved" && !deletedIds.includes(String(r.id))) rMap.set(String(r.id), r);
-    });
-    localReviews.forEach(r => {
-      if (r.status === "approved" && !deletedIds.includes(String(r.id))) {
-        const existing = rMap.get(String(r.id));
-        rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
-      }
-    });
-
-    activeReviewsList = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    LocalReviewsStorage.saveAll(activeReviewsList);
     renderReviewsUI(activeReviewsList);
   };
 
@@ -1635,19 +1573,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (editingReviewId) {
           // 1. Author Edit Review Flow
           const authorToken = AuthorTokenStorage.getToken(editingReviewId);
-          LocalReviewsStorage.update(editingReviewId, rating, service, comment);
-
-          // Attempt sync with server in background if available
-          try {
-            fetch(`/api/reviews/${editingReviewId}`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                "x-author-token": authorToken || ""
-              },
-              body: JSON.stringify({ rating, service, comment })
-            }).catch(() => {});
-          } catch (e) {}
+          const res = await fetch(`/api/reviews/${editingReviewId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "x-author-token": authorToken || ""
+            },
+            body: JSON.stringify({ rating, service, comment })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.success) {
+            throw new Error(data.message || "Failed to update review.");
+          }
 
           if (reviewFormStatus) {
             reviewFormStatus.textContent = "🎉 Review updated successfully!";
@@ -1739,18 +1676,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!confirm("Are you sure you want to delete your review?")) return;
 
-        LocalReviewsStorage.delete(id);
-        AuthorTokenStorage.removeToken(id);
-
-        // Attempt server delete in background
         try {
-          fetch(`/api/reviews/${id}`, {
+          const res = await fetch(`/api/reviews/${id}`, {
             method: "DELETE",
             headers: { "x-author-token": authorToken }
-          }).catch(() => {});
-        } catch (e) {}
-
-        fetchAndRenderReviews();
+          });
+          if (res.ok) {
+            AuthorTokenStorage.removeToken(id);
+            fetchAndRenderReviews();
+          } else {
+            alert("Failed to delete review from server.");
+          }
+        } catch (e) {
+          alert("Network error: Unable to delete review.");
+        }
       }
     });
   }
