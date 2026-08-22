@@ -167,6 +167,52 @@ To convert CI test checks into a mandatory blocking gate on GitHub:
    * ✅ Search and select: `Automated Integration & Security Tests` (from `.github/workflows/test.yml`)
    * ✅ **Require branches to be up to date before merging**
    * ✅ **Do not allow bypassing the above settings**
-5. Click **Save Changes**.
-
 *Result:* Direct pushes to `main` and merging failing PRs are permanently blocked. Production code is 100% safeguarded.
+
+---
+
+## 10. Final Production Sign-Off
+
+### Production Verification Gates
+
+Before declaring AK Bridals fully production-verified, confirm all applicable gates below:
+
+- [ ] **Source Integrity:** Intended production commit is deployed; no hardcoded secrets or credentials exist in client-side code.
+- [ ] **Authentication & Authorization:** Admin APIs reject unauthenticated/invalid sessions with `401`; valid sessions are accepted.
+- [ ] **Security Regression:** No client-side PIN/password fallbacks, secret storage, or administrative bypasses are present.
+- [ ] **Automated Tests:** `npm test` completes with **0 failures** *(Current Baseline: 46/46 PASS)*.
+- [ ] **CI Enforcement:** Required GitHub Actions status checks pass successfully.
+- [ ] **Branch Protection:** `main` is protected by the required PR and status-check rules.
+- [ ] **Production Deployment:** Vercel Production deployment is `Ready` and matches the intended verified revision.
+- [ ] **Public Isolation:** Public pages and APIs expose no administrative credentials or internal secrets.
+- [x] **Review E2E Flow:** Public Review → `POST /api/reviews` → Pending Queue → subsequent request/refresh persistence verified successfully (**Result A / PASS**).
+- [ ] **Rollback Readiness:** Documented rollback procedure has been reviewed and remains operational.
+- [ ] **Operations Documentation:** This handbook reflects the current production architecture and security controls.
+
+### Review E2E Verification Evidence
+
+```text
+Public Review Submission
+        ↓
+POST /api/reviews → 201 Created
+        ↓
+status = pending
+        ↓
+Admin Authentication → 200 OK
+        ↓
+GET /api/admin/reviews → Review Found
+        ↓
+Refresh / Subsequent Request → Review Persisted
+        ↓
+RESULT A — PASS
+
+Verified Test: Test Customer — Review ID 101
+Cleanup: Test review removed after verification.
+```
+
+### Final Sign-Off Rule
+
+Production Security Sign-Off may be declared **VERIFIED** only after all applicable Production Verification Gates above are independently confirmed.
+
+* **Current Status:** 🟡 Production Verification In Progress
+* **Review E2E:** 🟢 VERIFIED — Result A / PASS
