@@ -1171,31 +1171,52 @@ app.post('/api/admin/reset-all-data', authAdmin, async (req, res) => {
 });
 
 // 9. Unified Multi-Device Real-Time Sync Endpoint (Protected)
-app.get('/api/sync', authAdmin, (req, res) => {
-  const syncStore = { ...store };
-  if (syncStore.settings) {
-    syncStore.settings = { ...syncStore.settings };
-    delete syncStore.settings.pin;
+app.get('/api/sync', authAdmin, async (req, res) => {
+  try {
+    const [bookings, reviews, gallery, services, blocked_dates, settings] = await Promise.all([
+      DB.bookings.getAll(),
+      DB.reviews.getAll(),
+      DB.gallery.getAll(),
+      DB.services.getAll(),
+      DB.blockedDates.getAll(),
+      DB.settings.get()
+    ]);
+    const cleanSettings = { ...(settings || {}) };
+    delete cleanSettings.pin;
+    res.json({
+      success: true,
+      data: {
+        bookings: bookings || [],
+        reviews: reviews || [],
+        gallery: gallery || [],
+        services: services || [],
+        blocked_dates: blocked_dates || [],
+        settings: cleanSettings
+      }
+    });
+  } catch (err) {
+    console.error('Unified sync error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to retrieve synchronized store data.' });
   }
-  res.json({
-    success: true,
-    data: syncStore
-  });
 });
 
 app.post('/api/sync', authAdmin, async (req, res) => {
-  const { bookings, reviews, gallery, services, blocked_dates, settings } = req.body;
-  if (Array.isArray(bookings)) store.bookings = bookings;
-  if (Array.isArray(reviews)) store.reviews = reviews;
-  if (Array.isArray(gallery)) store.gallery = gallery;
-  if (Array.isArray(services)) store.services = services;
-  if (Array.isArray(blocked_dates)) store.blocked_dates = blocked_dates;
-  if (settings && typeof settings === 'object') {
-    store.settings = { ...store.settings, ...settings };
-    await DB.settings.update(settings);
+  try {
+    const { bookings, reviews, gallery, services, blocked_dates, settings } = req.body;
+    if (Array.isArray(bookings)) store.bookings = bookings;
+    if (Array.isArray(reviews)) store.reviews = reviews;
+    if (Array.isArray(gallery)) store.gallery = gallery;
+    if (Array.isArray(services)) store.services = services;
+    if (Array.isArray(blocked_dates)) store.blocked_dates = blocked_dates;
+    if (settings && typeof settings === 'object') {
+      store.settings = { ...store.settings, ...settings };
+      await DB.settings.update(settings);
+    }
+    saveStore();
+    res.json({ success: true, message: 'Unified store synchronized successfully.', data: store });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Sync update failed.' });
   }
-  saveStore();
-  res.json({ success: true, message: 'Unified store synchronized successfully.', data: store });
 });
 
 // Start Server
