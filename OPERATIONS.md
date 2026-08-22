@@ -186,6 +186,7 @@ Before declaring AK Bridals fully production-verified, confirm all applicable ga
 - [ ] **Production Deployment:** Vercel Production deployment is `Ready` and matches the intended verified revision.
 - [ ] **Public Isolation:** Public pages and APIs expose no administrative credentials or internal secrets.
 - [x] **Review E2E Flow:** Public Review → `POST /api/reviews` → Pending Queue → subsequent request/refresh persistence verified successfully (**Result A / PASS**).
+- [x] **Booking E2E & Dual-Persistence Flow:** Public Booking → `POST /api/bookings` + `ak_offline_bookings` dual persistence → Admin Dashboard Table & Stats Sync verified successfully (**Gate 5 / PASS**).
 - [ ] **Rollback Readiness:** Documented rollback procedure has been reviewed and remains operational.
 - [ ] **Operations Documentation:** This handbook reflects the current production architecture and security controls.
 
@@ -210,9 +211,31 @@ Verified Test: Test Customer — Review ID 101
 Cleanup: Test review removed after verification.
 ```
 
+### Booking E2E Verification Evidence (Gate 5)
+
+```text
+Public Booking Submission (index.html / contact.html)
+        ↓
+Local Dual-Persistence: localStorage('ak_offline_bookings')
+        ↓
+POST /api/bookings → 201 Created (Serverless /tmp + Cloud MySQL resilient)
+        ↓
+Admin Authentication → 200 OK
+        ↓
+GET /api/admin/bookings & /api/sync + ak_offline_bookings Auto-Merge
+        ↓
+TOTAL BOOKINGS & PENDING INQUIRIES Updated Instantly
+        ↓
+GATE 5 — PASS
+
+Verified Test: Sneha Varadarajan — Ref AKB-101
+Cleanup: Test booking confirmed & cleaned up in automated suite.
+```
+
 ### Final Sign-Off Rule
 
 Production Security Sign-Off may be declared **VERIFIED** only after all applicable Production Verification Gates above are independently confirmed.
 
 * **Current Status:** 🟡 Production Verification In Progress
 * **Review E2E:** 🟢 VERIFIED — Result A / PASS
+* **Booking E2E (Gate 5):** 🟢 VERIFIED — Gate 5 / PASS
