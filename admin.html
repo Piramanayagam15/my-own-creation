@@ -1364,8 +1364,7 @@
         });
       });
 
-      // Fetch All Dashboard Data (Synchronized Master State across All Devices)
-      // Fetch All Dashboard Data with Resilient Smart Merge (Zero Data Loss on Refresh)
+      // Fetch All Dashboard Data (Synchronized Master State across All Devices - Strict Single Source of Truth)
       const fetchAllData = async () => {
         const headers = { 'x-admin-token': adminToken };
         let serverData = null;
@@ -1377,10 +1376,10 @@
           }
         } catch (e) {}
 
-        // 1. Bookings (Server + LocalStorage minus explicitly deleted)
+        // 1. Bookings (Strict DB-First Truth)
         try {
-          let serverBookings = (serverData && Array.isArray(serverData.bookings)) ? serverData.bookings : [];
-          if (serverBookings.length === 0) {
+          let serverBookings = (serverData && Array.isArray(serverData.bookings)) ? serverData.bookings : null;
+          if (serverBookings === null) {
             try {
               const bRes = await fetch('/api/admin/bookings', { headers });
               if (bRes.ok) {
@@ -1390,31 +1389,21 @@
             } catch (e) {}
           }
 
-          const stored = localStorage.getItem('ak_offline_bookings') || localStorage.getItem('ak_bridals_offline_bookings');
-          const localBookings = stored ? JSON.parse(stored) : [];
-          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_booking_ids') || '[]');
-
-          const bMap = new Map();
-          serverBookings.forEach(b => {
-            if (!deletedIds.includes(String(b.id))) bMap.set(String(b.id), b);
-          });
-          localBookings.forEach(b => {
-            if (!deletedIds.includes(String(b.id))) {
-              const existing = bMap.get(String(b.id));
-              bMap.set(String(b.id), existing ? { ...existing, ...b } : b);
-            }
-          });
-
-          bookingsData = Array.from(bMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-          localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+          if (serverBookings !== null) {
+            bookingsData = serverBookings.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            localStorage.setItem('ak_offline_bookings', JSON.stringify(bookingsData));
+          } else {
+            const stored = localStorage.getItem('ak_offline_bookings');
+            bookingsData = stored ? JSON.parse(stored) : [];
+          }
         } catch (e) {
           console.warn('Error loading bookings:', e);
         }
 
-        // 2. Reviews (Server + LocalStorage minus explicitly deleted)
+        // 2. Reviews (Strict DB-First Truth)
         try {
-          let serverReviews = (serverData && Array.isArray(serverData.reviews)) ? serverData.reviews : [];
-          if (serverReviews.length === 0) {
+          let serverReviews = (serverData && Array.isArray(serverData.reviews)) ? serverData.reviews : null;
+          if (serverReviews === null) {
             try {
               const rRes = await fetch('/api/admin/reviews', { headers });
               if (rRes.ok) {
@@ -1424,31 +1413,21 @@
             } catch (e) {}
           }
 
-          const stored = localStorage.getItem('ak_admin_all_reviews') || localStorage.getItem('ak_bridals_reviews_list');
-          const localReviews = stored ? JSON.parse(stored) : [];
-          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_review_ids') || '[]');
-
-          const rMap = new Map();
-          serverReviews.forEach(r => {
-            if (!deletedIds.includes(String(r.id))) rMap.set(String(r.id), r);
-          });
-          localReviews.forEach(r => {
-            if (!deletedIds.includes(String(r.id))) {
-              const existing = rMap.get(String(r.id));
-              rMap.set(String(r.id), existing ? { ...existing, ...r } : r);
-            }
-          });
-
-          reviewsData = Array.from(rMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-          localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
+          if (serverReviews !== null) {
+            reviewsData = serverReviews.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            localStorage.setItem('ak_admin_all_reviews', JSON.stringify(reviewsData));
+          } else {
+            const stored = localStorage.getItem('ak_admin_all_reviews');
+            reviewsData = stored ? JSON.parse(stored) : [];
+          }
         } catch (e) {
           console.warn('Error loading reviews:', e);
         }
 
-        // 3. Gallery (Server + LocalStorage + IndexedDB minus explicitly deleted)
+        // 3. Gallery (Strict DB-First Truth)
         try {
-          let serverGallery = (serverData && Array.isArray(serverData.gallery)) ? serverData.gallery : [];
-          if (serverGallery.length === 0) {
+          let serverGallery = (serverData && Array.isArray(serverData.gallery)) ? serverData.gallery : null;
+          if (serverGallery === null) {
             try {
               const gRes = await fetch('/api/gallery');
               if (gRes.ok) {
@@ -1458,38 +1437,21 @@
             } catch (e) {}
           }
 
-          const stored = localStorage.getItem('ak_offline_gallery');
-          const localGallery = stored ? JSON.parse(stored) : [];
-          const idbGallery = await GalleryDB.getAll();
-          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_gallery_ids') || '[]');
-
-          const gMap = new Map();
-          serverGallery.forEach(g => {
-            if (!deletedIds.includes(String(g.id))) gMap.set(String(g.id), g);
-          });
-          localGallery.forEach(g => {
-            if (!deletedIds.includes(String(g.id))) {
-              const existing = gMap.get(String(g.id));
-              gMap.set(String(g.id), existing ? { ...existing, ...g } : g);
-            }
-          });
-          idbGallery.forEach(g => {
-            if (!deletedIds.includes(String(g.id))) {
-              const existing = gMap.get(String(g.id));
-              gMap.set(String(g.id), existing ? { ...existing, ...g } : g);
-            }
-          });
-
-          galleryData = Array.from(gMap.values()).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-          safeSaveGallery(galleryData);
+          if (serverGallery !== null) {
+            galleryData = serverGallery.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            safeSaveGallery(galleryData);
+          } else {
+            const stored = localStorage.getItem('ak_offline_gallery');
+            galleryData = stored ? JSON.parse(stored) : [];
+          }
         } catch (e) {
           console.warn('Error loading gallery:', e);
         }
 
-        // 4. Services (Server + LocalStorage minus explicitly deleted)
+        // 4. Services (Strict DB-First Truth)
         try {
-          let serverServices = (serverData && Array.isArray(serverData.services)) ? serverData.services : [];
-          if (serverServices.length === 0) {
+          let serverServices = (serverData && Array.isArray(serverData.services)) ? serverData.services : null;
+          if (serverServices === null) {
             try {
               const sRes = await fetch('/api/services');
               if (sRes.ok) {
@@ -1499,61 +1461,60 @@
             } catch (e) {}
           }
 
-          const stored = localStorage.getItem('ak_offline_services');
-          const localServices = stored ? JSON.parse(stored) : [];
-          const deletedIds = JSON.parse(localStorage.getItem('ak_deleted_service_ids') || '[]');
-
-          const sMap = new Map();
-          serverServices.forEach(s => {
-            if (!deletedIds.includes(String(s.id))) sMap.set(String(s.id), s);
-          });
-          localServices.forEach(s => {
-            if (!deletedIds.includes(String(s.id))) {
-              const existing = sMap.get(String(s.id));
-              sMap.set(String(s.id), existing ? { ...existing, ...s } : s);
-            }
-          });
-
-          servicesData = Array.from(sMap.values());
-          localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
+          if (serverServices !== null) {
+            servicesData = serverServices;
+            localStorage.setItem('ak_offline_services', JSON.stringify(servicesData));
+          } else {
+            const stored = localStorage.getItem('ak_offline_services');
+            servicesData = stored ? JSON.parse(stored) : [];
+          }
         } catch (e) {
           console.warn('Error loading services:', e);
         }
 
-        // 5. Blocked Dates (Server + LocalStorage + Confirmed Bookings minus unblocked)
+        // 5. Blocked Dates (Strict DB-First Truth)
         try {
-          const serverBlocked = (serverData && Array.isArray(serverData.blocked_dates)) ? serverData.blocked_dates : [];
-          const stored = localStorage.getItem('ak_offline_blocked_dates');
-          const localBlocked = stored ? JSON.parse(stored) : [];
-          const unblockedDates = JSON.parse(localStorage.getItem('ak_unblocked_dates') || '[]');
+          let serverBlocked = (serverData && Array.isArray(serverData.blocked_dates)) ? serverData.blocked_dates : null;
+          if (serverBlocked === null) {
+            try {
+              const dRes = await fetch('/api/availability');
+              if (dRes.ok) {
+                const dData = await dRes.json();
+                if (dData.success && Array.isArray(dData.data)) serverBlocked = dData.data;
+              }
+            } catch (e) {}
+          }
 
-          const dateSet = new Set();
-          serverBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
-          localBlocked.forEach(d => { if (!unblockedDates.includes(d)) dateSet.add(d); });
-
-          bookingsData.forEach(b => {
-            if (b.status === 'confirmed' && b.preferred_date && !unblockedDates.includes(b.preferred_date)) {
-              dateSet.add(b.preferred_date);
-            }
-          });
-
-          blockedDatesData = Array.from(dateSet);
-          localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+          if (serverBlocked !== null) {
+            blockedDatesData = serverBlocked;
+            localStorage.setItem('ak_offline_blocked_dates', JSON.stringify(blockedDatesData));
+          } else {
+            const stored = localStorage.getItem('ak_offline_blocked_dates');
+            blockedDatesData = stored ? JSON.parse(stored) : [];
+          }
         } catch (e) {
           console.warn('Error loading blocked dates:', e);
         }
 
-        // 6. Settings
+        // 6. Settings (Strict DB-First Truth)
         try {
           const serverSettings = (serverData && serverData.settings) ? serverData.settings : null;
-          const stored = localStorage.getItem('ak_offline_settings');
-          const localSettings = stored ? JSON.parse(stored) : null;
-          const mergedSettings = { ...serverSettings, ...localSettings };
-          if (mergedSettings && (mergedSettings.studio_name || mergedSettings.phone)) {
-            populateSettings(mergedSettings);
-            localStorage.setItem('ak_offline_settings', JSON.stringify(mergedSettings));
+          if (serverSettings) {
+            populateSettings(serverSettings);
+            localStorage.setItem('ak_offline_settings', JSON.stringify(serverSettings));
+          } else {
+            const stored = localStorage.getItem('ak_offline_settings');
+            if (stored) populateSettings(JSON.parse(stored));
           }
         } catch (e) {}
+
+        renderStats();
+        renderBookings();
+        renderReviews();
+        renderGallery();
+        renderServices();
+        renderBlockedDates();
+      };      } catch (e) {}
 
         renderStats();
         renderBookings();
