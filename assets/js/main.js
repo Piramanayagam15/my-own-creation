@@ -1676,20 +1676,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           }, 500);
         } else {
           // 2. Create New Review Flow (Goes to Pending for Admin Moderation)
-          const authorToken = "auth_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+          const res = await fetch("/api/reviews", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, rating, service, comment })
+          });
+          const data = await res.json().catch(() => ({}));
 
-          try {
-            const res = await fetch("/api/reviews", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name, rating, service, comment })
-            });
-            const data = await res.json();
-            if (data && data.authorToken && data.review) {
-              AuthorTokenStorage.saveToken(data.review.id, data.authorToken);
-            }
-          } catch (e) {
-            console.warn("Review submitted offline fallback");
+          if (!res.ok || !data.success) {
+            throw new Error(data.message || "Failed to submit review to server.");
+          }
+
+          if (data.authorToken && data.review) {
+            AuthorTokenStorage.saveToken(data.review.id, data.authorToken);
           }
 
           if (reviewFormStatus) {
@@ -1705,13 +1704,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } catch (err) {
         console.error("Review processing error:", err);
         if (reviewFormStatus) {
-          reviewFormStatus.textContent = "✨ Thank you! Your review has been submitted for studio verification.";
-          reviewFormStatus.className = "form-status success";
+          reviewFormStatus.textContent = `⚠️ Submission failed: ${err.message || "Please check your network and try again."}`;
+          reviewFormStatus.className = "form-status error";
         }
-        setTimeout(() => {
-          closeReviewModal();
-          fetchAndRenderReviews();
-        }, 1800);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
